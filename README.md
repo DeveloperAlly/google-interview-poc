@@ -103,7 +103,9 @@ finished batches. (`nexus/ingest.py` is the Cloud Storage staged variant for cor
 ### 7. Evaluate (gate G4)
 
 ```sh
-.venv/bin/python nexus/eval.py --project <PROJECT_ID> --engine nexus-lite --golden eval/golden.yaml --state state
+for set in golden golden-code golden-prs; do
+  .venv/bin/python nexus/eval.py --project <PROJECT_ID> --engine nexus-lite --golden eval/$set.yaml --state state/eval-$set
+done
 ```
 
 Real calls to `servingConfigs/default_search:search`; recall@5 per query and overall. No generative features

@@ -1,4 +1,4 @@
-# DRAFT golden set for gate G4. Owner to edit and approve.
+# Repo-routing set, gate G4: approved by owner delegation 2026-10-23, unchanged from the draft.
 # Public repos only, so this file is safe in a public repo.
 # A query scores a hit when any of the top 5 results comes from `repo` (and, if `path_contains` is set, a
 # result path contains that string). recall@5 = hits / queries.

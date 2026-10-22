@@ -31,8 +31,12 @@ def main():
         top = []
         for res in r.json().get("results", [])[: a.k]:
             sd = res.get("document", {}).get("structData", {})
-            top.append({"repo": f"{sd.get('owner')}/{sd.get('repo')}", "path": sd.get("path", ""), "kind": sd.get("kind")})
-        match = [t["repo"] == q["repo"] and q.get("path_contains", "") in t["path"] for t in top]
+            top.append({"repo": f"{sd.get('owner')}/{sd.get('repo')}", "path": sd.get("path", ""), "kind": sd.get("kind"),
+                        "pr_number": sd.get("pr_number")})
+        paths = q.get("path_any") or [q.get("path_contains", "")]
+        prs = q.get("pr_any")
+        match = [t["repo"] == q["repo"] and any(p in t["path"] for p in paths)
+                 and (prs is None or (t["pr_number"] is not None and int(t["pr_number"]) in prs)) for t in top]
         hit = any(match)
         rank = match.index(True) + 1 if hit else None
         rows.append({**q, "http": 200, "hit": hit, "rank": rank, "returned": len(top), "top": top})

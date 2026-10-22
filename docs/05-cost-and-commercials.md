@@ -40,6 +40,5 @@ not delivered, whatever the demo shows.
 ## What the customer should check
 
 - Billing > Credits: whether new-account or trial credits cover the pilot figure.
-- Remaining billable state: a small Cloud Storage bucket from the abandoned GCS-staged path (about 26 MB in
-  a US multi-region bucket, a fraction of a cent per month). Removing it is a destructive action and is left for
-  the customer to approve.
+- Remaining billable state: none. The bucket from the abandoned GCS-staged path (about 26 MB) and the unused
+  layout-parser stores and app were deleted on owner approval on 2026-10-23.

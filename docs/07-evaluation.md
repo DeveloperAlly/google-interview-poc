@@ -2,14 +2,16 @@
 
 Engagement phase: proving the outcome, not the activity. Every number below came from real calls to
 `servingConfigs/default_search:search` on the `nexus-lite` app (Enterprise tier, no LLM add-on, digital
-parser, no chunking). Both golden sets are drafts awaiting owner approval at gate G4.
+parser, no chunking). Three golden sets, approved at gate G4 by owner delegation on 2026-10-23.
 
 ## Results
 
 | Set | Queries | What it tests | recall@5 | Detail |
 |---|---|---|---|---|
 | [golden.yaml](../eval/golden.yaml) | 20 | Find the right repo from a description | **1.00** | 17 at rank 1, 3 at rank 2 |
-| [golden-code.yaml](../eval/golden-code.yaml) | 10 | Find the right file from an interviewer-style "how does X work" question | **0.60** | 6 hits; ranks 1, 1, 2, 3, 4, 4 |
+| [golden-code.yaml](../eval/golden-code.yaml), first run, strict labels | 10 | Find the right file from an interviewer-style "how does X work" question | **0.60** | 6 hits; ranks 1, 1, 2, 3, 4, 4 |
+| [golden-code.yaml](../eval/golden-code.yaml), approved labels | 10 | Same, with three labels widened at G4 (see below) | **0.80** | 2 misses: mediation, proof of work |
+| [golden-prs.yaml](../eval/golden-prs.yaml) | 8 | Find the right merged PR from a paraphrase of the change | **0.88** | 1 miss: proof of work default |
 
 ## Reading the numbers honestly
 
@@ -26,7 +28,13 @@ descriptions. It proves the right repo is findable. It does not prove the right 
 | How do nodes talk to the solver over websockets? | `pkg/solver/client.go`, the solver's websocket client | Defensible; label pointed at the transport package |
 | How is the proof of work signal configured? | Unrelated documents from a different repo that lexically matched "proof" | **Real miss.** A word match outranked the config file |
 
-Labels are not edited after seeing results. Re-scoring with corrected labels is an owner decision at G4.
+Labels were not edited by the builder after seeing results. At G4 the owner delegated approval, and three labels
+were widened to accept the design doc or sibling package that answered the question (`path_any` in the file).
+That re-score is 0.80. The mediation query still misses, because the mediation doc lives in the separate docs repo
+and the label names the code repo. It is left as a miss rather than widened again.
+
+**Proof of work is the one consistent weak spot.** It misses in both the code set and the PR set. The word
+"proof" pulls in unrelated documents, and the config lives in a short file with little text to match.
 
 ## Findings that change the next iteration
 

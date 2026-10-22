@@ -11,8 +11,8 @@ column is the output of a command, not a summary of intent.
 | G1 | Include list | Owner | 17 repos excluded by category (client IP, personal, not-owner code, non-code archive); forks and empty repos by rule; 204 in |
 | G2 | Data store config (permanent) | Owner | Approved chunked config; later superseded by the zero-cost digital-parser config (D4) |
 | G3 | Secret-scan exclusions | Owner, pre-approved | Drop every flagged document, record it, re-scan to zero |
-| G4 | Golden queries | Owner | Two draft sets supplied; awaiting owner edit |
-| G5 | Destructive actions | Owner, never pre-approved | None taken. Bucket clean-up and the unused chunked stores are left for the owner |
+| G4 | Golden queries | Owner, delegated | Three sets approved: repo routing, code-level (three labels widened), merged PRs |
+| G5 | Destructive actions | Owner, explicit approval | Approved 2026-10-23: deleted the unused chunked app `nexus-search`, stores `ds-code` and `ds-prs`, and the bucket. Remaining: `nexus-lite` over `ds-code-lite` and `ds-prs-lite` |
 
 ## Phases
 
@@ -31,7 +31,7 @@ column is the output of a command, not a summary of intent.
 | P5 Import, code | 04:33 to 04:52 | 166 inline batches; 16,555 succeeded, 0 failed | `import-ds-code-lite-full-inline.jsonl` |
 | PR harvest and import | 04:40 to 04:50 | 1,430 merged PRs across 70 repos; 6 dropped by scan; 1,424 of 1,424 imported | `prs.json`, `import-ds-prs-lite-full-inline.jsonl` |
 | P6 Reconcile | 04:53 | `ds-code-lite`: expected 16,555, present 16,555, missing 0, extra 0, 204 repos, 0 with gaps. `ds-prs-lite`: 1,424 / 1,424, missing 0, 70 repos | `reconcile.py` |
-| P7 Eval | 04:54 to 04:57 | recall@5 1.00 (repo routing, 20 queries); 0.60 (code-level, 10 queries) | [07](07-evaluation.md) |
+| P7 Eval | 04:54 to 04:57, re-run after G4 | recall@5 1.00 (repo routing, 20); code-level 0.60 strict, 0.80 approved (10); merged PRs 0.88 (8) | [07](07-evaluation.md) |
 
 ## What went wrong, and what was done about it
 
