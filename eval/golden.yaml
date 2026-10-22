@@ -1,0 +1,45 @@
+# DRAFT golden set for gate G4. Owner to edit and approve.
+# Public repos only, so this file is safe in a public repo.
+# A query scores a hit when any of the top 5 results comes from `repo` (and, if `path_contains` is set, a
+# result path contains that string). recall@5 = hits / queries.
+queries:
+  - q: How do I run an AI inference job on a decentralised GPU network from the CLI?
+    repo: Lilypad-Tech/lilypad
+  - q: Smart contracts for the decentralised compute marketplace
+    repo: Lilypad-Tech/lilypad-smart-contracts
+  - q: Windows installer for compute resource providers
+    repo: Lilypad-Tech/WindowsResourceProvider
+  - q: Run Stable Diffusion SDXL jobs through ComfyUI
+    repo: Lilypad-Tech/lilypad-module-sdxl-pipeline
+  - q: Text to audio module using suno bark
+    repo: Lilypad-Tech/lilypad-bark-module
+  - q: Generative AI art attribution project bringing ethics back to AI
+    repo: Lilypad-Tech/Waterlily
+  - q: FVM oracle that runs Bacalhau compute jobs
+    repo: Lilypad-Tech/lilypad-v0
+  - q: Hardhat template for building on the compute network
+    repo: Lilypad-Tech/lilypad-hardhat-template
+  - q: Tools for maintaining and operating network nodes
+    repo: Lilypad-Tech/lilypad-tools
+  - q: Bot that checks the state of the network
+    repo: Lilypad-Tech/lilybot
+  - q: Module that concatenates text files
+    repo: Lilypad-Tech/lilypad-concat-files-module
+  - q: Synthetic data generation module
+    repo: Lilypad-Tech/lilypad-module-synthetic-data
+  - q: Repair toolkit for the Claude Code VS Code extension
+    repo: DeveloperAlly/claude-code-survival-toolkit
+  - q: Skills, prompts, harnesses and evals for agentic engineering
+    repo: DeveloperAlly/AI-lib
+  - q: Solidity raffle contract using Chainlink VRF and Keepers
+    repo: DeveloperAlly/Chainlink-Keepers
+  - q: Mint an NFT on the Filecoin Virtual Machine with Bacalhau
+    repo: DeveloperAlly/bacalhau-fvm-nft
+  - q: ERC721 contract with NFT.Storage IPFS metadata hosting
+    repo: DeveloperAlly/filecoin-nft-starter-faber
+  - q: React app that searches YouTube with the Google Data API v3
+    repo: DeveloperAlly/YourTube
+  - q: n8n dashboard and workflow architecture
+    repo: DeveloperAlly/n8n
+  - q: Minimal example reproducing a FEVM wallaby deploy bug with Hardhat and TypeScript
+    repo: DeveloperAlly/typescript-fevm-hardhat-wallaby-hyperspace-deploy-example
