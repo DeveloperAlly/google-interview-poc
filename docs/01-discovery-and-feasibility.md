@@ -3,14 +3,47 @@
 Engagement phase: technical evaluation. The question this phase answers is whether the solution can be
 delivered as asked, inside the customer's real constraints, before anything billable or permanent is created.
 
-## The customer ask
+## The customer, the problem and the outcome
+
+**Customer.** A hiring panel assessing a candidate for a specific role. The candidate commissions the system; the
+panel uses it. In this engagement the role is Google Cloud's AI Outcome Customer Engineer, and the candidate is the
+owner of the repositories.
+
+**Problem.** The panel cannot verify a candidate's claims against the work itself. The evidence exists, but it is
+spread across hundreds of repositories and documents, in more than one GitHub owner, with public, private and
+internal visibility.
+
+**Outcome.** An interviewer asks a question and gets a short answer that is grounded (every claim cited), attributed
+(wrote it, directed it, or neither), relevant to the role's requirements, and honest about missing evidence. The role
+description is an input, so the same system serves any role.
+
+**Ask as first briefed.**
 
 > Nexus: a pipeline that pulls every repository the customer owns, across a personal account and a company
 > organisation (code, docs, merged pull requests), into Google Agent Search, so all of it can be searched
 > as one knowledge base.
 
-Purpose behind the ask: answer questions about years of engineering work quickly and with citations back to
-the exact file and commit.
+That brief described a component, not the outcome. The customer's own earlier materials described an
+interviewer-facing product: a conversational dossier with probe questions, an evidence inspector behind every claim,
+attribution of hands-on authorship against technical direction, and an endpoint other tools can query. Delivery
+first built only the search component. The outcome above restores the customer's intent and is what the engagement
+is assessed against.
+
+**Exit criteria.** The criteria in the customer's earlier PRD (100% of "240+" repos, "zero hallucinations", P95 under
+450 ms) could not be measured as written: the repo count was wrong, "zero hallucinations" has no test, and latency
+was never measured. They are replaced by these:
+
+| # | Criterion | Measured by |
+|---|---|---|
+| E1 | Every in-scope repo has its documents in the index, reconciled against the manifest | `reconcile.py --manifest` |
+| E2 | Stored content matches the source file at its commit, on a 50-document sample | Content fidelity check (not built) |
+| E3 | Right evidence in the top 5 for at least 80% of 30 or more questions written before the run by someone other than the builder | `eval.py` on an independent set |
+| E4 | Every answer claim is cited, and at least 90% of claims are supported by their citation | Claim-level grounding check, plus reviewer judgement ([07](07-evaluation.md)) |
+| E5 | At least 90% of "what did you build" answers attribute the work correctly against commit and PR authors | Attribution test ([07](07-evaluation.md)) |
+| E6 | Interviewer acceptance tests pass at the bar set in [07](07-evaluation.md) | Reviewers who did not build the system |
+| E7 | Demo scope returns no private or internal document on 20 probe questions; no secret uploaded | Probe set and secret scan |
+| E8 | p95 latency measured and reported for search and for answers | Timed runs |
+| E9 | Running cost USD 0, confirmed in the billing report | Cloud Billing |
 
 ## Constraints as stated, and as found
 

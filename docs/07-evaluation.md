@@ -1,10 +1,73 @@
-# 07. Search quality evaluation
+# 07. Evaluation: interviewer acceptance, then search quality
 
-Engagement phase: proving the outcome, not the activity. Every number below came from real calls to
-`servingConfigs/default_search:search` on the `nexus-lite` app (Enterprise tier, no LLM add-on, digital
-parser, no chunking). Three golden sets, approved at gate G4 by owner delegation on 2026-10-23.
+Engagement phase: proving the outcome, not the activity. The outcome is an interviewer getting a verifiable answer
+that speaks to the role. Code tests show the pipeline works; only the acceptance tests below show the system is fit
+for purpose.
 
-## Results
+## Interviewer acceptance tests
+
+Status: defined 23 Oct 2026, not yet run.
+
+**Protocol.**
+
+- Three reviewers who did not build the system. At least one has hired for a customer-facing cloud or AI
+  role.
+- Each reviewer gets the role description and nothing else: no CV, and no briefing on the corpus.
+- Each reviewer writes 10 questions of their own before seeing the system, then asks those and the fixed set below.
+- Each answer is scored against five rules:
+  - **Grounded:** every claim cites evidence, and the reviewer opens the citation and finds the claim in it.
+  - **Attributed:** the candidate's role in the work is stated correctly.
+  - **Relevant:** the answer addresses the role requirement behind the question.
+  - **Honest:** missing or private evidence is named, not filled.
+  - **Usable:** an answer arrives in under 10 seconds, and the reviewer could repeat it to a hiring committee.
+- An answer passes when at least two of three reviewers pass it on all five rules.
+
+**Fixed questions, one or more per requirement in the role description.**
+
+| # | Role requirement | Interviewer question |
+|---|---|---|
+| T1 | Cloud-native architecture in a customer-facing role | Show me a cloud architecture you designed for a customer and how it was delivered. |
+| T2 | Technical delivery; working with product and engineering | Give an example of a delivery you owned end to end, with the evidence. |
+| T3 | Reading and debugging code | Walk me through a bug you diagnosed. Show the fix. |
+| T4 | System design or orchestration frameworks | What agent orchestration have you built, and with which framework? |
+| T5 | Enterprise integrations: APIs, content management, identity | How did you handle identity and connectors in an integration you designed? |
+| T6 | Assess feasibility in a technical evaluation | Show a feasibility assessment you ran before committing to a build. |
+| T7 | Upfront design within compliance boundaries | How did you design for a data boundary, residency or legal constraint? |
+| T8 | Diagnose implementation issues; find product bugs; test workarounds | Name a product defect you found in a platform you were building on, and your workaround. |
+| T9 | Translate field feedback into feature requests | Show feedback you turned into a concrete feature request. |
+| T10 | Steer implementation through architectural foresight | Describe an architecture decision you made early that held up later. What did it beat? |
+| T11 | Orchestrate specialised resources for complex builds | How did you coordinate people or agents to deliver a complex build? |
+| T12 | Executive communication | Explain a technical cost decision as you would to a CFO, in two sentences. |
+
+**Negative tests. All must pass.**
+
+| # | Probe | Pass rule |
+|---|---|---|
+| N1 | A requirement with no evidence in the corpus (for example, production use of a named framework that was never used) | The answer says there is no evidence; nothing is inferred |
+| N2 | A question whose best evidence is private | Demo scope answers without showing private or internal content, and says evidence is withheld |
+| N3 | Work the candidate directed but did not write, and work she wrote | Attribution matches commit and PR authors in both cases |
+| N4 | An indexed document that contains instructions | The instructions are not followed |
+| N5 | A claim from the candidate's own CV or role map with no supporting record | The answer marks it as self-reported, not verified |
+
+**Role swap.** Load a second, different role description. The same fixed protocol is run with no code change. The
+answers must change emphasis to the new requirements, and the requirement-to-evidence map must change with them.
+
+**Pass bar.**
+- At least 10 of the 12 fixed questions pass.
+- At least 80% of reviewer-written questions pass.
+- All five negative tests pass.
+- The role swap passes.
+- p95 answer time is measured and reported.
+
+## Search quality (component tests)
+
+These are code tests of the retrieval component. They support the acceptance tests and do not replace them.
+
+Every number below came from real calls to `servingConfigs/default_search:search` on the `nexus-lite` app
+(Enterprise tier, no LLM add-on, digital parser, no chunking). Three golden sets, approved at gate G4 by owner
+delegation on 2026-10-23.
+
+### Results
 
 | Set | Queries | What it tests | recall@5 | Detail |
 |---|---|---|---|---|
@@ -17,7 +80,7 @@ parser, no chunking). Three golden sets, approved at gate G4 by owner delegation
 were widened after the first run. They are smoke tests that the pipeline retrieves the right things, not a
 benchmark. A real evaluation needs questions written by someone who did not build the index.
 
-## Reading the numbers honestly
+### Reading the numbers honestly
 
 **The 1.00 is a routing score, not a retrieval score.** 19 of the 20 first matching results were repo summary
 documents. The queries were drafted from repo descriptions, and the summary documents contain those
@@ -40,7 +103,7 @@ and the label names the code repo. It is left as a miss rather than widened agai
 **Proof of work is the one consistent weak spot.** It misses in both the code set and the PR set. The word
 "proof" pulls in unrelated documents, and the config lives in a short file with little text to match.
 
-## Findings that change the next iteration
+### Findings that change the next iteration
 
 1. **Duplicate content crowds the top 5.** Three repos in the organisation are near-copies of each other, and
    the same file came back from all three in several queries. Across the corpus (`nexus/dedupe_report.py`):

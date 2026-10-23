@@ -1,10 +1,52 @@
-# Nexus: repository knowledge engine on Google Agent Search
+# Nexus: verifiable answers about a candidate's work, tailored to the role
 
-Nexus ingests every repository a customer owns (code, docs, READMEs, merged pull requests) into Google Agent
-Search, so the whole body of work can be searched with citations back to the exact file and commit.
+## Purpose
 
-This repo is the **ingestion layer** and the **engagement record** of how it was scoped, designed, delivered
-and handed over, written the way an AI Outcome Customer Engineer runs a customer engagement.
+A hiring panel assessing a senior technical candidate works from a CV and a conversation. The evidence that would
+settle most of its questions exists: code, merged pull requests, review threads, issues, design documents, talks and
+delivery records. But it is spread across hundreds of repositories and documents, and no one on the panel has the
+time to find it. Claims are taken on trust or not checked at all.
+
+Nexus closes that gap. Given **a role description** and **a candidate's body of work**, it answers an interviewer's
+question with a short answer that is:
+
+1. **Grounded.** Every claim cites its evidence: a file at a commit, a merged pull request, an issue, or a source
+   document. A claim with no evidence is not made.
+2. **Attributed.** It says whether the candidate wrote the work, directed the people who did, or neither. Attribution
+   is derived from authorship records, not asserted.
+3. **Relevant to the role.** The answer speaks to the requirements of the role being hired for, and states which
+   requirements the evidence supports, which it does not, and which it cannot speak to.
+4. **Honest about gaps.** When the evidence is missing or private, it says so instead of filling the gap.
+
+The role is an input, not a constant. This engagement is assessed against the Google Cloud **AI Outcome Customer
+Engineer** role. The same system must accept any other role description, and any other candidate's sources, with no
+code change.
+
+## What this engagement demonstrates
+
+Two outcomes, and both are assessed:
+
+1. **The product outcome above.** It is proven by interviewer acceptance tests run by people who did not build the
+   system ([docs/07](docs/07-evaluation.md)), not by code tests alone.
+2. **The delivery method.** The engagement is run as a Google Cloud AI Outcome Customer Engineer runs one, on Google
+   Cloud's own stack: a technical evaluation and feasibility check before commitment; an upfront design that settles
+   connectors, identity, data residency and legal constraints; gated delivery with evidence at every gate; field
+   feedback to Google Product and Engineering; and a production handover.
+
+## Status
+
+| Layer | State | Where |
+|---|---|---|
+| Ingest: code, merged PRs with review threads, issues, commit history, external contributions, career archive | Built and reconciled; fail-open defects reported fixed | [docs/03](docs/03-delivery-log.md) |
+| Role description as an input (requirements extracted, evidence mapped to each) | Not built: the role is written into `prompts/preamble.md` | [docs/07](docs/07-evaluation.md) |
+| Attribution from authorship records | Partly built: role facts come from the candidate's own role map, not yet checked against commit and PR authors | [docs/08](docs/08-answer-layer.md) |
+| Cited answers | Built, localhost only, from the Agent Search search summary | [docs/08](docs/08-answer-layer.md) |
+| Claim-level grounding check | Not built | [docs/07](docs/07-evaluation.md) |
+| Interviewer acceptance tests | Defined, not yet run | [docs/07](docs/07-evaluation.md) |
+| Hosted page behind sign-in | Not built | [docs/06](docs/06-production-path.md) |
+
+This repo is the ingestion and answer layers, plus the **engagement record** of how the work was scoped, designed,
+delivered and handed over.
 
 ## Architecture
 
