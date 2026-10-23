@@ -196,10 +196,11 @@ def post_check(answer: str, chunks: list[str]) -> tuple[str, list[str]]:
         if not sent:
             continue
         bad = []
-        for n in re.findall(r"\d[\d,.]*", sent):  # invented number
+        for n in ([] if re.match(r"\s*(my approach|i would|i'd)", sent, re.I) else re.findall(r"\d[\d,.]*", sent)):  # invented number
             if n.rstrip(".,") not in hay:
                 bad.append(n)
-        words = re.findall(r"[A-Za-z][A-Za-z0-9&'-]*", sent)
+        approach = bool(re.match(r"\s*(my approach|i would|i'd|first,? i would|then,? i would|finally,? i would)", sent, re.I))
+        words = [] if approach else re.findall(r"[A-Za-z][A-Za-z0-9&'-]*", sent)  # approach is not a past-work claim
         for i, w in enumerate(words):  # invented employer, client or event (a name no source has)
             if i > 0 and w[0].isupper() and w not in COMMON_CAPS and w.lower() not in hay:
                 bad.append(w)
@@ -218,7 +219,9 @@ def compose(question: str, evidence: list[dict]) -> dict:
     out = _compose(question, evidence, req, hit, why)
     cards = {c["id"]: c for c in allc.get("cards", [])}
     if req:  # the routed cards are binding, whatever the model echoed
-        out["requirement_id"], out["card_ids"] = req["id"], [c["id"] for c in hit] or []
+        out["requirement_id"] = req["id"]
+        if hit:
+            out["card_ids"] = [c["id"] for c in hit]
     out["routing"] = {"requirement_id": req["id"] if req else None, "card_ids": [c["id"] for c in hit] if req else [], "why": why}
     cited = [_slots(cards[i]) for i in out.get("card_ids", []) if i in cards]
     cited += [evidence[n - 1].get("text", "") for n in out.get("source_numbers", []) if isinstance(n, int) and 0 < n <= len(evidence)]
