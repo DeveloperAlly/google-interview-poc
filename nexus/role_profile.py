@@ -44,7 +44,8 @@ def read_jd(path: Path) -> str:
 def read_topics(path: Path) -> list[str]:
     out = []
     for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip().lstrip("-*0123456789.) ").strip()
+        # Strip only a list marker ("- ", "* ", "1. ", "2) "), never leading characters of the name (3D, 5G, .NET).
+        line = re.sub(r"^(?:[-*]\s+|\d+[.)]\s+)", "", line.strip()).strip()
         if line and not line.startswith("#"):
             out.append(line)
     return out
@@ -130,8 +131,9 @@ def call_gemini(key: str, prompt: str) -> dict:
 
 
 def norm(s: str) -> str:
+    # Keep the characters that distinguish skills (C++ vs C#, .NET, F#); drop other punctuation and spacing.
     s = s.replace("-\n", "").lower()
-    return re.sub(r"[^a-z0-9]+", "", s)
+    return re.sub(r"[^a-z0-9+#.]+", "", s).strip(".")
 
 
 def build(jd_text: str, topics: list[str], topic_source: str, key: str) -> dict:
