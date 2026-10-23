@@ -234,7 +234,7 @@ def bank_questions() -> list[dict]:
     """Bank questions with v3 kind_fix applied (moves a question into logistics or ask_them)."""
     fixes = {k: v.get("kind_fix") for k, v in qmap().items() if v.get("kind_fix")}
     out = []
-    for q in bank().get("questions", []):
+    for q in bank().get("questions", []) + EXTRA_BANK:
         fx = str(fixes.get(q["id"]) or "").lower().replace("-", "_").replace(" ", "_")
         kind = next((k for k in ("logistics", "ask_them", "interview", "probe") if k in fx), q.get("kind"))
         out.append({**q, "kind": kind})
@@ -272,6 +272,8 @@ def qmap() -> dict:
             for k in ("canonical_project", "why", "project"):
                 if st.get(k):
                     st[k] = scrub_private(st[k]).replace("DualA4000 private model gateway", "Private model gateway")
+    for k, v in EXTRA_QMAP.items():
+        out.setdefault(k, json.loads(json.dumps(v)))
     rank = {"full": 0, "partial": 1, "needs owner": 2}
     global QMAP_DEDUPED
     QMAP_DEDUPED = []
@@ -287,6 +289,11 @@ def qmap() -> dict:
         if len(keep) < len(q["stories"]):
             QMAP_DEDUPED.append(qid)
         q["stories"] = keep
+    for qid, up, down in QMAP_RANK:
+        st = (out.get(qid) or {}).get("stories") or []
+        refs = [x.get("story_ref") for x in st]
+        if up in refs and down in refs and refs.index(up) > refs.index(down):
+            st.insert(refs.index(down), st.pop(refs.index(up)))
     return out
 
 
@@ -309,8 +316,24 @@ def scrub_private(t: str) -> str:
                    "mech", "monitor", "novel", "observability", "roadmap", "web3", "website", "pepper"}
         names = sorted((n for n in names if n.lower() not in generic and len(n) >= 4), key=len, reverse=True)
         _PRIV_RE = re.compile(r"(?<![\w-])(" + "|".join(map(re.escape, names)) + r")(?![\w-])") if names else re.compile(r"(?!x)x")
-    return _PRIV_RE.sub("a private repo", str(t))
+    t = _PRIV_RE.sub("the codebase", str(t))
+    return re.sub(r"\b[\w-]+/the codebase\b", "the codebase", t)
 
+
+# Added bank question (V round 2): RAG design questions were matching "CAG vs RAG".
+EXTRA_BANK = [{"id": "Q344", "text": "How would you design retrieval for a customer's enterprise documents?",
+               "category": "Architectural & Cloud-Native Systems", "kind": "interview", "requirement_ids": ["R12", "R19", "R29"],
+               "variants": ["Design retrieval for a RAG system over millions of documents: chunking, embedding, ranking and evaluation",
+                            "How do you chunk, embed, rank and evaluate retrieval at enterprise scale?"]}]
+EXTRA_QMAP = {"Q344": {"id": "Q344", "requirement_ids": ["R12", "R19", "R29"],
+                       "testing": "Retrieval design for enterprise documents: chunking, embedding, ranking, evaluation and access control.",
+                       "gap": "No story on record covers chunking, embedding, ranking and retrieval evaluation at enterprise scale; Nexus on Google Agent Search is the closest real experience.",
+                       "stories": [{"story_ref": "S13", "canonical_project": "Nexus integration design", "fit": "partial",
+                                    "why": "Upfront design for indexing her GitHub estate into Google Agent Search: data flow, identity and scope"},
+                                   {"story_ref": "S4", "canonical_project": "Nexus indexing and feasibility", "fit": "partial",
+                                    "why": "Feasibility checks before import: formats, chunking, import limits, cost; 16,555 documents reconciled"}]}}
+# Owner ranking overrides (V round 2): within a question, the first ref goes directly above the second.
+QMAP_RANK = [("Q143", "S1", "S19"), ("Q252", "L5", "L19")]
 
 QMAP_OVERRIDES = [("Q143", "S19", "fit", "partial"), ("Q087", "S11", "fit", "partial"),
                   ("Q146", "S19", "why", "Directed the agent that diagnosed and fixed the 5+ minute local preview; PRs #789 and #791 merged")]
@@ -728,7 +751,9 @@ def render_card(card: dict, st: dict | None = None) -> dict:
                 continue
         if (u.startswith("https://") or u.startswith("state/drive/")) and not any(b in u.lower() for b in NOT_EVIDENCE + ("recruiter email",)):
             if u not in [c["path"] for c in srcs]:
-                srcs.append({"n": "card", "kind": "card source", "repo": "", "path": u, "url": u if u.startswith("https://") else ""})
+                srcs.append({"n": "card", "kind": "card source", "repo": "",  # Drive docs by title, never a file path
+                             "path": u if u.startswith("https://") else "Drive: " + re.sub(r"\.\w{2,5}$", "", u.rsplit("/", 1)[-1]),
+                             "url": u if u.startswith("https://") else ""})
     text = scrub_private(text)
     return {"story_ref": st.get("story_ref") or card.get("id"), "card_ids": [card.get("id")],
             "project": scrub_private(st.get("canonical_project") or card.get("canonical_project") or card.get("project")).replace(
@@ -789,12 +814,18 @@ def fast(question: str, qid: str | None = None, use_gemini: bool = True) -> dict
         req, hit, why = route(question, role_profile(), allc)
         out["answers"] = [render_card(c) for _, c in rank_cards(req, hit, question)]
         out["routing"] = {"requirement_id": req["id"] if req else None, "why": why}
+    out["answers"] = [clean_answer(x) for x in out["answers"]]
     out["answers"] = [x for x in out["answers"] if x.get("words", 0) >= 30]  # hide cards too thin to say out loud
     a = out["answers"]
-    if m and m.get("gap") and not any(x.get("fit") == "full" for x in a):
-        out["gap_mode"] = True  # no strong story: the gap first, then the closest real experience
+    if a and not any(x.get("fit") == "full" for x in a):
+        out["gap_mode"] = True  # no full-fit story: the gap first, then the closest real experience
+        out["gap"] = out.get("gap") or (m or {}).get("gap") or "No story on record fully answers this question."
         for x in a:
             x["label"] = "closest real experience"
+    pa = short_answer(question, (bq or {}).get("text", ""))
+    if pa:  # motivation or screen question: her prepared answer leads
+        a.insert(0, pa)
+        out["gap_mode"] = False
     if len(a) > 1 and a[0].get("fit") == "needs owner":  # never show a needs-owner story first
         j = next((i for i, x in enumerate(a) if x.get("fit") != "needs owner"), 0)
         a.insert(0, a.pop(j))
@@ -802,7 +833,91 @@ def fast(question: str, qid: str | None = None, use_gemini: bool = True) -> dict
     if len(a) < 2:
         out["note"] = f"Only {len(a)} story fits this question."
     out["seconds"] = round(time.time() - t0, 3)
+    for k in ("gap", "testing"):
+        if out.get(k):
+            out[k] = clean_text(out[k])
     return json.loads(scrub_names(json.dumps(out, ensure_ascii=False)))
+
+
+PROVENANCE = [
+    (re.compile(r"\s*\([^()]*\b(owner_facts|story_cards|PR author)\b[^()]*\)", re.I), ""),
+    (re.compile(r",?\s*\bper (the )?owner[_ ]facts(\.md)?\b", re.I), ""),
+    (re.compile(r"\b(state/)?owner[_ ]facts(\.md)?\b", re.I), "her record"),
+    (re.compile(r"\bstory[_ ]cards?(\.json)?\b", re.I), "her record"),
+    (re.compile(r"`?\b(?:state|data|nexus|web|docs|src|ops|deploy)/[\w./&-]+\.\w{1,5}`?"), "the record"),
+    (re.compile(r"`?\b[\w-]+\.(?:md|json|py|docx|pptx|html|yaml|yml|sh|tsv|jsonl)`?"), "the record"),
+    (re.compile(r"\ba private repo\b", re.I), "the codebase"),
+]
+_HANDLE = re.compile(r"\b(PR )?(author|authored by|opened by) @?[A-Za-z0-9][A-Za-z0-9-]{1,38}\b,?\s*", re.I)
+
+
+def clean_text(t):
+    """Served text carries no internal provenance: no owner_facts or story_cards, no private repo names, no PR author
+    handles, no file paths."""
+    if not isinstance(t, str):
+        return t
+    t = scrub_private(t)
+    for rx, rep in PROVENANCE[:1]:
+        t = rx.sub(rep, t)
+    t = _HANDLE.sub("", t)
+    for rx, rep in PROVENANCE[1:]:
+        t = rx.sub(rep, t)
+    return re.sub(r"[ \t]{2,}", " ", re.sub(r"[ \t]+([,.;)])", r"\1", t)).strip()
+
+
+def clean_answer(a: dict) -> dict:
+    """Same hygiene for every served answer, instant or tailored: no placeholder sentences, no provenance, role label
+    only when built, led, directed or CV-quoted."""
+    txt = a.get("answer") or ""
+    lines = []
+    for ln in txt.split("\n"):
+        sents = [x for x in re.split(r"(?<=[.!?])\s+", ln.strip()) if x and not PLACEHOLDER.search(x)]
+        if sents and not re.fullmatch(r"[A-Z][a-z]+:", " ".join(sents)):
+            lines.append(" ".join(sents))
+    a["answer"] = clean_text("\n".join(lines))
+    a["words"] = len(a["answer"].split())
+    for k in ("why", "project", "decision", "learning", "role_label", "her_role"):
+        if a.get(k):
+            a[k] = clean_text(a[k])
+    for k in ("role_label", "her_role"):
+        if a.get(k) and not (ROLE_OK.match(a[k]) or "CV" in a[k]):
+            a[k] = None
+    return a
+
+
+SHORT_INTENTS = [("1. Tell me about yourself", re.compile(r"tell me about yourself|introduce yourself|walk me through your (background|career|cv|resume)", re.I)),
+                 ("3. Why leave founding?", re.compile(r"why (did you )?(leave|leaving|stop|step away)|leave founding|wind(ing)? (it )?down|after (lilypad|founding)", re.I)),
+                 ("2. Why Google / this role?", re.compile(r"\bwhy (google|this role|this job|customer engineer|ce\b|the ce|ai outcome|.{0,40}\brole\b)|why do you want|why are you interested|why not (product|engineering)", re.I)),
+                 ("4. Location, availability, salary", re.compile(r"\b(location|relocat\w*|where are you based|availability|available to start|start date|notice period|salary|compensation|pay expectations?|remuneration)\b", re.I))]
+
+
+def short_answer(question: str, matched_text: str = "") -> dict | None:
+    """Motivation and screen questions: the prepared spoken version from SHORT-ANSWERS.md, marks kept."""
+    p = PREP / "SHORT-ANSWERS.md"
+    if not p.exists():
+        return None
+    for head, rx in SHORT_INTENTS:
+        if not (rx.search(question) or (matched_text and rx.search(matched_text))):
+            continue
+        body = p.read_text(encoding="utf-8").split("## " + head, 1)
+        if len(body) < 2:
+            return None
+        sec = body[1].split("\n## ", 1)[0]
+        sp = sec.split("**Spoken version", 1)
+        if len(sp) < 2:
+            return None
+        quote = []
+        for ln in sp[1].split("\n")[1:]:
+            if ln.startswith(">"):
+                quote.append(ln.lstrip("> ").strip())
+            elif quote and ln.strip():
+                break
+        text = clean_text(" ".join(quote))
+        if text:
+            return {"story_ref": None, "card_ids": [], "project": "Your prepared answer", "label": "Your prepared answer",
+                    "structure": "PREPARED", "answer": text, "words": len(text.split()), "sources": [], "tailored": True,
+                    "why": head.split(". ", 1)[-1], "fit": None, "role_label": None, "her_role": None, "not_on_record": []}
+    return None
 
 
 def scrub_names(t: str) -> str:

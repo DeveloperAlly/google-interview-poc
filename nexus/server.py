@@ -316,7 +316,7 @@ def make_handler(nexus: Nexus):
                         return self._send(400, b'{"error":"question and story_ref required"}')
                     import compose
                     out = compose.tailor(q, evidence_for(nexus, q), str(body["story_ref"]), str(body.get("qid") or "") or None)
-                    out = json.loads(compose.scrub_names(json.dumps(out, ensure_ascii=False)))
+                    out = json.loads(compose.scrub_names(json.dumps(compose.clean_answer(out), ensure_ascii=False)))
                     return self._send(200, json.dumps(out).encode())
                 except Exception as e:
                     return self._send(502, json.dumps({"error": str(e)[:400]}).encode())
