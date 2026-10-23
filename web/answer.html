@@ -64,6 +64,8 @@ function card(a, i) {
   s.appendChild(el("h2", "", (i + 1) + ". " + (a.project || "Answer from evidence")));
   const m = el("div", "m"); m.append(tag(a.structure || ""), tag("Role: " + (a.her_role || "none")), tag((a.requirement_id || "") + " " + (a.requirement || "")));
   if (a.card_ids && a.card_ids.length) m.append(tag("Card: " + a.card_ids.join(", ")));
+  if (a.fit === "partial") m.append(tag("partial fit")); else if (a.fit === "needs owner") m.append(tag("needs your input"));
+  if (a.why) s.appendChild(el("div", "m", "Why it fits: " + a.why));
   s.appendChild(m);
   s.appendChild(el("div", "ans", a.answer));
   if (a.decision) s.appendChild(el("div", "", "Decision: " + a.decision));

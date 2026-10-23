@@ -250,7 +250,9 @@ def _one(question: str, evidence: list[dict], req, card: dict | None, why: str, 
                 out[k] = card[k]
     if req:
         out["requirement_id"] = req["id"]
-    out["fit"] = fit
+    out["fit_score"] = fit  # numeric rank score; "fit" is reserved for the qmap v2 label: full, partial, needs owner
+    if card and card.get("fit") in ("full", "partial", "needs owner"):
+        out["fit"] = card["fit"]
     out["draft_answer"] = out.get("answer", "")
     out["answer"], out["cut"] = post_check(out["draft_answer"], [owner_facts()] + [_slots(c) for c in cards.values()]
                                            + [json.dumps(c, ensure_ascii=False) for c in cards.values()]
@@ -286,7 +288,9 @@ def compose(question: str, evidence: list[dict]) -> dict:
             answers = list(ex.map(lambda rc: _one(question, evidence, req, rc[1], why, cards, rc[0]), ranked))
     else:
         answers = [_one(question, evidence, req, None, why, cards)]
-    answers.sort(key=lambda a: (a.get("structure") == "GAP", -(a.get("fit") or 0)))
+    answers.sort(key=lambda a: (a.get("structure") == "GAP", a.get("fit") == "needs owner", -(a.get("fit_score") or 0)))
+    if len(answers) > 1 and answers[0].get("fit") == "needs owner":  # never show a needs-owner story first
+        answers.append(answers.pop(0))
     best = answers[0]
     out = {**best, "answers": answers, "count": len(answers),
            "routing": {"requirement_id": req["id"] if req else None, "card_ids": [c["id"] for _, c in ranked], "why": why}}
