@@ -968,10 +968,10 @@
         "R15"
       ],
       "topic": "forward-deployed AI/ML deployment with researchers",
-      "project": "Lilypad x Tufts and Hugging Face BioML: protein folding model",
+      "project": "Lilypad x Tufts and Amelie Schreiber (a Hugging Face bioML creator): protein folding model",
       "her_role": "directed",
       "situation": "As Founder & CEO of Lilypad (Sep 2023 to Oct 2025), a distributed AI compute network across thousands of GPU nodes, I ran a marketplace where users could run models such as protein folding models created by scientists.",
-      "task": "Deploy a protein folding model on Lilypad with BioML researchers from Dr Michael Levin's lab at Tufts and Hugging Face.",
+      "task": "Deploy a protein folding model on Lilypad with BioML researchers from Dr Michael Levin's lab at Tufts and Amelie Schreiber, a Hugging Face bioML creator.",
       "action": "I hired and paid the researchers through Lilypad, directed the work, and embedded with them to deploy the protein folding model on the network.",
       "result": "The protein folding model running on Lilypad turned up a drug candidate that is now in wet-lab validation.",
       "metric": "missing",
@@ -1777,6 +1777,157 @@
       ],
       "sources_absent": [],
       "reviewed": "A2e 2026-10-23: new card, every quote verified verbatim by story_cards.verify; ANU BA added from the CV"
+    },
+    {
+      "id": "S17",
+      "requirement_ids": [
+        "R3",
+        "R26"
+      ],
+      "topic": "technical execution",
+      "project": "Real-time ML and IoT analytics system, University of Sydney and Australian Air Force",
+      "her_role": "built",
+      "situation": "A greenfield, classified ML and IoT research collaboration between the University of Sydney Physics Department and the Australian Air Force.",
+      "task": "Process mass incoming sensor data across distributed devices in real time.",
+      "action": "I designed the architecture and built it: Node.js, GraphQL, React, MapBox, MongoDB, D3. I owned security, DevOps, UX, API design and the data pipeline at the same time.",
+      "result": "A production full-stack application on a classified project. It is classified, so I keep it high level.",
+      "metric": "missing",
+      "sources": [
+        {
+          "path_or_url": "owner corpus (private): brand/evidence/role-functions-and-skills.md",
+          "supports": "action",
+          "quote": "lines 19, 25, 35, 230",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        },
+        {
+          "path_or_url": "owner corpus (private): resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
+          "supports": "situation",
+          "quote": "lines 69, 71",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        }
+      ]
+    },
+    {
+      "id": "S18",
+      "requirement_ids": [
+        "R4",
+        "R18"
+      ],
+      "topic": "feasibility assessments",
+      "project": "Verifying GPU work on untrusted nodes (Lilypad research, arXiv:2501.05374)",
+      "her_role": "directed",
+      "situation": "Lilypad ran AI jobs on GPU nodes nobody controlled, so we had to prove the work was really done.",
+      "task": "Find a verification method that works for non-deterministic GPU workloads.",
+      "action": "We assessed the options and ruled out three: exact recomputation fails on non-determinism, TEEs are hardware-bound, FHE costs too much. We also analysed zero-knowledge and TEE approaches: a SNARK circuit cannot execute an external binary, so we restructured the problem.",
+      "result": "We proposed two probabilistic frameworks: a binary reference model with trusted-node checks, and a ternary consensus model with no trust needed. Published on arXiv, January 2025, Boniardi, Bishop, Haire.",
+      "metric": "3 approaches assessed and ruled out, 2 frameworks proposed.",
+      "sources": [
+        {
+          "path_or_url": "owner corpus (private): brand/evidence/achievement-inventory.md",
+          "supports": "action",
+          "quote": "lines 90 to 95",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        },
+        {
+          "path_or_url": "https://arxiv.org/abs/2501.05374",
+          "supports": "result",
+          "quote": "arXiv:2501.05374",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        }
+      ]
+    },
+    {
+      "id": "S19",
+      "requirement_ids": [
+        "R5",
+        "R24",
+        "R20",
+        "R11"
+      ],
+      "topic": "code-level context",
+      "project": "Livepeer docs: local preview taking 5+ minutes",
+      "her_role": "directed",
+      "situation": "In the Livepeer docs repo, local dev startup was often 5+ minutes, and route changes were slow or crashed, on a large multilingual docs config.",
+      "task": "Restore iteration speed for maintainers without changing the production docs config.",
+      "action": "I directed the agent that diagnosed and fixed it. The diagnosis pinned it to the size of the full multilingual docs config, with stale concurrent Mint processes raising local failure rates. The fix was scoped dev profiles so a maintainer loads only one version, language and tab, plus a unit test, then a performance baseline script.",
+      "result": "Both PRs merged (livepeer/docs #789, 4 Mar 2026, and #791, 8 Mar 2026); issue #788 closed.",
+      "metric": "5+ minutes startup before the fix. After-fix time: missing.",
+      "sources": [
+        {
+          "path_or_url": "https://github.com/livepeer/docs/issues/788",
+          "supports": "situation",
+          "quote": "livepeer/docs #788",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        },
+        {
+          "path_or_url": "https://github.com/livepeer/docs/pull/789",
+          "supports": "action",
+          "quote": "PR #789",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        },
+        {
+          "path_or_url": "https://github.com/livepeer/docs/pull/791",
+          "supports": "action",
+          "quote": "PR #791",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        }
+      ]
+    },
+    {
+      "id": "S20",
+      "requirement_ids": [
+        "R5",
+        "R20",
+        "R24"
+      ],
+      "topic": "code-level context",
+      "project": "Lilypad: bacalhau get timing out on node jobs",
+      "her_role": "directed",
+      "situation": "During job execution on a resource provider, the bacalhau get call failed to complete and timed out, so jobs finished on nodes but results never came back.",
+      "task": "Get job outputs back reliably.",
+      "action": "My team replaced bacalhau get with an IPFS client, made the job-state check wait for completion, and removed the wrapper.",
+      "result": "The issue closed with Lilypad-Tech/lilypad PR #400, merged 9 Oct 2024.",
+      "metric": "6 days from issue open to close.",
+      "sources": [
+        {
+          "path_or_url": "https://github.com/Lilypad-Tech/lilypad/pull/400",
+          "supports": "action",
+          "quote": "PR #400, merged 9 Oct 2024",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        }
+      ]
+    },
+    {
+      "id": "S21",
+      "requirement_ids": [
+        "R7",
+        "R27"
+      ],
+      "topic": "pre-sales to post-sales",
+      "project": "Accenture AIOps: PoCs from client need to production",
+      "her_role": "built",
+      "situation": "Accenture's AIOps flagship product, delivered to enterprise clients.",
+      "task": "Turn client feedback into new capability.",
+      "action": "As primary front-end engineer I developed PoC products from client needs and drove them through to production. Stack: React, Node.js, Express, MongoDB, Splunk, Docker, Jenkins, AWS.",
+      "result": "Features in production.",
+      "metric": "missing",
+      "sources": [
+        {
+          "path_or_url": "owner corpus (private): brand/evidence/achievement-inventory.md",
+          "supports": "action",
+          "quote": "lines 71 to 75",
+          "self_reported": true,
+          "corpus_ref": "state/prep/CORPUS-STORIES.md"
+        }
+      ]
     }
   ]
 }

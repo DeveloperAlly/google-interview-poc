@@ -118,12 +118,23 @@ NOT_EVIDENCE = ("customer engineering case study", "scaled ai knowledge engine",
 
 
 PINNED = [("dr-c5bdf54850b70dedb9fe36fc2c97e51a", "Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx"),
-          # Her CV: always in evidence so a named employer or client (IBM, BHP, Telstra) is never a false GAP.
-          ("dr-4a8d7996f1ebc0e56a6f0ba41c4bed70", "Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV")]
+          # The CV docx is no longer pinned: it carries the recruiter email (owner instruction, 23 Oct).
+          ]
+
+
+# Owner exclusions (23 Oct): never evidence, never cited. The CV docx carries the recruiter email.
+BLOCKED_DOCS = ("recruiter email", "dr-4a8d7996f1ebc0e56a6f0ba41c4bed70",
+                "google customer engineering case study: scaled ai knowledge engine", "dr-91831587030918c0d48e5d956dee8fe0",
+                "google cloud customer engineering & solutions lifecycle", "dr-7f60bd0efff1bacc3d22b9ddd6744d7f",
+                "nexus: autonomous technical knowledge engine", "dr-266c181d8e5845bae4bad26656aefb57",
+                "vertex ai search & agent builder: enterprise repository knowledge engine", "dr-f4d4fda3457fc62913b584974aa74cb5",
+                "drive export master archive", "dr-51fdcac4d5303738aaf137d37daf81bc")
 
 
 def is_not_evidence(*fields: str) -> bool:
     t = " ".join(f or "" for f in fields).lower()
+    if any(x in t for x in BLOCKED_DOCS):  # owner-excluded Drive files, by filename or index id
+        return True
     return any(x in t for x in NOT_EVIDENCE)
 
 
@@ -200,6 +211,13 @@ def evidence_for(nexus: "Nexus", question: str) -> list[dict]:
     if of.exists():
         out.insert(0, {"kind": "owner_facts", "repo": "DeveloperAlly/owner", "path": "state/owner_facts.md", "url": "",
                        "text": of.read_text(encoding="utf-8")})
+    # Never cite a private repo or the recruiter-email docx; strip private repo names from owner facts text.
+    import facts_layer
+    out = [e for e in out if not facts_layer.is_private(e["repo"]) and not is_not_evidence(e["path"], e.get("url", ""), e.get("text", "")[:300])]
+    for e in out:
+        if e["kind"] == "owner_facts":
+            for r in facts_layer.PRIVATE:
+                e["text"] = re.sub(r"\b(" + re.escape(r) + "|" + re.escape(r.split("/")[-1]) + r")\b(?=[\s.,;)])", "a private repo", e["text"]) if len(r.split("/")[-1]) > 6 else e["text"]
     have = {e["path"] for e in out}
     for stem, path in PINNED:
         p = _IDX.get(stem)
@@ -257,6 +275,9 @@ def make_handler(nexus: Nexus):
                 self._send(200, (ROOT / "web" / "answer.html").read_bytes(), "text/html; charset=utf-8")
             elif self.path in ("/search", "/index.html"):
                 self._send(200, page, "text/html; charset=utf-8")
+            elif self.path == "/api/questions":  # example questions; a question bank in state/prep/questions.json wins
+                qp = ROOT / "state" / "prep" / "questions.json"
+                self._send(200, qp.read_bytes() if qp.exists() else b"[]")
             elif self.path == "/stages":
                 self._send(200, stages_html(), "text/html; charset=utf-8")
             else:
@@ -272,8 +293,6 @@ def make_handler(nexus: Nexus):
                     import compose
                     ev = evidence_for(nexus, q)
                     out = compose.compose(q, ev)
-                    out["sources"] = [{"n": i + 1, **{k: e[k] for k in ("kind", "repo", "path", "url")}} for i, e in enumerate(ev)
-                                      if (i + 1) in out.get("source_numbers", [])]
                     return self._send(200, json.dumps(out).encode())
                 except Exception as e:
                     return self._send(502, json.dumps({"error": str(e)[:400]}).encode())

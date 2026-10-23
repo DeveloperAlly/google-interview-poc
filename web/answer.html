@@ -19,7 +19,8 @@
   .chips { display: flex; gap: 8px; flex-wrap: wrap; }
   .chip { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; font-weight: 400; min-height: 0; }
   section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-  #answer { white-space: pre-wrap; font-size: 17px; }
+  .ans { white-space: pre-wrap; font-size: 17px; margin: 8px 0; }
+  h2 { font-size: 17px; margin: 0 0 6px; }
   .tag { display: inline-block; border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; margin-right: 6px; font-size: 13px; }
   .gap { color: var(--warn); }
   a { color: var(--accent); word-break: break-all; }
@@ -36,8 +37,8 @@
     <button id="go" type="submit">Get my answer</button>
   </form>
   <div class="chips" id="chips"></div>
-  <section><div id="meta" class="m">Your answer appears here.</div><div id="answer"></div></section>
-  <section><div class="m">Proof</div><div id="proof"></div><div id="gaps"></div></section>
+  <div id="meta" class="m">Your answers appear here, best fit first.</div>
+  <div id="answers" style="display:grid;gap:16px"></div>
 </main>
 <script>
 const TOPICS = ["Tell me about your experience with AI platform integration.",
@@ -50,25 +51,44 @@ const TOPICS = ["Tell me about your experience with AI platform integration.",
 const $ = (id) => document.getElementById(id);
 for (const t of TOPICS) { const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t; b.onclick = () => { $("q").value = t; $("f").requestSubmit(); }; $("chips").appendChild(b); }
 function tag(t) { const s = document.createElement("span"); s.className = "tag"; s.textContent = t; return s; }
+function el(t, c, txt) { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
+// Example questions: the question bank from /api/questions when present, else the seven recruiter topics.
+fetch("/api/questions").then(r => r.json()).then(list => {
+  const qs = (Array.isArray(list) ? list : []).map(x => typeof x === "string" ? x : (x && (x.question || x.text))).filter(Boolean);
+  if (!qs.length) return; const dl = el("datalist"); dl.id = "bank";
+  for (const t of qs) { const o = el("option"); o.value = t; dl.appendChild(o); }
+  document.body.appendChild(dl); $("q").setAttribute("list", "bank");
+}).catch(() => {});
+function card(a, i) {
+  const s = el("section");
+  s.appendChild(el("h2", "", (i + 1) + ". " + (a.project || "Answer from evidence")));
+  const m = el("div", "m"); m.append(tag(a.structure || ""), tag("Role: " + (a.her_role || "none")), tag((a.requirement_id || "") + " " + (a.requirement || "")));
+  if (a.card_ids && a.card_ids.length) m.append(tag("Card: " + a.card_ids.join(", ")));
+  s.appendChild(m);
+  s.appendChild(el("div", "ans", a.answer));
+  if (a.decision) s.appendChild(el("div", "", "Decision: " + a.decision));
+  if (a.learning) s.appendChild(el("div", "", "Learning: " + a.learning));
+  const pr = el("div"); pr.appendChild(el("div", "m", "Proof"));
+  for (const x of a.sources || []) {
+    const row = el("div", "m", "[" + x.n + "] " + x.kind + " / " + x.repo + (x.path ? " / " + x.path : "") + " ");
+    if (x.url && /^https:\/\//.test(x.url)) { const l = el("a", "", "open"); l.href = x.url; l.target = "_blank"; l.rel = "noopener noreferrer"; row.appendChild(l); }
+    pr.appendChild(row);
+  }
+  if (!(a.sources || []).length) pr.appendChild(el("div", "m", "No sources cited."));
+  s.appendChild(pr);
+  if (a.gaps && a.gaps.length) s.appendChild(el("div", "gap", "Gaps an interviewer may probe: " + a.gaps.join("; ")));
+  return s;
+}
 $("f").addEventListener("submit", async (e) => {
   e.preventDefault(); const question = $("q").value.trim(); if (!question) return;
-  $("go").disabled = true; $("meta").textContent = "Writing your answer..."; $("answer").textContent = ""; $("proof").textContent = ""; $("gaps").textContent = "";
+  $("go").disabled = true; $("meta").textContent = "Writing your answers..."; $("answers").textContent = "";
   try {
     const r = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question }) });
     const d = await r.json(); if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
-    $("meta").textContent = "";
-    $("meta").append(tag(d.structure), tag("Role: " + d.her_role), tag((d.requirement_id || "") + " " + (d.requirement || "")));
-    if (d.card_ids && d.card_ids.length) $("meta").append(tag("Cards: " + d.card_ids.join(", ")));
-    $("answer").textContent = d.answer;
-    for (const s of d.sources || []) {
-      const row = document.createElement("div"); row.className = "m";
-      row.textContent = "[" + s.n + "] " + s.kind + " / " + s.repo + (s.path ? " / " + s.path : "") + " ";
-      if (s.url && /^https:\/\//.test(s.url)) { const a = document.createElement("a"); a.href = s.url; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = "open"; row.appendChild(a); }
-      $("proof").appendChild(row);
-    }
-    if (!(d.sources || []).length) $("proof").textContent = "No sources cited.";
-    if (d.gaps && d.gaps.length) { const g = document.createElement("div"); g.className = "gap"; g.textContent = "Gaps an interviewer may probe: " + d.gaps.join("; "); $("gaps").appendChild(g); }
-  } catch (err) { $("meta").textContent = ""; $("answer").textContent = "Error: " + err.message; }
+    const list = d.answers || [d];
+    $("meta").textContent = list.length + (list.length === 1 ? " answer" : " answers") + ", best fit first." + (d.note ? " " + d.note : "");
+    list.forEach((a, i) => $("answers").appendChild(card(a, i)));
+  } catch (err) { $("meta").textContent = "Error: " + err.message; }
   finally { $("go").disabled = false; }
 });
 </script>

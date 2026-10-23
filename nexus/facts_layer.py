@@ -19,7 +19,25 @@ OUT = ROOT / "state" / "facts.json"
 # Private repo names never enter the public repo: exclusions live in gitignored state.
 # {"exclude_repos": [...], "library_forks": [...]}
 _EXP = ROOT / "state" / "answer-exclusions.json"
-_EX = {"exclude_repos": [], "library_forks": [], **(json.loads(_EXP.read_text()) if _EXP.exists() else {})}
+_EX = {"exclude_repos": [], "library_forks": [], "private_repos": [], **(json.loads(_EXP.read_text()) if _EXP.exists() else {})}
+
+
+def _private() -> set:
+    """owner/name of every repo the manifest records as not public (private or internal)."""
+    try:
+        rows = json.loads((ROOT / "state" / "full" / "manifest" / "repos.json").read_text())
+        return {f"{r['owner']}/{r['name']}" for r in rows if r.get("visibility") != "public"}
+    except Exception:
+        return set()
+
+
+PRIVATE = _private()
+
+
+def is_private(repo: str) -> bool:
+    """Never cite a private repo: manifest visibility, plus repo names listed in state/answer-exclusions.json."""
+    name = repo.split("/")[-1]
+    return repo in PRIVATE or name in _EX["exclude_repos"] or name in _EX["private_repos"] or repo in _EX["private_repos"]
 
 TECH = {
     "Google Cloud": r"\bgcloud\b|gcr\.io|pkg\.dev|provider\s+\"google\"|google-github-actions|GOOGLE_APPLICATION_CREDENTIALS|\bgsutil\b|storage\.googleapis\.com|compute\.googleapis|\bGKE\b|Cloud Run",
@@ -130,7 +148,7 @@ def facts_for(question: str, max_repos: int = 6) -> list[dict]:
         noise = re.compile(r"dist-info|cookbook/|\.ipynb$|/chats/|exports/|(^|/)index/|memories\.json|\.tsv$|/test/|research-evidence|TECH_OPTIONS|openapi\.yaml|studio\.yaml")
         rows = []
         for f in _F:
-            if f["tech"] != t or f["repo"] in _EX["exclude_repos"]:
+            if f["tech"] != t or is_private(f"{f['owner']}/{f['repo']}"):
                 continue
             cites = [c for c in f["cites"] if not noise.search(c["path"])]
             if f["repo"] in _EX["library_forks"]:  # library forks: keep the owner's own config, CI and tests, not library internals

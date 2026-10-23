@@ -156,6 +156,8 @@ def route(question: str, profile: dict, cards: dict) -> tuple[dict | None, list[
             if k and rid in reqs:
                 best, why = reqs[rid], f"keyword '{k}' routes to {rid}"
                 hit = [all_cards[i] for i in prefer if i in all_cards]
+                # also every other card that lists this requirement, so ranking can pick across projects
+                hit += [c for c in all_cards.values() if c not in hit and rid in (c.get("requirement_ids") or [])]
                 if hit:
                     return best, hit, why + f"; cards {', '.join(c['id'] for c in hit)} by rule"
                 break
@@ -213,24 +215,42 @@ def post_check(answer: str, chunks: list[str]) -> tuple[str, list[str]]:
     return " ".join(keep), cut
 
 
-def compose(question: str, evidence: list[dict]) -> dict:
-    allc = usable_cards(story_cards())
-    req, hit, why = route(question, role_profile(), allc)
-    # Issue #21: a direct "have you used / built on X" question with code facts for X is answered from the facts,
-    # not forced onto the nearest story card.
-    if any(e.get("kind") == "fact" for e in evidence) and re.search(
-            r"\b(have you|did you|do you have|experience (with|in)|used|built on|worked with|which .*(frameworks|tools|clouds?))\b",
-            question, re.I):
-        hit, why = [], (why + "; direct technology question answered from code facts (issue #21)").strip("; ")
-    out = _compose(question, evidence, req, hit, why)
-    cards = {c["id"]: c for c in allc.get("cards", [])}
-    if req:  # the routed cards are binding, whatever the model echoed
+def rank_cards(req: dict | None, hit: list[dict], question: str) -> list[tuple[float, dict]]:
+    """Rank routed cards by fit to the requirement's listen_for (plus its text and the question), one card per
+    project, best first, at most 3."""
+    lf = (req or {}).get("listen_for")
+    target = _words(" ".join(lf) if isinstance(lf, list) else str(lf or "")) | _words((req or {}).get("text", "")) | _words(question)
+    scored = []
+    for c in hit:
+        w = _words(_slots(c))
+        sc = len(target & w) / (len(w) ** 0.5 or 1)
+        if req and (c.get("requirement_ids") or [None])[0] == req["id"]:
+            sc += 0.5  # the card's main requirement is this one
+        scored.append((round(sc, 3), c))
+    scored.sort(key=lambda x: -x[0])
+    out, seen = [], set()
+    for sc, c in scored:
+        proj = re.sub(r"\W+", " ", str(c.get("project", "")).split(":")[0].lower()).strip()  # "Nexus: x" and "Nexus: y" are one project
+        if proj in seen:
+            continue
+        seen.add(proj)
+        out.append((sc, c))
+    return out[:3]
+
+
+def _one(question: str, evidence: list[dict], req, card: dict | None, why: str, cards: dict, fit=None) -> dict:
+    """One STAR/CAR answer built from one story card. Story questions always use the card (the issue #21 rule that
+    dropped routed cards for "experience with" questions is removed: owner instruction, 23 Oct)."""
+    out = _compose(question, evidence, req, [card] if card else [], why)
+    if card:
+        out["card_ids"] = [card["id"]]
+        out["project"], out["her_role"] = card.get("project", ""), card.get("her_role", out.get("her_role"))
+        for k in ("decision", "learning"):  # story slots from the 10-story structure, when a card carries them
+            if card.get(k) and card.get(k) != "missing":
+                out[k] = card[k]
+    if req:
         out["requirement_id"] = req["id"]
-        if hit:
-            out["card_ids"] = [c["id"] for c in hit]
-    out["routing"] = {"requirement_id": req["id"] if req else None, "card_ids": [c["id"] for c in hit] if req else [], "why": why}
-    cited = [_slots(cards[i]) for i in out.get("card_ids", []) if i in cards]
-    cited += [evidence[n - 1].get("text", "") for n in out.get("source_numbers", []) if isinstance(n, int) and 0 < n <= len(evidence)]
+    out["fit"] = fit
     out["draft_answer"] = out.get("answer", "")
     out["answer"], out["cut"] = post_check(out["draft_answer"], [owner_facts()] + [_slots(c) for c in cards.values()]
                                            + [json.dumps(c, ensure_ascii=False) for c in cards.values()]
@@ -238,6 +258,40 @@ def compose(question: str, evidence: list[dict]) -> dict:
     out["words"] = len(out["answer"].split())
     if not out["answer"].strip():
         out["answer"], out["structure"] = "The sources on record do not support an answer to this question.", "GAP"
+    card_src = []
+    for x in (card or {}).get("sources", []) or []:  # the card's own proof: public links and Drive docs only
+        u = str(x.get("path_or_url", ""))
+        gh = re.match(r"https://github\.com/([^/]+/[^/#?]+)", u)
+        if gh:
+            import facts_layer
+            if facts_layer.is_private(gh.group(1)):
+                continue  # never cite a private repo
+        if (u.startswith("https://") or u.startswith("state/drive/")) and not any(b in u.lower() for b in NOT_EVIDENCE + ("recruiter email",)):
+            if u not in [c["path"] for c in card_src]:
+                card_src.append({"n": "card", "kind": "card source", "repo": "", "path": u, "url": u if u.startswith("https://") else ""})
+    out["sources"] = card_src + [{"n": n, **{k: evidence[n - 1].get(k, "") for k in ("kind", "repo", "path", "url")}}
+                      for n in out.get("source_numbers", []) if isinstance(n, int) and 0 < n <= len(evidence)]
+    return out
+
+
+def compose(question: str, evidence: list[dict]) -> dict:
+    """2 to 3 distinct answers, each from a different story card (different project), ranked by fit."""
+    from concurrent.futures import ThreadPoolExecutor
+    allc = usable_cards(story_cards())
+    req, hit, why = route(question, role_profile(), allc)
+    cards = {c["id"]: c for c in allc.get("cards", [])}
+    ranked = rank_cards(req, hit, question)
+    if ranked:
+        with ThreadPoolExecutor(max_workers=3) as ex:
+            answers = list(ex.map(lambda rc: _one(question, evidence, req, rc[1], why, cards, rc[0]), ranked))
+    else:
+        answers = [_one(question, evidence, req, None, why, cards)]
+    answers.sort(key=lambda a: (a.get("structure") == "GAP", -(a.get("fit") or 0)))
+    best = answers[0]
+    out = {**best, "answers": answers, "count": len(answers),
+           "routing": {"requirement_id": req["id"] if req else None, "card_ids": [c["id"] for _, c in ranked], "why": why}}
+    if len(answers) < 2:
+        out["note"] = f"Only {len(answers)} story card fits this question."
     return out
 
 
@@ -342,7 +396,9 @@ Return JSON only."""
         "her_role": {"type": "string", "description": "built, led, directed, or none"},
         "card_ids": {"type": "array", "items": {"type": "string"}},
         "source_numbers": {"type": "array", "items": {"type": "integer"}, "description": "evidence source numbers the answer relies on; every fact in the answer must come from these or from card_ids"},
-        "gaps": {"type": "array", "items": {"type": "string"}, "description": "facts an interviewer may probe that the sources do not support"}},
+        "gaps": {"type": "array", "items": {"type": "string"}, "description": "facts an interviewer may probe that the sources do not support"},
+        "decision": {"type": "string", "description": "the key decision she made, only if a card or source states it; else empty"},
+        "learning": {"type": "string", "description": "what she learned, only if a card or source states it; else empty"}},
         "required": ["requirement_id", "requirement", "answer", "structure", "her_role", "card_ids", "source_numbers", "gaps"]}
     last, t0 = None, time.time()
     for model in MODELS:
