@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexus Interview Coach</title>
+<style>
+  :root { --bg:#f6f7f8; --panel:#fff; --ink:#1b2228; --muted:#5d6872; --line:#dde2e6; --accent:#1a73e8; --warn:#b3261e; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#121416; --panel:#1b1e21; --ink:#e4e7ea; --muted:#9aa3ab; --line:#2c3136; --accent:#8ab4f8; --warn:#f2b8b5; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 16px; }
+  h1 { font-size: 22px; margin: 0; }
+  .sub, .m { color: var(--muted); font-size: 14px; }
+  form { display: flex; gap: 8px; flex-wrap: wrap; }
+  textarea { flex: 1 1 480px; min-height: 64px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); font: inherit; }
+  button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  button[disabled] { opacity: .6; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; font-weight: 400; min-height: 0; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .ans { white-space: pre-wrap; font-size: 17px; margin: 8px 0; }
+  h2 { font-size: 17px; margin: 0 0 6px; }
+  .tag { display: inline-block; border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; margin-right: 6px; font-size: 13px; }
+  .gap { color: var(--warn); }
+  a { color: var(--accent); word-break: break-all; }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>Nexus Interview Coach</h1>
+    <p class="sub">Ask what a Google AI Outcome Customer Engineer interviewer would ask. You get the STAR/CAR answer to give, your role, the requirement it answers, and the proof. <a href="/stages">Build stages</a></p>
+  </div>
+  <form id="f">
+    <textarea id="q" placeholder="e.g. Walk me through a feasibility assessment you ran before committing to a build." required></textarea>
+    <button id="go" type="submit">Get my answer</button>
+  </form>
+  <div class="chips" id="chips"></div>
+  <details id="bankbox"><summary>Question bank (practice questions by category)</summary>
+    <input id="bsearch" placeholder="Search the bank" style="width:100%;margin:8px 0;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font:inherit">
+    <div id="bank"></div></details>
+  <details><summary>Ask them (questions for the interviewer)</summary><div id="askthem"></div></details>
+  <details><summary>Logistics</summary><div id="logistics"></div></details>
+  <div id="matched" class="m"></div>
+  <div id="meta" class="m">Your answers appear here, best fit first.</div>
+  <div id="answers" style="display:grid;gap:16px"></div>
+</main>
+<script>
+const TOPICS = ["Tell me about your experience with AI platform integration.",
+  "Tell me about a program you managed end to end.",
+  "Give me an example of your technical execution on something hard.",
+  "Walk me through a technical feasibility assessment you ran.",
+  "Tell me about a time you dove into the code to diagnose a problem.",
+  "How have you engaged multiple stakeholders with competing priorities?",
+  "Where have you bridged pre-sales agreement shaping and post-sales execution?"];
+const $ = (id) => document.getElementById(id);
+for (const t of TOPICS) { const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t; b.onclick = () => { $("q").value = t; $("f").requestSubmit(); }; $("chips").appendChild(b); }
+function tag(t) { const s = document.createElement("span"); s.className = "tag"; s.textContent = t; return s; }
+function el(t, c, txt) { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
+// The owner's question bank: practice questions by category (click to answer), ask-them and logistics lists.
+let QID = null, MATCH = null;
+function ask(q) { $("q").value = q.text; QID = q.id; $("f").requestSubmit(); }
+function plain(list, box) { for (const q of list) box.appendChild(el("div", "m", q.id + "  " + q.text)); }
+let PRACTICE = [];
+function renderBank(filter) {
+  const box = $("bank"); box.textContent = ""; const f = (filter || "").toLowerCase(); let cat = null;
+  for (const q of PRACTICE) {
+    if (f && !(q.text + " " + q.category + " " + q.id).toLowerCase().includes(f)) continue;
+    if (q.category !== cat) { cat = q.category; box.appendChild(el("div", "", cat)).style.fontWeight = "600"; }
+    const b = el("button", "chip", q.id + "  " + q.text); b.type = "button"; b.style.textAlign = "left"; b.style.margin = "3px 0"; b.onclick = () => ask(q);
+    box.appendChild(b);
+  }
+}
+fetch("/api/questions").then(r => r.json()).then(d => {
+  PRACTICE = d.practice || []; renderBank("");
+  $("bsearch").oninput = (e) => renderBank(e.target.value);
+  plain(d.ask_them || [], $("askthem")); plain(d.logistics || [], $("logistics"));
+  $("bankbox").querySelector("summary").textContent = "Question bank (" + PRACTICE.length + " practice questions by category)";
+}).catch(() => {});
+$("q").addEventListener("input", () => { QID = null; });
+function card(a, i) {
+  const s = el("section");
+  s.appendChild(el("h2", "", (i + 1) + ". " + (a.label ? a.label + ": " : "") + (a.project || "Answer from evidence")));
+  const m = el("div", "m"); m.append(tag(a.structure || ""), tag("Role: " + (a.her_role || "none")), tag((a.requirement_id || "") + " " + (a.requirement || "")));
+  if (a.card_ids && a.card_ids.length) m.append(tag("Card: " + a.card_ids.join(", ")));
+  if (a.fit === "full") m.append(tag("full fit")); else if (a.fit === "partial") m.append(tag("partial fit")); else if (a.fit === "needs owner") m.append(tag("needs your input"));
+  if (a.role_label) m.append(tag(a.role_label));
+  if (a.why) s.appendChild(el("div", "m", "Why it fits: " + a.why));
+  s.appendChild(m);
+  s.appendChild(el("div", "ans", a.answer));
+  if (a.not_on_record && a.not_on_record.length) s.appendChild(el("div", "m", "Not on record: " + a.not_on_record.join(", ")));
+  if (a.decision && !/Decision:/.test(a.answer || "")) s.appendChild(el("div", "", "Decision: " + a.decision));
+  if (a.learning && !/Learning:/.test(a.answer || "")) s.appendChild(el("div", "", "Learning: " + a.learning));
+  const pr = el("div"); pr.appendChild(el("div", "m", "Proof"));
+  for (const x of a.sources || []) {
+    const row = el("div", "m", "[" + x.n + "] " + x.kind + " / " + x.repo + (x.path ? " / " + x.path : "") + " ");
+    if (x.url && /^https:\/\//.test(x.url)) { const l = el("a", "", "open"); l.href = x.url; l.target = "_blank"; l.rel = "noopener noreferrer"; row.appendChild(l); }
+    pr.appendChild(row);
+  }
+  if (!(a.sources || []).length) pr.appendChild(el("div", "m", "No sources cited."));
+  s.appendChild(pr);
+  if (a.gaps && a.gaps.length) s.appendChild(el("div", "gap", "Gaps an interviewer may probe: " + a.gaps.join("; ")));
+  if (!a.tailored && a.story_ref) {
+    const b = el("button", "chip", "Tailor to this question"); b.type = "button"; b.style.marginTop = "8px";
+    b.onclick = async () => {
+      b.disabled = true; b.textContent = "Tailoring (one Gemini call)...";
+      try {
+        const r = await fetch("/api/tailor", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: LASTQ, story_ref: a.story_ref, qid: LASTMATCH }) });
+        const t = await r.json(); if (!r.ok) throw new Error(t.error || ("HTTP " + r.status));
+        t.fit = t.fit || a.fit; t.why = t.why || a.why; t.role_label = t.role_label || a.role_label;
+        s.replaceWith(card(t, i));
+      } catch (err) { b.disabled = false; b.textContent = "Tailor failed: " + err.message; }
+    };
+    s.appendChild(b);
+  }
+  return s;
+}
+let LASTQ = "", LASTMATCH = null;
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault(); const question = $("q").value.trim(); if (!question) return;
+  $("go").disabled = true; $("matched").textContent = ""; $("meta").textContent = "Writing your answers..."; $("answers").textContent = "";
+  try {
+    const r = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, qid: QID, match: MATCH }) });
+    const d = await r.json(); if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
+    const list = d.answers || [d];
+    $("matched").textContent = "";
+    LASTQ = question; LASTMATCH = d.matched ? d.matched.id : null;
+    if (d.matched) $("matched").appendChild(el("div", "", "Matched bank question " + d.matched.id + " (" + d.matched.how + "): " + d.matched.text));
+    if (d.did_you_mean && d.did_you_mean.length && (d.needs_pick || !(d.matched && d.matched.how === "bank question"))) {
+      const box = el("div", "", d.needs_pick ? "Pick the closest question (no answers until you pick): " : "Did you mean: ");
+      for (const c of d.did_you_mean) { const b = el("button", "chip", c.id + "  " + c.text); b.type = "button"; b.style.margin = "3px"; b.onclick = () => ask(c); box.appendChild(b); }
+      const g = el("button", "chip", "Match with Gemini instead"); g.type = "button"; g.style.margin = "3px";
+      g.onclick = () => { $("q").value = question; MATCH = "gemini"; $("f").requestSubmit(); }; box.appendChild(g);
+      $("matched").appendChild(box);
+    }
+    if (d.testing) $("matched").appendChild(el("div", "", "What they are testing: " + d.testing));
+    if (d.gap && d.gap_mode) { const g = el("div", "gap", "No strong story on record for this: " + d.gap); g.style.fontWeight = "600"; $("matched").appendChild(g); }
+    else if (d.gap) $("matched").appendChild(el("div", "gap", "Gap: " + d.gap));
+    $("meta").textContent = list.length + (list.length === 1 ? " story" : " stories") + ", best fit first, straight from the story cards" + (d.seconds != null ? " (" + d.seconds + " s)" : "") + "." + (d.note ? " " + d.note : "");
+    list.forEach((a, i) => $("answers").appendChild(card(a, i)));
+  } catch (err) { $("meta").textContent = "Error: " + err.message; }
+  finally { $("go").disabled = false; QID = null; MATCH = null; }
+});
+</script>
+</body>
+</html>
