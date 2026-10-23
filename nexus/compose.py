@@ -267,10 +267,34 @@ def qmap() -> dict:
         for st in (out.get(qid) or {}).get("stories", []):
             if st.get("story_ref") == ref:
                 st[field] = val
+    for q in out.values():  # no private repo name on the page: titles and why lines are scrubbed at load
+        for st in q.get("stories") or []:
+            for k in ("canonical_project", "why", "project"):
+                if st.get(k):
+                    st[k] = scrub_private(st[k])
     rank = {"full": 0, "partial": 1, "needs owner": 2}
     for q in out.values():  # full before partial before needs owner; stable, so the map's order holds inside a group
         q["stories"] = sorted(q.get("stories") or [], key=lambda st: rank.get(st.get("fit"), 1))
     return out
+
+
+_PRIV_RE = None
+
+
+def scrub_private(t: str) -> str:
+    """Replace distinctive private or internal repo names (manifest visibility, answer-exclusions) with a neutral phrase.
+    Single common words that are also repo names (card, jobs, roadmap) are left alone."""
+    global _PRIV_RE
+    if _PRIV_RE is None:
+        import facts_layer
+        names = {r.split("/")[-1] for r in facts_layer.PRIVATE} | set(facts_layer._EX["exclude_repos"]) \
+            | set(facts_layer._EX["library_forks"]) | set(facts_layer._EX["private_repos"])
+        # common words that are also repo names; "anura" is the public product name
+        generic = {"anura", "api", "at", "bft", "card", "digest", "grav", "hni", "infra", "internal", "jobs", "leadership",
+                   "mech", "monitor", "novel", "observability", "roadmap", "web3", "website", "pepper"}
+        names = sorted((n for n in names if n.lower() not in generic and len(n) >= 4), key=len, reverse=True)
+        _PRIV_RE = re.compile(r"(?<![\w-])(" + "|".join(map(re.escape, names)) + r")(?![\w-])") if names else re.compile(r"(?!x)x")
+    return _PRIV_RE.sub("a private repo", str(t))
 
 
 QMAP_OVERRIDES = [("Q143", "S19", "fit", "partial"), ("Q087", "S11", "fit", "partial"),
@@ -658,8 +682,9 @@ def render_card(card: dict, st: dict | None = None) -> dict:
         if (u.startswith("https://") or u.startswith("state/drive/")) and not any(b in u.lower() for b in NOT_EVIDENCE + ("recruiter email",)):
             if u not in [c["path"] for c in srcs]:
                 srcs.append({"n": "card", "kind": "card source", "repo": "", "path": u, "url": u if u.startswith("https://") else ""})
+    text = scrub_private(text)
     return {"story_ref": st.get("story_ref") or card.get("id"), "card_ids": [card.get("id")],
-            "project": st.get("canonical_project") or card.get("canonical_project") or card.get("project"),
+            "project": scrub_private(st.get("canonical_project") or card.get("canonical_project") or card.get("project")),
             "her_role": card.get("her_role"), "role_label": card.get("role_raw") or card.get("her_role"),  # card's own role, same everywhere
             "fit": st.get("fit"), "why": st.get("why"),
             "structure": "STAR", "answer": text, "words": len(text.split()), "sources": srcs, "tailored": False,
