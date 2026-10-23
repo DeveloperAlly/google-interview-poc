@@ -89,8 +89,11 @@ the need it serves.
 .venv/bin/python nexus/server.py     # then open http://127.0.0.1:8765
 ```
 
-Answers are written by Gemini (key in `state/.env`, free tier, billing off: owner decision 4) from the story cards and
-Agent Search evidence. Pages, fallbacks and failure modes: [D07 interview-day page](docs/06-production-path.md#d07-production-readiness-interview-day).
+**As committed**, `nexus/server.py` writes answers with Agent Search's answer API (`summarySpec`) and needs no model key.
+**On the owner's laptop**, the answer path used for G3 writes answers with Gemini (key in `state/.env`, free tier,
+billing off: owner decision 4) from the story cards. That code is not yet in this repo; it is tracked on
+[#6](https://github.com/DeveloperAlly/google-interview-poc/issues/6). The [D07 interview-day page](docs/06-production-path.md#d07-production-readiness-interview-day)
+describes the laptop version.
 
 ## The engagement record
 
