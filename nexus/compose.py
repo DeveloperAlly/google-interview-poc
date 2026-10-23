@@ -125,10 +125,13 @@ COMMON_CAPS = {"I", "I'm", "I've", "I'd", "My", "The", "This", "That", "We", "In
 
 
 # Deterministic keyword routes, checked before word overlap (V round 1: feasibility went to S3, pre-sales never to S7).
-KEYWORD_ROUTES = [
-    (("feasib", "viab", "push back", "pushed back", "validate", "assess"), "R4", ("S4", "S9", "S12")),
+KEYWORD_ROUTES = [  # matched as word prefixes (\bkey), first rule wins (V round 2: "ideally" matched "deal")
+    (("persuad", "disagreed", "change the direction", "changed the direction", "convinc", "executive who"), "R17", ("S9", "S7")),
+    (("langgraph", "autogen", "crewai", "orchestrator", "multi-step agent", "agent or workflow", "agentic", "tool call"), "R12", ("S1", "S5")),
+    (("people you did not manage", "did not manage", "specialised people", "specialized people", "orchestrate", "slipped"), "R2", ("S2", "S10")),
+    (("feasib", "viab", "push back", "pushed back"), "R4", ("S4", "S9", "S12")),
     (("pre-sales", "presales", "post-sales", "postsales", "partnership", "agreement", "contract", "sales cycle",
-      "deal", "licens", "handover", "hand-off", "activation"), "R7", ("S7", "S8", "S12")),
+      "deal", "licens", "handover", "hand-off"), "R7", ("S7", "S8", "S12")),
     (("stakeholder",), "R6", ("S6", "S10")),
 ]
 DESIGN = re.compile(r"\b(how would you|how do you|how should|what criteria|what steps|what are the|describe your (approach|process)|walk me through your (debugging|process)|design)\b", re.I)
@@ -149,7 +152,7 @@ def route(question: str, profile: dict, cards: dict) -> tuple[dict | None, list[
     else:
         best, why = None, ""
         for keys, rid, prefer in KEYWORD_ROUTES:
-            k = next((k for k in keys if k in ql), None)
+            k = next((k for k in keys if re.search(r"\b" + re.escape(k), ql)), None)
             if k and rid in reqs:
                 best, why = reqs[rid], f"keyword '{k}' routes to {rid}"
                 hit = [all_cards[i] for i in prefer if i in all_cards]
@@ -180,40 +183,32 @@ def _slots(c: dict) -> str:
     return " ".join(str(c.get(k, "")) for k in ("project", "her_role", "situation", "task", "action", "result", "metric", "topic"))
 
 
+LILYPAD_AGENTS = re.compile(r"lilypad[^.]*\b(ai agents?|agents) (that )?(wrote|write|writing)|(ai agents?|agents) (that )?wrote[^.]*lilypad", re.I)
+
+
 def post_check(answer: str, chunks: list[str]) -> tuple[str, list[str]]:
-    """Item 10: deterministic, no second Gemini call. Cut any sentence with a number, named organisation, outcome
-    verb or quantifier that is not in a cited card slot, owner_facts.md or a cited evidence chunk. All of a
-    sentence's checked terms must appear together in ONE chunk, so a verb from one source cannot bind to an
-    organisation from another."""
-    low = [c.lower() for c in chunks]
-    hay = "\n".join(low)
+    """Owner ruling, round 3: the goal is a usable answer. Cut ONLY a sentence that contradicts owner_facts.md or
+    invents an employer, client, event, number or result that no card or source supports. Paraphrase and framing
+    stay. Deterministic, no second Gemini call. chunks = owner_facts, every usable card, every evidence source."""
+    hay = "\n".join(c.lower() for c in chunks)
     keep, cut = [], []
     for sent in re.split(r"(?<=[.!?])\s+", answer.strip()):
         if not sent:
             continue
         bad = []
-        for n in re.findall(r"\d[\d,.]*\+?", sent):
-            if n.rstrip(".,+") not in hay:
+        for n in re.findall(r"\d[\d,.]*", sent):  # invented number
+            if n.rstrip(".,") not in hay:
                 bad.append(n)
         words = re.findall(r"[A-Za-z][A-Za-z0-9&'-]*", sent)
-        for i, w in enumerate(words):
-            if i > 0 and (w[0].isupper() or w.isupper()) and w not in COMMON_CAPS and w.lower() not in hay:
+        for i, w in enumerate(words):  # invented employer, client or event (a name no source has)
+            if i > 0 and w[0].isupper() and w not in COMMON_CAPS and w.lower() not in hay:
                 bad.append(w)
-        for v in OUTCOME_VERBS:  # stem match: "architecting", "deploys", "delivering" count too
-            m = re.search(rf"\b{v[:-2] if v.endswith('ed') else v}\w*", sent.lower())
-            if m and m.group(0) not in hay:
-                bad.append(m.group(0))
-        for qn in QUANTIFIERS:
-            if re.search(rf"\b{qn}\b", sent.lower()) and qn not in hay:
-                bad.append(qn)
-        if not bad:
-            terms = [t.lower().rstrip(".,+") for t in re.findall(r"\d[\d,.]*", sent)]
-            terms += [w.lower() for i, w in enumerate(words) if i > 0 and w[0].isupper() and w not in COMMON_CAPS]
-            terms += [v for v in QUANTIFIERS if re.search(rf"\b{v}\b", sent.lower())]
-            terms += [m.group(0) for v in OUTCOME_VERBS for m in [re.search(rf"\b{v[:-2] if v.endswith('ed') else v}\w*", sent.lower())] if m]
-            if terms and not any(all(t in c for t in terms) for c in low):
-                bad.append("terms not together in one cited source: " + ", ".join(dict.fromkeys(terms)))
-        (cut if bad else keep).append(sent if not bad else f"{sent}  [unsupported: {', '.join(dict.fromkeys(bad))}]")
+        if LILYPAD_AGENTS.search(sent):  # owner_facts: AI agents wrote Nexus only, never Lilypad's code
+            bad.append("contradicts owner_facts: Lilypad code was not written by AI agents")
+        if bad:
+            cut.append(f"{sent}  [unsupported: {', '.join(dict.fromkeys(bad))}]")
+        else:
+            keep.append(sent)
     return " ".join(keep), cut
 
 
@@ -228,7 +223,9 @@ def compose(question: str, evidence: list[dict]) -> dict:
     cited = [_slots(cards[i]) for i in out.get("card_ids", []) if i in cards]
     cited += [evidence[n - 1].get("text", "") for n in out.get("source_numbers", []) if isinstance(n, int) and 0 < n <= len(evidence)]
     out["draft_answer"] = out.get("answer", "")
-    out["answer"], out["cut"] = post_check(out["draft_answer"], [owner_facts()] + cited)
+    out["answer"], out["cut"] = post_check(out["draft_answer"], [owner_facts()] + [_slots(c) for c in cards.values()]
+                                           + [json.dumps(c, ensure_ascii=False) for c in cards.values()]
+                                           + [e.get("text", "") for e in evidence] + [question])
     out["words"] = len(out["answer"].split())
     if not out["answer"].strip():
         out["answer"], out["structure"] = "The sources on record do not support an answer to this question.", "GAP"
@@ -254,6 +251,10 @@ def _compose(question: str, evidence: list[dict], req=None, hit=None, why="") ->
                         f"{main.get('metric')!r}; her_role = {main.get('her_role')!r}. Use every filled slot; the answer must "
                         "be 150 to 300 words of content stated in these slots, the other routed cards and the sources. "
                         "Add supporting detail from the other routed cards or cited sources before ever padding.")
+        elif design:
+            cards = usable_cards(story_cards())
+            routing += ("No story card covers this requirement. Answer with her APPROACH, then bridge to the single "
+                        "closest real card story from the STORY CARDS below and put its id in card_ids.")
         else:
             routing += ("No story card covers this requirement: answer it from the evidence only if a source directly "
                         "states her experience of it; otherwise structure is GAP. Never substitute an R1 to R7 story.")
@@ -262,6 +263,11 @@ def _compose(question: str, evidence: list[dict], req=None, hit=None, why="") ->
                         "first 'My approach would be...' (how she would do it, 2 to 4 sentences, no invented facts), then "
                         "say 'Where I have done this:' and tell the main story above. Keep approach and past experience "
                         "plainly separate.")
+        routing += ("\nPAST WORK: never claim past work the cards do not state (for example data residency, compliance "
+                    "or regulated customers at Lilypad or IBM). Approach may be general; past experience must be a card. "
+                    "Never say AI agents wrote Lilypad's code: AI agents wrote code only on Nexus. On Nexus, name one "
+                    "concrete decision and its reason (for example stopping the USD 504 import) instead of 'I set the "
+                    "outcome, the gates and the decisions'.")
         routing += ("\nNAMED TOOL OR EMPLOYER WITH NO SOURCE (for example LangGraph in production): the FIRST sentence "
                     "says plainly 'I have not used X in production' (or at that employer), naming X; then her closest real "
                     "experience from the cards; no padding.")
