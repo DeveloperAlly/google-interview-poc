@@ -120,7 +120,7 @@ STOP = set("""a an the and or of to in on for with by at from as is are was were
 what how why when where who which do does did you your tell me about time describe example give have has can would""".split())
 OUTCOME_VERBS = ("delivered", "signed", "ensured", "deployed", "architected")
 COMMON_CAPS = {"I", "I'm", "I've", "I'd", "My", "The", "This", "That", "We", "In", "At", "As", "When", "My", "Our",
-               "Situation", "Task", "Action", "Result", "Context", "STAR", "CAR", "GAP", "By", "No", "It", "So"}
+               "Situation", "Task", "Action", "Result", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Context", "STAR", "CAR", "GAP", "By", "No", "It", "So"}
 
 
 def route(question: str, profile: dict, cards: dict) -> tuple[dict | None, list[dict]]:
