@@ -1,0 +1,28 @@
+# PR set, gate G4: added 2026-10-23 by owner delegation. Tests the merged-PR store, which the first two sets
+# never reached. Questions paraphrase the change, not the PR title. A hit needs a top-5 result from `repo`
+# whose PR number is in `pr_any`. Public repos only.
+queries:
+  - q: Which change fixed websocket disconnects that were leaking goroutines?
+    repo: Lilypad-Tech/lilypad
+    pr_any: [220]
+  - q: When did proof of work become enabled by default?
+    repo: Lilypad-Tech/lilypad
+    pr_any: [203]
+  - q: Where was reporting of job run statistics added?
+    repo: Lilypad-Tech/lilypad
+    pr_any: [517]
+  - q: When was the smart contract security audit report added?
+    repo: Lilypad-Tech/lilypad-smart-contracts
+    pr_any: [31, 33]
+  - q: Which change added support for connecting to external blockchains?
+    repo: Lilypad-Tech/lilypad-modicum
+    pr_any: [1]
+  - q: Who built the bot that reminds community ambassadors?
+    repo: Lilypad-Tech/community-bots
+    pr_any: [6]
+  - q: Fix for errors hidden in combined command output when reading the Bacalhau job id
+    repo: Lilypad-Tech/lilypad
+    pr_any: [175]
+  - q: The deployment workflow was missing bun; which PR fixed it?
+    repo: Lilypad-Tech/web-ui
+    pr_any: [62]

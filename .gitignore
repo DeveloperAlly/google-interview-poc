@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+gha-creds-*.json
+state/
+clones/
+*.jsonl
+corpus/

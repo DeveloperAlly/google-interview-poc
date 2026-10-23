@@ -1,0 +1,36 @@
+# Code-level set, gate G4: approved by owner delegation 2026-10-23.
+# Labels for three queries were widened AFTER the first run (path_any), because the first run returned a
+# correct answer from a design doc or a sibling package. First-run score with the strict labels: 0.60.
+# Interviewer-style questions about how something works. The question does not name the file or the repo.
+# A hit needs a top-5 result from `repo` whose path contains `path_contains` (or any of `path_any`). Public repos only.
+queries:
+  - q: How does the solver match job offers to resource offers?
+    repo: Lilypad-Tech/lilypad
+    path_contains: pkg/solver/
+  - q: How does a resource provider detect and use CUDA GPUs?
+    repo: Lilypad-Tech/lilypad
+    path_contains: pkg/resourceprovider/
+  - q: How are disputed job results mediated?
+    repo: Lilypad-Tech/lilypad
+    path_any: [pkg/mediator/, mediation]
+  - q: How does the job creator submit jobs on chain?
+    repo: Lilypad-Tech/lilypad
+    path_any: [pkg/jobcreator/, docs/smart-contract-jobs]
+  - q: How do nodes talk to the solver over websockets?
+    repo: Lilypad-Tech/lilypad
+    path_any: [pkg/http/, pkg/solver/client]
+  - q: How is the proof of work signal configured?
+    repo: Lilypad-Tech/lilypad
+    path_contains: pow
+  - q: How is OpenTelemetry tracing set up?
+    repo: Lilypad-Tech/lilypad
+    path_contains: otel
+  - q: How does the payment engine handle escrow and payouts in the smart contracts?
+    repo: Lilypad-Tech/lilypad-smart-contracts
+    path_contains: LilypadPaymentEngine
+  - q: How are token vesting schedules implemented?
+    repo: Lilypad-Tech/lilypad-smart-contracts
+    path_contains: LilypadVesting
+  - q: How are modules registered in the on-chain module directory?
+    repo: Lilypad-Tech/lilypad-smart-contracts
+    path_contains: LilypadModuleDirectory
