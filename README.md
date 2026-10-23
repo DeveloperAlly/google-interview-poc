@@ -40,7 +40,7 @@ record of where the engagement stood before it.
 | 3. Execute & Validate | D06 Security & IAM review | Not produced | | | | **De-scoped by the owner** for this POC ([READ THIS FIRST](https://github.com/DeveloperAlly/google-interview-poc/issues/5#issuecomment-6355551102) item 1: no security work). The earlier threat model in [docs/08](docs/08-answer-layer.md) is not reviewed |
 | 4. Scale & Handover | D07 Production readiness (one page) | [docs/06, "D07 Production readiness: interview day"](docs/06-production-path.md#d07-production-readiness-interview-day) | A-handover | G4 | Owner, on use | No hosting, no interviewer users, no security |
 
-**The fabricated-answer defect, found and fixed.** At
+**The fabricated-answer defect: found, fix open until G3.** At
 [T+11](https://github.com/DeveloperAlly/google-interview-poc/issues/6#issuecomment-6355662171) the answer page still
 overreached in 3 of 3 test answers: it claimed she ran an agent's review, that the Dell work was a delivered platform
 with outcomes no source states, and that she delivered Kubernetes at IBM. A fact-check pass went live at
@@ -56,7 +56,17 @@ Separately, Session B caught a deck figure ("830-file PR #730") that the record 
 cards were [redirected to the upstream record](https://github.com/DeveloperAlly/google-interview-poc/issues/8#issuecomment-6355756026)
 instead (86 PRs authored, 52 merged). Whether E4 (zero fabricated facts) holds is V's call at G3.
 
-## Where the engagement is in the lifecycle
+## What exists, and how to read it
+
+An ingestion pipeline and a localhost answer page were first built ahead of the lifecycle gates, before the problem
+and outcomes were confirmed. How that happened is recorded in [docs/01](docs/01-discovery-and-feasibility.md) and
+[docs/03](docs/03-delivery-log.md). Since G0 the work is judged against the D03 pass bar (owner decision 2), and only
+V's G3 run in the delivery table counts as a passed exit criterion.
+
+## Before plan v2 (superseded record)
+
+This was the state before plan v2 and G0 at 12:56. The delivery table above replaces it.
+
 
 | Phase | Deliverable | State |
 |---|---|---|
@@ -67,15 +77,6 @@ instead (86 PRs authored, 52 merged). Whether E4 (zero fabricated facts) holds i
 | 3. Execute & Validate | 05 POC Test & Synthetic Eval Plan | Blocked. [docs/07](docs/07-evaluation.md) holds builder-written tests and a draft acceptance protocol |
 | 3. Execute & Validate | 06 Enterprise Security & IAM Review | Blocked. Inputs exist in [docs/02](docs/02-solution-design.md) (data boundary) and [docs/08](docs/08-answer-layer.md) (threat model) |
 | 4. Scale & Handover | 07 Production Readiness Review | Blocked. [docs/06](docs/06-production-path.md) is a target outline only |
-
-## What exists, and how to read it
-
-Before the problem and outcomes were confirmed, an ingestion pipeline and a localhost answer page were built and are
-described below. **They were built ahead of the lifecycle gates.** They are exploratory: useful as feasibility
-evidence for phase 1, but no part of them is an accepted design or a passed exit criterion. Their numbers are real
-measurements of what was built; they are not measurements against the required outcomes, which have no approved
-criteria yet. How that happened is recorded in [docs/01](docs/01-discovery-and-feasibility.md) and
-[docs/03](docs/03-delivery-log.md).
 
 ## Architecture
 
@@ -88,7 +89,8 @@ the need it serves.
 .venv/bin/python nexus/server.py     # then open http://127.0.0.1:8765
 ```
 
-Answers come from Google Agent Search with your Google login. No model key is needed.
+Answers are written by Gemini (key in `state/.env`, free tier, billing off: owner decision 4) from the story cards and
+Agent Search evidence. Pages, fallbacks and failure modes: [D07 interview-day page](docs/06-production-path.md#d07-production-readiness-interview-day).
 
 ## The engagement record
 

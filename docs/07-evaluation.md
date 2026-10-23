@@ -6,7 +6,7 @@ for purpose.
 
 ## Interviewer acceptance tests
 
-Status: defined 23 Oct 2026, not yet run.
+Status: unapproved draft, superseded by the D03 pass bar and D05 (V at G3), see the README delivery table.
 
 **Protocol.**
 
