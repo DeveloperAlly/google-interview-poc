@@ -170,7 +170,10 @@ def route(question: str, profile: dict, cards: dict) -> tuple[dict | None, list[
     rid = best["id"]
     hit = [c for c in all_cards.values() if rid in (c.get("requirement_ids") or [])]
     hit.sort(key=lambda c: 0 if (c.get("requirement_ids") or [None])[0] == rid else 1)
-    return best, hit, why + (f"; cards {', '.join(c['id'] for c in hit)} list {rid} in requirement_ids" if hit else f"; no card lists {rid}")
+    # Supporting cards via related_posting_requirements, after the main card, so a thin card is not padded or hollowed.
+    rel = set(best.get("related_posting_requirements") or [])
+    hit += [c for c in all_cards.values() if c not in hit and rel & set(c.get("requirement_ids") or [])][:2]
+    return best, hit, why + (f"; main card {hit[0]['id']} lists {rid}; supporting {', '.join(c['id'] for c in hit[1:]) or 'none'} via related_posting_requirements {', '.join(sorted(rel)) or 'none'}" if hit else f"; no card lists {rid}")
 
 
 def _slots(c: dict) -> str:
