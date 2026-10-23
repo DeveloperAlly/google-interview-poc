@@ -109,6 +109,98 @@ class Nexus:
                 "references": refs, "results": results, "scope": scope, "filter": f}
 
 
+# Not evidence (issue #5 "READ THIS FIRST" item 5): stale Drive decks with figures that are not hers (240+ repos,
+# $45 a month, P95 450 ms, "deployed in under 48 hours"). The Master Archive bundles the same decks. Matched on the
+# document title or path; never shown to the composer.
+NOT_EVIDENCE = ("customer engineering case study", "scaled ai knowledge engine", "solutions lifecycle",
+                "autonomous technical knowledge engine", "enterprise repository knowledge engine",
+                "drive export master archive")
+
+
+PINNED = [("dr-c5bdf54850b70dedb9fe36fc2c97e51a", "Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx"),
+          ("dr-dff34a7d9d8b0e0739d6de5beb67cb01", "AI & Cloud Engineering Portfolio (2024\u20132026).docx"),
+          # Her CV: always in evidence so a named employer or client (IBM, BHP, Telstra) is never a false GAP.
+          ("dr-4a8d7996f1ebc0e56a6f0ba41c4bed70", "Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV")]
+
+
+def is_not_evidence(*fields: str) -> bool:
+    t = " ".join(f or "" for f in fields).lower()
+    return any(x in t for x in NOT_EVIDENCE)
+
+
+def evidence_for(nexus: "Nexus", question: str) -> list[dict]:
+    """Retrieve evidence for Gemini to compose from: narrative sources (Drive, resumes, profiles, docs) boosted."""
+    import answer  # local corpus index: doc id -> text
+    body = {"servingConfig": nexus.sc, "query": question, "pageSize": 20,
+            "boostSpec": {"conditionBoostSpecs": [
+                {"condition": 'kind: ANY("narrative", "profile")', "boost": 0.8},
+                {"condition": 'kind: ANY("doc", "readme", "pr", "issue", "pr-external")', "boost": 0.3}]}}
+    r = nexus.c.call("POST", f"{nexus.sc}:search", json=body)
+    if r.status_code != 200:
+        raise RuntimeError(f"Agent Search returned HTTP {r.status_code}")
+    global _IDX
+    try:
+        _IDX
+    except NameError:
+        _IDX = answer.build_index()
+        for p in (ROOT / "state" / "drive-docs" / "scan").glob("*/*.md"):
+            _IDX[p.stem] = p
+        for p in (ROOT / "state" / "profile-docs" / "scan").glob("*/*.md"):
+            _IDX[p.stem] = p
+    out = []
+    for res in r.json().get("results", []):
+        d = res.get("document", {}); sd = d.get("structData", {})
+        p = _IDX.get(d.get("id", ""))
+        text = p.read_text(encoding="utf-8") if p else ""
+        if is_not_evidence(sd.get("path", ""), sd.get("title", ""), text[:300]):
+            continue
+        text = re.sub(r"[ \t]+", " ", re.sub(r"<[^>]{0,400}>", " ", text))  # docx export leaves XML tags in the text
+        if not text.strip():
+            continue  # nothing the composer could trace a fact to
+        out.append({"kind": sd.get("kind"), "repo": f"{sd.get('owner')}/{sd.get('repo')}", "path": sd.get("path", ""),
+                    "url": sd.get("html_url", ""), "text": text})
+    out = out[:6]
+    # Her own narrative documents, always in front of the composer (issue #6: prefer these over code and decks).
+    have = {e["path"] for e in out}
+    for stem, path in PINNED:
+        p = _IDX.get(stem)
+        if p and path not in have:
+            t = re.sub(r"[ \t]+", " ", re.sub(r"<[^>]{0,400}>", " ", p.read_text(encoding="utf-8")))
+            out.append({"kind": "narrative", "repo": "DeveloperAlly/drive", "path": path,
+                        "url": "https://drive.google.com/drive/folders/13vtP57CJYxmBtNAG6fFsUBOGNC7fi9p2", "text": t})
+    return out
+
+
+def stages_html() -> bytes:
+    import html as H, compose
+    prof, cards = compose.role_profile(), compose.story_cards()
+    def esc(x): return H.escape(str(x))
+    reqs = "".join(f"<li><b>{esc(r.get('id'))}</b> {esc(r.get('text'))} <span class=m>{esc(r.get('source',''))}</span>"
+                   + ("<ul>" + "".join(f"<li>{esc(q)}</li>" for q in r.get('sample_questions', [])) + "</ul>" if r.get('sample_questions') else "")
+                   + "</li>" for r in prof.get("requirements", []))
+    def slot(c, k):
+        v = c.get(k, "")
+        return f"<div><b>{k}</b>: " + (f"<span class=miss>missing</span>" if v == "missing" else esc(v)) + "</div>"
+    cs = "".join(f"<section><h3>{esc(c.get('id'))} {esc(c.get('project'))} <span class=m>{esc(','.join(c.get('requirement_ids', [])))} | role: {esc(c.get('her_role'))}</span></h3>"
+                 + "".join(slot(c, k) for k in ("situation", "task", "action", "result", "metric"))
+                 + "<div class=m>sources: " + "; ".join(esc(s.get('path_or_url', '')) for s in c.get('sources', [])) + "</div></section>"
+                 for c in cards.get("cards", []))
+    drive = len(list((ROOT / "state" / "drive-docs" / "corpus" / "ds-code").glob("*.html"))) if (ROOT / "state" / "drive-docs").exists() else 0
+    gaps = (ROOT / "state" / "story_cards_gaps.md")
+    gaps_t = esc(gaps.read_text(encoding="utf-8")) if gaps.exists() else "not yet written"
+    page = f"""<!doctype html><html><head><meta charset=utf-8><meta http-equiv=refresh content=30><title>Nexus stages</title>
+<style>body{{font:15px/1.5 system-ui;max-width:1000px;margin:0 auto;padding:16px;background:#f6f7f8;color:#1b2228}}
+section{{background:#fff;border:1px solid #dde2e6;border-radius:8px;padding:10px 14px;margin:10px 0}}.m{{color:#667;font-size:12px}}
+.miss{{color:#b00;font-weight:600}}h2{{margin-top:28px}}pre{{white-space:pre-wrap;background:#fff;padding:10px;border:1px solid #dde2e6}}
+@media (prefers-color-scheme:dark){{body{{background:#121416;color:#e4e7ea}}section,pre{{background:#1b1e21;border-color:#2c3136}}}}</style></head><body>
+<h1>Nexus: build stages</h1><p class=m>Refreshes every 30 seconds. <a href="/">Ask a question</a></p>
+<h2>C1 Drive ingest</h2><p>{drive} Drive documents extracted and indexed.</p>
+<h2>C2 Role profile: what Google is hiring for ({len(prof.get('requirements', []))} requirements)</h2><ul>{reqs}</ul>
+<h2>C3 Story cards ({len(cards.get('cards', []))})</h2>{cs or '<p>None yet.</p>'}
+<h2>Gap questions for the owner</h2><pre>{gaps_t}</pre></body></html>"""
+    return page.encode()
+
+
 def make_handler(nexus: Nexus):
     page = (ROOT / "web" / "index.html").read_bytes()
 
@@ -122,12 +214,30 @@ def make_handler(nexus: Nexus):
             self.wfile.write(body)
 
         def do_GET(self):
-            if self.path in ("/", "/index.html"):
+            if self.path in ("/", "/answer"):
+                self._send(200, (ROOT / "web" / "answer.html").read_bytes(), "text/html; charset=utf-8")
+            elif self.path in ("/search", "/index.html"):
                 self._send(200, page, "text/html; charset=utf-8")
+            elif self.path == "/stages":
+                self._send(200, stages_html(), "text/html; charset=utf-8")
             else:
                 self._send(404, b'{"error":"not found"}')
 
         def do_POST(self):
+            if self.path == "/api/answer":
+                try:
+                    n = max(0, int(self.headers.get("Content-Length", "0") or 0))
+                    q = str(json.loads(self.rfile.read(min(n, 20000)) or b"{}").get("question", "")).strip()[:1000]
+                    if not q:
+                        return self._send(400, b'{"error":"empty question"}')
+                    import compose
+                    ev = evidence_for(nexus, q)
+                    out = compose.compose(q, ev)
+                    out["sources"] = [{"n": i + 1, **{k: e[k] for k in ("kind", "repo", "path", "url")}} for i, e in enumerate(ev)
+                                      if (i + 1) in out.get("source_numbers", [])]
+                    return self._send(200, json.dumps(out).encode())
+                except Exception as e:
+                    return self._send(502, json.dumps({"error": str(e)[:400]}).encode())
             if self.path != "/api/ask":
                 return self._send(404, b'{"error":"not found"}')
             try:
