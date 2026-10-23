@@ -6,7 +6,7 @@ for purpose.
 
 ## Interviewer acceptance tests
 
-Status: defined 23 Oct 2026, not yet run.
+Status: unapproved draft, superseded by the D05 owner test in [#5](https://github.com/DeveloperAlly/google-interview-poc/issues/5).
 
 **Protocol.**
 
