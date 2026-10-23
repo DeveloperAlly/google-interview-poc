@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / "state"
-MODELS = ["gemini-3-flash-preview", "gemini-3.1-flash-lite"]
+MODELS = ["gemini-3.1-flash-lite", "gemini-3.1-flash-lite-preview", "gemini-flash-lite-latest"]  # 3-flash-preview: daily free quota spent
 TOPICS = ["AI platform integration", "program management", "technical execution", "feasibility assessments",
           "code-level context", "multi-stakeholder engagement", "pre-sales to post-sales"]
 
@@ -274,5 +274,5 @@ Return JSON only."""
                 return out
             except Exception as e:  # 503 busy or 429 quota: retry once, then fall back to the next model
                 last = e
-                time.sleep(2)
+                time.sleep(4 if "429" in str(e) else 2)
     raise RuntimeError(f"Gemini unavailable: {str(last)[:200]}")
