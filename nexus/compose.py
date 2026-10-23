@@ -262,7 +262,19 @@ def qmap() -> dict:
                 out[q["id"]] = q
         except Exception:
             continue
+    # Owner overrides applied at load time (the v3 files are not edited), 23 Oct.
+    for qid, ref, field, val in QMAP_OVERRIDES:
+        for st in (out.get(qid) or {}).get("stories", []):
+            if st.get("story_ref") == ref:
+                st[field] = val
+    rank = {"full": 0, "partial": 1, "needs owner": 2}
+    for q in out.values():  # full before partial before needs owner; stable, so the map's order holds inside a group
+        q["stories"] = sorted(q.get("stories") or [], key=lambda st: rank.get(st.get("fit"), 1))
     return out
+
+
+QMAP_OVERRIDES = [("Q143", "S19", "fit", "partial"), ("Q087", "S11", "fit", "partial"),
+                  ("Q146", "S19", "why", "Directed the agent that diagnosed and fixed the 5+ minute local preview; PRs #789 and #791 merged")]
 
 
 def _strip_src(t: str) -> str:
@@ -297,6 +309,7 @@ def resolve_ref(ref: str, cards: dict) -> dict | None:
                     v = "missing"
                 card[k] = v
         if card:
+            card["role_raw"] = re.split(r"\.\s", card.get("her_role", "missing"))[0].strip().rstrip(".") or "missing"
             card["her_role"] = re.split(r"[.(;]", card.get("her_role", "missing"))[0].strip() or "missing"
             return card
     return None
@@ -428,7 +441,7 @@ def compose(question: str, evidence: list[dict], qid: str | None = None) -> dict
             if not c:
                 continue
             c.update({"project": st.get("canonical_project") or c.get("project"), "fit": st.get("fit"), "why": st.get("why"),
-                      "role_label": st.get("role_label")})
+                      "role_label": c.get("role_raw") or c.get("her_role")})
             picked.append(c)
             if len(picked) == 4:
                 break
@@ -647,7 +660,8 @@ def render_card(card: dict, st: dict | None = None) -> dict:
                 srcs.append({"n": "card", "kind": "card source", "repo": "", "path": u, "url": u if u.startswith("https://") else ""})
     return {"story_ref": st.get("story_ref") or card.get("id"), "card_ids": [card.get("id")],
             "project": st.get("canonical_project") or card.get("canonical_project") or card.get("project"),
-            "her_role": card.get("her_role"), "role_label": st.get("role_label"), "fit": st.get("fit"), "why": st.get("why"),
+            "her_role": card.get("her_role"), "role_label": card.get("role_raw") or card.get("her_role"),  # card's own role, same everywhere
+            "fit": st.get("fit"), "why": st.get("why"),
             "structure": "STAR", "answer": text, "words": len(text.split()), "sources": srcs, "tailored": False,
             "decision": card.get("decision") if ok(card.get("decision")) else None,
             "learning": card.get("learning") if ok(card.get("learning")) else None}
@@ -710,7 +724,7 @@ def tailor(question: str, evidence: list[dict], story_ref: str, qid: str | None 
     st = st or {}
     m = qmap().get(qid or "") or {}
     st = next((x for x in m.get("stories", []) if x.get("story_ref") == story_ref), st)
-    c.update({"fit": st.get("fit"), "why": st.get("why"), "role_label": st.get("role_label")})
+    c.update({"fit": st.get("fit"), "why": st.get("why"), "role_label": c.get("role_raw") or c.get("her_role")})
     reqs = {r["id"]: r for r in role_profile().get("requirements", [])}
     req = next((reqs[r] for r in (m.get("requirement_ids") or []) if r in reqs), None)
     if not req:
