@@ -216,6 +216,12 @@ def post_check(answer: str, chunks: list[str]) -> tuple[str, list[str]]:
 def compose(question: str, evidence: list[dict]) -> dict:
     allc = usable_cards(story_cards())
     req, hit, why = route(question, role_profile(), allc)
+    # Issue #21: a direct "have you used / built on X" question with code facts for X is answered from the facts,
+    # not forced onto the nearest story card.
+    if any(e.get("kind") == "fact" for e in evidence) and re.search(
+            r"\b(have you|did you|do you have|experience (with|in)|used|built on|worked with|which .*(frameworks|tools|clouds?))\b",
+            question, re.I):
+        hit, why = [], (why + "; direct technology question answered from code facts (issue #21)").strip("; ")
     out = _compose(question, evidence, req, hit, why)
     cards = {c["id"]: c for c in allc.get("cards", [])}
     if req:  # the routed cards are binding, whatever the model echoed
@@ -292,6 +298,13 @@ ROLE PROFILE (what Google is hiring for):
 {json.dumps(profile, ensure_ascii=False)[:12000]}
 
 {routing}
+DIRECT TECHNOLOGY QUESTIONS (issue #21, overrides the card-first and named-tool rules for that technology): if the
+question asks whether or how she has used or built on a named technology (a cloud, framework, protocol or tool) and a
+RETRIEVED EVIDENCE source with kind="fact" covers it, the FIRST one or two sentences answer it directly from that
+fact source: yes, where (the repo names it lists), what the cited files show, and her role (directed for Lilypad-Tech
+repos: her startup's work built by her team under her direction; built for DeveloperAlly repos). Put that source's
+number in source_numbers. Never say "I have not used X" when a fact source or OWNER FACTS covers X. Then continue with
+the card story. Do not invent services, scale or dates beyond what the fact source shows.
 ROLE AND ORGANISATION: take her role and every organisation name only from story card slots and OWNER FACTS, never
 from other evidence.
 ROUTING: map the question to the best-fitting requirement among ALL requirements in the role profile (R1 to R7

@@ -159,6 +159,41 @@ def evidence_for(nexus: "Nexus", question: str) -> list[dict]:
         out.append({"kind": sd.get("kind"), "repo": f"{sd.get('owner')}/{sd.get('repo')}", "path": sd.get("path", ""),
                     "url": sd.get("html_url", ""), "text": text})
     out = out[:6]
+    # Issue #21: code-only facts. (a) Facts layer: cited technology facts extracted from every cloned repo.
+    # (b) Query planning: re-search the index in code vocabulary for the technologies the question names,
+    # unboosted, so deploy scripts (rank 1 for "gcloud") reach the composer.
+    try:
+        import facts_layer
+        facts = facts_layer.facts_for(question)
+        seen = {e["path"] for e in out}
+        terms = {"Google Cloud": "gcloud GCP deploy", "Gemini / Vertex AI": "gemini vertex", "LangGraph": "langgraph create_react_agent",
+                 "LangChain": "langchain", "Model Context Protocol (MCP)": "MCP server", "Kubernetes / Helm": "helm kubernetes",
+                 "Terraform (IaC)": "terraform", "Prometheus / Grafana / OpenTelemetry": "prometheus grafana",
+                 "LiteLLM gateway": "litellm failover", "Kafka streaming": "kafka"}
+        extra = []
+        for f in facts[:2]:
+            t = f["path"].replace("facts: ", "")
+            if t not in terms:
+                continue
+            rr = nexus.c.call("POST", f"{nexus.sc}:search", json={"servingConfig": nexus.sc, "query": terms[t], "pageSize": 8})
+            for res in (rr.json().get("results", []) if rr.status_code == 200 else []):
+                d = res.get("document", {}); sd = d.get("structData", {})
+                path = sd.get("path", "")
+                if path in seen or "/litellm/llms/" in f"/{path}" or "docs/my-website" in path or is_not_evidence(path, sd.get("title", "")):
+                    continue
+                if sd.get("owner") not in ("Lilypad-Tech", "DeveloperAlly") or sd.get("repo") in facts_layer._EX["exclude_repos"]:
+                    continue
+                p = _IDX.get(d.get("id", ""))
+                text = re.sub(r"[ \t]+", " ", re.sub(r"<[^>]{0,400}>", " ", p.read_text(encoding="utf-8"))) if p else ""
+                if text.strip():
+                    seen.add(path)
+                    extra.append({"kind": sd.get("kind"), "repo": f"{sd.get('owner')}/{sd.get('repo')}", "path": path,
+                                  "url": sd.get("html_url", ""), "text": text})
+                if len(extra) >= 3:
+                    break
+        out = facts + out[:4] + extra
+    except Exception as e:  # never break the answer path; record why
+        sys.stderr.write(f"facts layer skipped: {e}\n")
     # Her own narrative documents, always in front of the composer (issue #6: prefer these over code and decks).
     # Item 12: owner_facts.md pinned first; the AI & Cloud Engineering Portfolio is unpinned.
     of = ROOT / "state" / "owner_facts.md"
