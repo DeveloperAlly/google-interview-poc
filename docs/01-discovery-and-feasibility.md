@@ -5,17 +5,21 @@ delivered as asked, inside the customer's real constraints, before anything bill
 
 ## The customer, the problem and the outcome
 
-**Customer.** A hiring panel assessing a candidate for a specific role. The candidate commissions the system; the
-panel uses it. In this engagement the role is Google Cloud's AI Outcome Customer Engineer, and the candidate is the
-owner of the repositories.
+**Customer.** The owner of the repositories, preparing for Google Cloud AI Outcome Customer Engineer interviews. The
+resource is for her to use. Interviewers are its subject, not its users: the questions it answers are theirs.
 
-**Problem.** The panel cannot verify a candidate's claims against the work itself. The evidence exists, but it is
-spread across hundreds of repositories and documents, in more than one GitHub owner, with public, private and
-internal visibility.
+**Problem** (confirmed by the owner, 23 October 2026). Her experience is spread across hundreds of repos, talks,
+writing and documents, and much of it is direction she set rather than code she wrote. So neither she nor an
+interviewer can quickly pull up verifiable evidence for any claim she makes. On top of that, she has to show she can
+run a Google customer engagement, and how this project itself is run is that proof.
 
-**Outcome.** An interviewer asks a question and gets a short answer that is grounded (every claim cited), attributed
-(wrote it, directed it, or neither), relevant to the role's requirements, and honest about missing evidence. The role
-description is an input, so the same system serves any role.
+**Outcomes** (owner's words): "An intelligent q&A site that uses the role needs to answer INTERVIEWER QUESTIONS ...
+Its not about EVIDENCE as must as it is about STORYTELLING / STAR / CAR answers - its a resource FOR ME to use", and
+"The build process MUST follow google's lifecycle". See the [README](../README.md) for the lifecycle position.
+
+**Superseded framing.** An earlier version of this section, written by another session, named a hiring panel as the
+customer and made verifiable evidence the product. The owner corrected both: the resource is hers, and storytelling
+answers are the product, with evidence in support.
 
 ## How discovery actually ran
 
@@ -48,7 +52,9 @@ attribution of hands-on authorship against technical direction, and an endpoint 
 first built only the search component. The outcome above restores the customer's intent and is what the engagement
 is assessed against.
 
-**Exit criteria.** The criteria in that PRD (100% of "240+" repos, "zero hallucinations", P95 under
+**Draft exit criteria (input to deliverable 03, not approved).** These were drafted before phase 1 was complete and
+before the outcome above was confirmed; they still describe an evidence tool, and must be rewritten for the confirmed
+outcome in the PRD. The criteria in that PRD (100% of "240+" repos, "zero hallucinations", P95 under
 450 ms) could not be measured as written: the repo count was wrong, "zero hallucinations" has no test, and latency
 was never measured. They are replaced by these:
 

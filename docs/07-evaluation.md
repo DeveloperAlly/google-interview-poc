@@ -6,6 +6,11 @@ for purpose.
 
 ## Interviewer acceptance tests
 
+**Draft, input to deliverable 05 (POC Test & Synthetic Eval Plan), not approved.** This protocol was written before
+the outcome was confirmed and scores answers as evidence for a panel. The confirmed outcome is a storytelling resource
+for the owner (STAR or CAR answers to interviewer questions, backed by evidence), so the scoring rules must be
+rewritten against the approved PRD (deliverable 03) before any test is run.
+
 Status: defined 23 Oct 2026, not yet run.
 
 **Protocol.**

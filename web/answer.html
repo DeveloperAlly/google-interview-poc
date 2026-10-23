@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexus Interview Coach</title>
+<style>
+  :root { --bg:#f6f7f8; --panel:#fff; --ink:#1b2228; --muted:#5d6872; --line:#dde2e6; --accent:#1a73e8; --warn:#b3261e; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#121416; --panel:#1b1e21; --ink:#e4e7ea; --muted:#9aa3ab; --line:#2c3136; --accent:#8ab4f8; --warn:#f2b8b5; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 16px; }
+  h1 { font-size: 22px; margin: 0; }
+  .sub, .m { color: var(--muted); font-size: 14px; }
+  form { display: flex; gap: 8px; flex-wrap: wrap; }
+  textarea { flex: 1 1 480px; min-height: 64px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); font: inherit; }
+  button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  button[disabled] { opacity: .6; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; font-weight: 400; min-height: 0; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  #answer { white-space: pre-wrap; font-size: 17px; }
+  .tag { display: inline-block; border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; margin-right: 6px; font-size: 13px; }
+  .gap { color: var(--warn); }
+  a { color: var(--accent); word-break: break-all; }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>Nexus Interview Coach</h1>
+    <p class="sub">Ask what a Google AI Outcome Customer Engineer interviewer would ask. You get the STAR/CAR answer to give, your role, the requirement it answers, and the proof. <a href="/stages">Build stages</a></p>
+  </div>
+  <form id="f">
+    <textarea id="q" placeholder="e.g. Walk me through a feasibility assessment you ran before committing to a build." required></textarea>
+    <button id="go" type="submit">Get my answer</button>
+  </form>
+  <div class="chips" id="chips"></div>
+  <section><div id="meta" class="m">Your answer appears here.</div><div id="answer"></div></section>
+  <section><div class="m">Proof</div><div id="proof"></div><div id="gaps"></div></section>
+</main>
+<script>
+const TOPICS = ["Tell me about your experience with AI platform integration.",
+  "Tell me about a program you managed end to end.",
+  "Give me an example of your technical execution on something hard.",
+  "Walk me through a technical feasibility assessment you ran.",
+  "Tell me about a time you dove into the code to diagnose a problem.",
+  "How have you engaged multiple stakeholders with competing priorities?",
+  "Where have you bridged pre-sales agreement shaping and post-sales execution?"];
+const $ = (id) => document.getElementById(id);
+for (const t of TOPICS) { const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t; b.onclick = () => { $("q").value = t; $("f").requestSubmit(); }; $("chips").appendChild(b); }
+function tag(t) { const s = document.createElement("span"); s.className = "tag"; s.textContent = t; return s; }
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault(); const question = $("q").value.trim(); if (!question) return;
+  $("go").disabled = true; $("meta").textContent = "Writing your answer..."; $("answer").textContent = ""; $("proof").textContent = ""; $("gaps").textContent = "";
+  try {
+    const r = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question }) });
+    const d = await r.json(); if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
+    $("meta").textContent = "";
+    $("meta").append(tag(d.structure), tag("Role: " + d.her_role), tag((d.requirement_id || "") + " " + (d.requirement || "")));
+    if (d.card_ids && d.card_ids.length) $("meta").append(tag("Cards: " + d.card_ids.join(", ")));
+    $("answer").textContent = d.answer;
+    for (const s of d.sources || []) {
+      const row = document.createElement("div"); row.className = "m";
+      row.textContent = "[" + s.n + "] " + s.kind + " / " + s.repo + (s.path ? " / " + s.path : "") + " ";
+      if (s.url && /^https:\/\//.test(s.url)) { const a = document.createElement("a"); a.href = s.url; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = "open"; row.appendChild(a); }
+      $("proof").appendChild(row);
+    }
+    if (!(d.sources || []).length) $("proof").textContent = "No sources cited.";
+    if (d.gaps && d.gaps.length) { const g = document.createElement("div"); g.className = "gap"; g.textContent = "Gaps an interviewer may probe: " + d.gaps.join("; "); $("gaps").appendChild(g); }
+  } catch (err) { $("meta").textContent = ""; $("answer").textContent = "Error: " + err.message; }
+  finally { $("go").disabled = false; }
+});
+</script>
+</body>
+</html>
