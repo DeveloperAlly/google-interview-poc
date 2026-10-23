@@ -121,3 +121,84 @@ and the label names the code repo. It is left as a miss rather than widened agai
    Answers", and the free allowance of 10,000 queries a month excludes only *Advanced* Generative Answers (the LLM
    add-on, removed from this app). So one core answer call should cost nothing. That is a reading of the pricing page,
    not a measurement: it gets tested with one call and a billing check the next day before anything is built on it.
+
+## Independent audit, 23 Oct 2026 (13:05 to 13:40 AEDT)
+
+Owner-requested review by a session outside the build. Its inputs:
+- the live product (`/stages`, `POST /api/answer`);
+- both project Drive folders;
+- `state/` on the laptop;
+- this repo's docs.
+
+Nothing in the build was changed. Owner decisions 1 to 11 on #5 are applied. The fixes are tracked in #16.
+
+### Stages page (13:08, then re-read 13:25)
+
+**Role profile (C2): 29 requirements.**
+
+| IDs | Source | Count |
+|---|---|---|
+| R1 to R7 | Recruiter topics | 7 |
+| R8 to R13 | Minimum qualifications | 6 |
+| R14 to R17 | Preferred qualifications | 4 |
+| R18 to R22 | Responsibilities | 5 |
+| R23 to R29 | Role summary | 7 |
+
+Every requirement traces to the posting or the recruiter email. Defects:
+- **R9 label** drops "in a customer-facing or support role".
+- **R13 label** drops "cloud infrastructure".
+- **R8 question** assumes no degree, but the CV lists three.
+- **R12** has no evidence anywhere for LangGraph, AutoGen or CrewAI, and the page does not flag it.
+
+**Story cards (C3).** There were 6 cards at 13:08 and 7 at 13:25 (S7 Dell, R7). No card serves R8 to R29, and no card cites the CV document. Card-level defects are listed in #16.
+
+**Gap questions.** None at 13:08. Written by 13:25 (`state/story_cards_gaps.md`).
+
+### Answer path baseline: 10 questions, 13:10 to 13:16, before the 13:20 restart
+
+Five questions came from posting requirements (P) and five probed CV claims (C). Model: `gemini-3.1-flash-lite`, 8 to 15 s per answer. Each answer was graded against the Drive CV document, the engineering-direction guide, the DocsOS deck, `docs/01`, `docs/03` and `docs/04`, and the published arXiv abstract.
+
+| # | Question (requirement) | Routed to | Grade | Defect |
+|---|---|---|---|---|
+| P1 | Enterprise integrations: IdP, ECM (R13) | R1 | Partial | "architected and deployed" for IBM is beyond the CV. Gap honestly flagged |
+| P2 | LangGraph, AutoGen or CrewAI (R12) | R1 | Non-responsive, misattributed | Describes anura. Credits the module framework with the LangChain compatibility the guide attributes to anura |
+| P3 | Five years cloud-native, customer-facing (R9) | R9 | Partial | Omits IBM. A removed sentence came back as a paraphrase |
+| P4 | Step in after weak pre-sales scoping (R27) | R7 | Non-responsive | Internal architecture story; no customer, no sale |
+| P5 | Integration issue to business impact (R17) | R6 | Non-responsive | No executive, no business impact |
+| C1 | Dell partnership | R6 | Partial | The checker could not support "structured" (since settled by owner decision 8) |
+| C2 | Tufts protein folding | R2 | Partial | "Led" with Dell; "wet-lab validation" from one resume copy. Since settled by owner decision 11 |
+| C3 | BHP and Telstra at IBM | none | **Wrong** | "I have no such experience on record", although the indexed CV names both |
+| C4 | arXiv 2501.05374 | R3 | **Grounded** | Matches the published abstract (Boniardi, Bishop, Haire) |
+| C5 | Node and workload counts | R3 | Honest, contradicts CV | All 6 `removed_by_fact_check` sentences remain in the answer |
+
+**Totals:**
+- 1 grounded and responsive;
+- 1 wrong;
+- 4 overclaiming or unsupported;
+- 4 non-responsive;
+- 2 contradicting the CV.
+- In 2 answers, fact-check removal did not take effect.
+
+**Re-test after the restart, C3 only (13:22).** The answer no longer denies the CV. Two problems remain:
+- It still says "architected and deployed".
+- It assigns discovery and PoCs to BHP and Telstra, which the CV places at NSW Police and Defence.
+
+### Drive evidence audit
+
+The ingest copies one folder (`13vtP…`, 9 files) plus the two Dell decks fetched by ID. Nothing in the parent folder (`1oyD9…`) was ingested.
+
+| Document | Ingested | Feeds a card | Evidence status |
+|---|---|---|---|
+| Job posting, recruiter email, cover letter, CV (text) | Yes, pinned | No | Strongest source; unused by cards |
+| Lilypad engineering-direction guide | Yes, pinned | S1, S3 | Self-reported; its dates and title are overridden by owner decision 7 |
+| Livepeer DocsOS deck | Yes | S6 | Allowed, self-reported (decision 5). "8+ months before MCP", "Staff+" and "100% ... zero engineering cost" are not defensible |
+| AI & Cloud Engineering Portfolio v1 | Yes, **pinned** | No | Positioning document. "Hundreds of global nodes" conflicts with decision 6; "100% inference uptime" is unmeasured |
+| Dell decks (2) | Yes | S7 | Primary; the only source for NativeEdge |
+| Case Study, Lifecycle, Nexus pitch, Vertex AI Search architecture, Master Archive | Yes, filtered by `NOT_EVIDENCE` | No | Correctly excluded (decisions 1 and 3) |
+| Portfolio v2, Career Playbook (2 copies), Repository Audit "170 repos" (parent folder) | No | No | Do not ingest. They repeat the contradicted claims below, the repo count is wrong (293 real, 204 in scope), and the audit conflates two different "jamjam" repos |
+
+### Claims contradicted by primary sources
+
+1. **Geo-Monitor, "6 global Azure regions."** The monitoring workflow runs every probe on `ubuntu-latest`. Location comes from a per-country WireGuard VPN exit. Region names are labels only, and on VPN failure the workflow falls back to "running without VPN (Azure IP)".
+2. **Paper-to-Protein attribution.** The primary source is the Lilypad episode "Lilypad Oncologist Altruistic AI Agent" (15 May 2025, in the career-archive clone). There, the Cedars-Sinai/Dartmouth researcher presents the four-node design, and the owner is not named. "You architected a distributed preprocessing tier" needs an owner fact before use.
+3. **"Falcon 3 7B (state space model)."** Falcon3-7B is a transformer; only Falcon3-Mamba-7B is a state space model ([Hugging Face, Falcon3](https://huggingface.co/blog/falcon3)). The transcript says "it has a number of what are called state space features", and the documents restate that as fact.
