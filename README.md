@@ -6,6 +6,19 @@ Search, so the whole body of work can be searched with citations back to the exa
 This repo is the **ingestion layer** and the **engagement record** of how it was scoped, designed, delivered
 and handed over, written the way an AI Outcome Customer Engineer runs a customer engagement.
 
+## Architecture
+
+[docs/00-architecture.md](docs/00-architecture.md) shows the system, the request flow and every component mapped to
+the need it serves.
+
+## Ask it a question
+
+```sh
+.venv/bin/python nexus/server.py     # then open http://127.0.0.1:8765
+```
+
+Answers come from Google Agent Search with your Google login. No model key is needed.
+
 ## The engagement record
 
 | Phase | Document |
@@ -17,6 +30,7 @@ and handed over, written the way an AI Outcome Customer Engineer runs a customer
 | Cost, commercials and a correction of error | [docs/05-cost-and-commercials.md](docs/05-cost-and-commercials.md) |
 | Production path and handover | [docs/06-production-path.md](docs/06-production-path.md) |
 | Search quality evaluation | [docs/07-evaluation.md](docs/07-evaluation.md) |
+| Answer layer and threat model | [docs/08-answer-layer.md](docs/08-answer-layer.md) |
 
 ## Runbook
 
@@ -51,9 +65,16 @@ The manifest itself is rebuilt each run: never hand-edit `repos.json`.
 ### 2. Harvest and normalise
 
 ```sh
-.venv/bin/python nexus/harvest.py --state state --cache clones --bucket unused
-.venv/bin/python nexus/prs.py     --state state --bucket unused
+.venv/bin/python nexus/harvest.py  --state state --cache clones --bucket unused [--path-exclusions state/path-exclusions.json]
+.venv/bin/python nexus/prs.py      --state state --bucket unused     # merged PRs with discussion and review threads
+.venv/bin/python nexus/issues.py   --state state --author <GITHUB_LOGIN>  # issues, plus your work in others' repos
+.venv/bin/python nexus/commits.py  --state state                     # commit history, one document per repo-month
+.venv/bin/python nexus/profile_docs.py --state state                 # role map -> citable documents
 ```
+
+Owner files in gitignored `state/`: `exclusions.json` (repos to leave out, by category), `inclusions.json` (forks
+that carry your own work), `path-exclusions.json` (sensitive paths inside an included repo),
+`profile/role-map.md` (your roles), `demo-scope.json` (story repos allowed in demo scope).
 
 One HTML document per eligible file, one summary document per repo, one per merged PR. Ids are
 `<prefix>-<sha256(canonical uri)[:32]>`, stable across runs. Both scripts exit non-zero if any id repeats.
@@ -65,8 +86,9 @@ Cached clones are fetched to the current default branch head before harvesting.
 .venv/bin/python nexus/scan.py --state state
 ```
 
-gitleaks runs over the unescaped text. Every flagged document is moved to `state/quarantine/`, dropped from the
-metadata, and the corpus is re-scanned. Exits non-zero unless the re-scan is clean.
+gitleaks runs over the unescaped text. Every flagged document is moved to `state/quarantine/` and dropped from the
+metadata, except repo summaries, which have the flagged lines redacted so the repo stays findable. The corpus is
+then re-scanned. Exits non-zero unless the re-scan is clean.
 
 ### 4. Data stores and search app (gate G2: parser and chunking are permanent)
 
@@ -91,7 +113,8 @@ finished batches. (`nexus/ingest.py` is the Cloud Storage staged variant for cor
 ### 6. Reconcile
 
 ```sh
-.venv/bin/python nexus/reconcile.py --project <PROJECT_ID> --state state --ds ds-code --target ds-code-lite
+.venv/bin/python nexus/reconcile.py --project <PROJECT_ID> --state state --ds ds-code --target ds-code-lite \
+  --manifest state/manifest/repos.json
 ```
 
 `documents.list` against the manifest, per repo. Exits non-zero if anything expected is missing.

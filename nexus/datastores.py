@@ -32,8 +32,14 @@ class Client:
             self.creds.refresh(google.auth.transport.requests.Request())
         h = {"Authorization": f"Bearer {self.creds.token}", "X-Goog-User-Project": self.project,
              "Content-Type": "application/json"}
-        r = requests.request(method, url if url.startswith("http") else f"{API}/{url}", headers=h, timeout=120, **kw)
-        return r
+        import time
+        for attempt in range(6):  # transient network errors (connection reset, chunked read) are retried with backoff
+            try:
+                return requests.request(method, url if url.startswith("http") else f"{API}/{url}", headers=h, timeout=120, **kw)
+            except (requests.ConnectionError, requests.exceptions.ChunkedEncodingError, requests.Timeout):
+                if attempt == 5:
+                    raise
+                time.sleep(2 ** attempt * 2)
 
     def wait(self, op):
         import time
@@ -97,6 +103,9 @@ def main():
         r = c.call("GET", f"{c.base}/engines/{a.engine}")
     e = r.json()
     print(f"get engine {a.engine}: HTTP {r.status_code} stores={e.get('dataStoreIds')} tier={e.get('searchEngineConfig')}")
+    if sorted(e.get("dataStoreIds", [])) != sorted(a.stores.split(",")):
+        print(f"  engine data store diff: want {sorted(a.stores.split(','))} got {sorted(e.get('dataStoreIds', []))}")
+        ok = False
     got = e.get("searchEngineConfig", {})
     if got.get("searchTier") != engine_cfg["searchTier"] or got.get("searchAddOns", []) != engine_cfg.get("searchAddOns", []):
         print(f"  engine config diff vs spec: want {engine_cfg} got {got}")

@@ -33,6 +33,31 @@ column is the output of a command, not a summary of intent.
 | P6 Reconcile | 04:53 | `ds-code-lite`: expected 16,555, present 16,555, missing 0, extra 0, 204 repos, 0 with gaps. `ds-prs-lite`: 1,424 / 1,424, missing 0, 70 repos | `reconcile.py` |
 | P7 Eval | 04:54 to 04:57, re-run after G4 | recall@5 1.00 (repo routing, 20); code-level 0.60 strict, 0.80 approved (10); merged PRs 0.88 (8) | [07](07-evaluation.md) |
 
+## Scope expansion after owner review (G1 revisited)
+
+The owner reviewed the first cut and found it had left out the most interview-relevant material. Every exclusion
+had been proposed by the builder and judged by file type or repo shape, not against the purpose.
+
+| Change | Why | Result |
+|---|---|---|
+| Content archive repo re-included: presentations, resume, writing, brand story, social posts, transcripts, research | Judged by format ("non-code archive") instead of purpose; it is the core of interviewer facts | 1,697 of 1,697 indexed. Extracted PDF text indexed instead of the raw PDFs; derived dumps of sensitive sources excluded by a gitignored path rule |
+| Client repos re-included (9) | Owner: they are evidence of delivered work. The index stays in the owner's private project; this repo never names them | 1,506 of 1,506 indexed |
+| One fork re-included by owner override | The fork carries the owner's own active work on a partner's documentation | 1,761 of 1,761 indexed |
+| Issues collected for every owned repo, including issue-only planning repos | Issues are where plans of work live. GitHub reports `size 0` for repos that hold only issues, so the "empty repo" rule had hidden 8 planning repos holding 126 issues | 2,068 issues across 62 repos, with comment threads |
+| The owner's issues and PRs in repositories they do not own | Contribution to other organisations' projects was invisible | 84 issues and 121 PRs across 56 repos; visibility looked up per repo (52 public, 4 private) |
+| PR discussion and review threads, and commit history | Direction-setting shows in review and discussion, not only in authored code | Harvested and imported after the review fixes; counts in the PR description |
+
+## Second review: fail-open defects
+
+An automated reviewer on the PR found five places where a failure would still report success. All fixed:
+an import batch with failures was recorded as finished; GitHub pagination treated any error as the end of the
+list; a crashed verification scan read as zero findings; failed clones did not fail the harvest; an existing search
+app was not checked for its attached stores. A sixth gap: reconcile compared the store with the harvest, not the
+manifest. Reconcile now requires a summary document for every included repo. On its first run it found **9 included
+repos with no summary document**: 8 had been dropped whole by the secret scan because their README excerpt held a
+key-like string, and one repo post-dated the harvest. Summaries are now redacted line by line instead of dropped;
+coverage is 216 of 216 (`reconcile.py --manifest`, 0 uncovered).
+
 ## What went wrong, and what was done about it
 
 | Defect | Caught by | Fix |
@@ -43,3 +68,8 @@ column is the output of a command, not a summary of intent.
 | Billable pilot ran before the cost check | Cost check before the full run | Full run stopped; zero-cost redesign; method fix recorded in [05](05-cost-and-commercials.md) |
 | 403 on a new project | Preflight | Retry; recorded as product feedback F5 |
 | Runbook referenced a script that did not exist yet | Writing the README | `manifest.py` written and verified against the approved manifest |
+| Most interview-relevant sources excluded or never collected | Owner review | Scope rebuilt around the purpose; see above |
+| Five fail-open paths and a reconcile blind spot | Automated PR review | Fixed; reconcile now checks the manifest |
+| GitHub and Google API clients had no retry on network errors | A read timeout and a connection reset during reconcile and harvest | Retry with backoff in both clients |
+| External PRs and issues labelled public regardless of their repo | Second automated review | Visibility looked up per repo; 22 documents from 4 private repos relabelled and re-imported, verified by reading them back |
+| Private repo names hardcoded in a committed test | Second automated review | Moved to gitignored state |

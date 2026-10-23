@@ -42,6 +42,7 @@ def main():
     c = Client(a.project)
     url = f"{c.base}/dataStores/{a.target}/branches/default_branch/documents:import"
     tot_ok = tot_fail = 0
+    failed_batches = []
     for i, docs in enumerate(batches(state, a.ds)):
         if i in done:
             continue
@@ -60,11 +61,18 @@ def main():
         ok, fail = int(m.get("successCount", 0)), int(m.get("failureCount", 0))
         rec = {"batch": i, "docs": len(docs), "success": ok, "failure": fail, "error": op.get("error"),
                "errorSamples": op.get("response", {}).get("errorSamples", [])[:5]}
-        with open(log, "a") as f:
-            f.write(json.dumps(rec) + "\n")
+        clean = not op.get("error") and fail == 0 and ok == len(docs)
+        if clean:  # only a fully successful batch is recorded as finished, so a re-run retries the rest
+            with open(log, "a") as f:
+                f.write(json.dumps(rec) + "\n")
+        else:
+            failed_batches.append(rec)
         tot_ok, tot_fail = tot_ok + ok, tot_fail + fail
         print(f"batch {i}: docs={len(docs)} success={ok} failure={fail} error={bool(op.get('error'))}", flush=True)
-    print(f"run total this invocation: success={tot_ok} failure={tot_fail}")
+    print(f"run total this invocation: success={tot_ok} failure={tot_fail} failed_batches={len(failed_batches)}")
+    if failed_batches:
+        (state / f"reports/import-{a.target}-{a.run}-failed.json").write_text(json.dumps(failed_batches, indent=1))
+        sys.exit("FAIL: some batches did not fully import; re-run the same --run to retry them")
 
 
 if __name__ == "__main__":

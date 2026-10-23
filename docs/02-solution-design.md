@@ -34,7 +34,7 @@ reconcile.py (documents.list vs manifest)   eval.py (real search calls, recall@5
 | D1 | Custom harvester, not the native GitHub connector | Gemini Enterprise GitHub connector | The connector needs a Gemini Enterprise setup and licence. A harvester gives control over eligibility, secret scanning and document shape, all of which mattered |
 | D2 | Run locally with the operator's user credentials (ADC) for the POC | GitHub Actions + WIF + service account, as the brief specified | The brief's reason for Actions (no network path) was false here. WIF is the right production identity and is documented in [06](06-production-path.md); building it first would have spent the 2 hours on plumbing |
 | D3 | Every document emitted as HTML (`text/html`) | Markdown, TXT | `text/markdown` is not in the REST mimeType list. HTML is, and HTML is the format the layout parser reads if chunking is ever enabled |
-| D4 | Digital parser, no chunking, on the stores that hold the corpus | Layout parser with 500-token layout chunks | Layout parsing is billed at USD 10 per 1,000 pages, where an HTML page is 3,000 characters. The corpus is 125.6M characters, about 50,430 pages, about USD 504. The digital parser "is offered without charge". The chunked stores created first are kept, unused beyond the pilot, for comparison |
+| D4 | Digital parser, no chunking, on the stores that hold the corpus | Layout parser with 500-token layout chunks | Layout parsing is billed at USD 10 per 1,000 pages, where an HTML page is 3,000 characters. The corpus is 125.6M characters, about 50,430 pages, about USD 504. The digital parser "is offered without charge". The chunked stores and their app, created first and used only for the pilot, were deleted on owner approval (G5) |
 | D5 | Inline import, no Cloud Storage staging | GCS bucket + JSONL with `content.uri` | Zero-cost requirement. A US multi-region bucket sits outside the Cloud Storage free tier, and 16,000+ object writes are billable operations |
 | D6 | Search app at Enterprise tier with the LLM add-on removed | Enterprise + `SEARCH_ADD_ON_LLM` | The free allowance of 10,000 queries a month "excludes Advanced Generative Answers". Removing the add-on keeps every query inside it |
 | D7 | Stable ids: `<prefix>-<first 32 hex of sha256(canonical source uri)>` | Random or path-based ids | RFC-1034 compliant, under 63 characters, and identical across runs so INCREMENTAL imports upsert instead of duplicating |
@@ -61,5 +61,9 @@ reconcile.py (documents.list vs manifest)   eval.py (real search calls, recall@5
 - Secrets: 483 findings across the full corpus (generic API keys, curl auth headers, JWTs, Slack webhooks,
   GCP and AWS keys). All 217 affected documents were quarantined locally and never uploaded. The findings
   themselves are a customer action item: any live credential in a repo, public or not, should be rotated.
+- **The search app mixes public, private and internal content.** Every document carries `visibility` in its
+  metadata. Before any live demo, `visibility` must be made filterable and queries filtered to `public`, or private
+  and internal code can surface on screen. A separate public-only app would need its own data stores, because a data
+  store attaches to one app only.
 - The ingestion repo is public. It holds code and these documents only. The corpus, manifest, reports and any
   repo or file names from private repos stay local.

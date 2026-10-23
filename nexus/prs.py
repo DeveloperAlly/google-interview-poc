@@ -20,7 +20,11 @@ class GH:
 
     def get(self, url, **params):
         for attempt in range(8):
-            r = self.s.get(url if url.startswith("http") else f"{API}/{url}", params=params, timeout=60)
+            try:
+                r = self.s.get(url if url.startswith("http") else f"{API}/{url}", params=params, timeout=60)
+            except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError):
+                time.sleep(min(120, 5 * 2 ** attempt))  # transient network failure: back off and retry
+                continue
             if r.status_code in (403, 429) and ("rate limit" in r.text.lower() or r.status_code == 429):
                 reset = int(r.headers.get("x-ratelimit-reset", time.time() + 60))
                 wait = max(5, min(900, reset - time.time() + 2))
@@ -28,15 +32,19 @@ class GH:
                 time.sleep(wait)
                 continue
             return r
-        sys.exit("FAIL: rate limit did not clear")
+        sys.exit("FAIL: GitHub request did not succeed after 8 attempts (rate limit or network)")
 
     def pages(self, path, **params):
-        url, params = f"{API}/{path}", {"per_page": 100, **params}
+        url, params, first = f"{API}/{path}", {"per_page": 100, **params}, True
         while url:
             r = self.get(url, **params)
+            if first and r.status_code in (404, 409, 410):
+                return  # first page only: repo gone (404), git repo empty (409), issues disabled (410)
+            first = False
             if r.status_code != 200:
-                return
-            yield from r.json()
+                sys.exit(f"FAIL: GitHub HTTP {r.status_code} while paging; refusing a partial list")
+            j = r.json()
+            yield from (j["items"] if isinstance(j, dict) and "items" in j else j)  # search API wraps results
             url, params = r.links.get("next", {}).get("url"), {}
 
 
@@ -59,12 +67,22 @@ def main():
                 if not pr.get("merged_at"):
                     continue
                 fr = gh.get(f"repos/{key}/pulls/{pr['number']}/files", per_page=100)
+                if fr.status_code not in (200, 404):
+                    sys.exit(f"FAIL: GitHub HTTP {fr.status_code} reading PR files; refusing to write a PR with no files")
                 files = [f["filename"] for f in fr.json()] if fr.status_code == 200 else []
                 more = " (first 100 shown)" if len(files) == 100 else ""
+                # Conversation, review summaries and inline review comments: where direction and decisions show up.
+                talk = [f"### {c['user']['login']} ({c['created_at'][:10]})\n\n{c.get('body') or ''}\n"
+                        for c in gh.pages(f"repos/{key}/issues/{pr['number']}/comments")]
+                talk += [f"### review by {v['user']['login']}: {v['state']}\n\n{v.get('body') or ''}\n"
+                         for v in gh.pages(f"repos/{key}/pulls/{pr['number']}/reviews") if v.get("body")]
+                talk += [f"### {c['user']['login']} on `{c.get('path', '')}`\n\n{c.get('body') or ''}\n"
+                         for c in gh.pages(f"repos/{key}/pulls/{pr['number']}/comments")]
+                thread = ("\n## Discussion and review\n\n" + "\n".join(talk)) if talk else ""
                 body = (f"# {key} PR #{pr['number']}: {pr['title']}\n\n- repo: {key}\n- author: {pr['user']['login']}\n"
                         f"- merged_at: {pr['merged_at']}\n- base: {pr['base']['ref']}\n- url: {pr['html_url']}\n"
                         f"- changed files: {len(files)}{more}\n\n## Description\n\n{pr.get('body') or '(no description)'}\n\n"
-                        f"## Changed paths\n\n" + "\n".join(f"- `{f}`" for f in files) + "\n")
+                        f"## Changed paths\n\n" + "\n".join(f"- `{f}`" for f in files) + "\n" + thread)
                 did = doc_id("pr", f"github://{key}/pull/{pr['number']}")
                 write_doc(state, ds, did, body, {"source": "github", "owner": r["owner"], "repo": r["name"], "path": "",
                           "kind": "pr", "language": "", "visibility": r["visibility"], "commit_sha": pr.get("merge_commit_sha") or "",

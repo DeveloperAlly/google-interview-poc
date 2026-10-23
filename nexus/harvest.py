@@ -1,7 +1,7 @@
-"""Harvest included repos into Markdown documents plus Agent Search JSONL metadata.
+"""Harvest included repos into HTML documents plus Agent Search JSONL metadata.
 
 Reads  <state>/manifest/repos.json   (built by manifest.py)
-Writes <state>/corpus/<ds>/<id>.md, <state>/metadata/<ds>/docs.jsonl, <state>/reports/harvest.json
+Writes <state>/corpus/<ds>/<id>.html (plus an unescaped .md copy under scan/ for the secret scanner), <state>/metadata/<ds>/docs.jsonl, <state>/reports/harvest.json
 
 Logs counts and hashed IDs only: repo names and paths from private repos never reach stdout.
 """
@@ -100,8 +100,10 @@ def main():
     ap.add_argument("--mime", default="text/html")
     ap.add_argument("--ext", default="html")
     ap.add_argument("--only", default="", help="comma list owner/name to restrict to (pilot)")
+    ap.add_argument("--path-exclusions", default="", help="JSON file {owner/name: [regex, ...]} kept in gitignored state")
     a = ap.parse_args()
     state, cache = Path(a.state), Path(a.cache)
+    path_ex = {k: [re.compile(p) for p in v] for k, v in json.load(open(a.path_exclusions)).items()} if a.path_exclusions else {}
     repos = [r for r in json.load(open(state / "manifest/repos.json")) if r["include"]]
     if a.only:
         want = set(a.only.split(","))
@@ -129,7 +131,8 @@ def main():
                 fp = path / f
                 if not fp.is_file() or fp.is_symlink():
                     continue
-                why = eligible(f, fp.stat().st_size)
+                why = ("owner-path-exclusion" if any(p.search(f) for p in path_ex.get(key, []))
+                       else eligible(f, fp.stat().st_size))
                 raw = fp.read_bytes() if why is None else b""
                 if why is None and b"\0" in raw[:8192]: why = "binary-content"
                 if why is None:
@@ -171,6 +174,9 @@ def main():
     print(f"repos={len(repos)} docs={report['docs']} unique_ids={report['ids']} excluded={report['excluded_reasons']}")
     if report["ids"] != report["docs"]:
         sys.exit("FAIL: duplicate document ids")
+    failed = [k for k, v in report["repos"].items() if v["reason"] == "clone-failed"]
+    if failed:
+        sys.exit(f"FAIL: {len(failed)} repo(s) failed to clone; see reports/harvest.json")
 
 
 if __name__ == "__main__":

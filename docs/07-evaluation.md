@@ -8,10 +8,14 @@ parser, no chunking). Three golden sets, approved at gate G4 by owner delegation
 
 | Set | Queries | What it tests | recall@5 | Detail |
 |---|---|---|---|---|
-| [golden.yaml](../eval/golden.yaml) | 20 | Find the right repo from a description | **1.00** | 17 at rank 1, 3 at rank 2 |
-| [golden-code.yaml](../eval/golden-code.yaml), first run, strict labels | 10 | Find the right file from an interviewer-style "how does X work" question | **0.60** | 6 hits; ranks 1, 1, 2, 3, 4, 4 |
-| [golden-code.yaml](../eval/golden-code.yaml), approved labels | 10 | Same, with three labels widened at G4 (see below) | **0.80** | 2 misses: mediation, proof of work |
-| [golden-prs.yaml](../eval/golden-prs.yaml) | 8 | Find the right merged PR from a paraphrase of the change | **0.88** | 1 miss: proof of work default |
+| [golden.yaml](../eval/golden.yaml) | 20 | Find the right repo from a description | **1.00** (20 of 20) | 17 at rank 1, 3 at rank 2 |
+| [golden-code.yaml](../eval/golden-code.yaml), first run, strict labels | 10 | Find the right file from an interviewer-style "how does X work" question | **0.60** (6 of 10) | ranks 1, 1, 2, 3, 4, 4 |
+| [golden-code.yaml](../eval/golden-code.yaml), approved labels | 10 | Same, with three labels widened at G4 (see below) | **0.80** (8 of 10) | 2 misses: mediation, proof of work |
+| [golden-prs.yaml](../eval/golden-prs.yaml) | 8 | Find the right merged PR from a paraphrase of the change | **0.88** (7 of 8) | 1 miss: proof of work default |
+
+**Limits of these numbers.** The sets are small (20, 10 and 8 queries), the builder wrote them, and three labels
+were widened after the first run. They are smoke tests that the pipeline retrieves the right things, not a
+benchmark. A real evaluation needs questions written by someone who did not build the index.
 
 ## Reading the numbers honestly
 
@@ -49,6 +53,8 @@ and the label names the code repo. It is left as a miss rather than widened agai
    harvester, so each document is smaller.
 3. **Filter by kind.** `kind` (code, doc, readme, adr, pr, repo) is in every document's metadata. Making it
    filterable (field settings) lets a question be asked of code only, or of PRs only.
-4. **Generative answers are off by design.** Enterprise core generative answers and the LLM add-on would turn
-   results into cited answers, the end goal for interview use. They are off to stay at zero cost; switching them
-   on is a commercial decision priced in [05](05-cost-and-commercials.md).
+4. **Cited answers may already be inside the free allowance.** An earlier draft of this document said Agent Search
+   answers are paid. That was wrong as stated. The pricing page says Enterprise Edition "includes Core Generative
+   Answers", and the free allowance of 10,000 queries a month excludes only *Advanced* Generative Answers (the LLM
+   add-on, removed from this app). So one core answer call should cost nothing. That is a reading of the pricing page,
+   not a measurement: it gets tested with one call and a billing check the next day before anything is built on it.

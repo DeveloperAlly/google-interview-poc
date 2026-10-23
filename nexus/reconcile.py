@@ -14,6 +14,7 @@ def main():
     ap.add_argument("--state", required=True)
     ap.add_argument("--ds", required=True, help="corpus name under <state>/metadata")
     ap.add_argument("--target", required=True, help="data store id")
+    ap.add_argument("--manifest", help="repos.json: require a present repo-summary doc for every included repo")
     a = ap.parse_args()
     state = Path(a.state)
     expected = {}
@@ -47,8 +48,17 @@ def main():
               open(state / f"reports/coverage-{a.target}.json", "w"), indent=1)
     print(f"{a.target}: expected={len(expected)} present={len(present)} missing={len(missing)} "
           f"extra={len(extra)} repos={len(by_repo)} repos_with_gaps={len(gaps)} list_calls={calls}")
+    uncovered = []
+    if a.manifest:
+        from harvest import doc_id
+        for r in json.load(open(a.manifest)):
+            if r["include"] and doc_id("rp", f"github://{r['owner']}/{r['name']}") not in present:
+                uncovered.append(doc_id("rp", f"github://{r['owner']}/{r['name']}"))
+        print(f"manifest coverage: included repos without a summary doc in the store = {len(uncovered)}")
     if missing:
         sys.exit("FAIL: documents missing from the data store")
+    if uncovered:
+        sys.exit("FAIL: harvest did not cover every included repo in the manifest")
 
 
 if __name__ == "__main__":
