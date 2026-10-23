@@ -118,7 +118,6 @@ NOT_EVIDENCE = ("customer engineering case study", "scaled ai knowledge engine",
 
 
 PINNED = [("dr-c5bdf54850b70dedb9fe36fc2c97e51a", "Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx"),
-          ("dr-dff34a7d9d8b0e0739d6de5beb67cb01", "AI & Cloud Engineering Portfolio (2024\u20132026).docx"),
           # Her CV: always in evidence so a named employer or client (IBM, BHP, Telstra) is never a false GAP.
           ("dr-4a8d7996f1ebc0e56a6f0ba41c4bed70", "Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV")]
 
@@ -161,6 +160,11 @@ def evidence_for(nexus: "Nexus", question: str) -> list[dict]:
                     "url": sd.get("html_url", ""), "text": text})
     out = out[:6]
     # Her own narrative documents, always in front of the composer (issue #6: prefer these over code and decks).
+    # Item 12: owner_facts.md pinned first; the AI & Cloud Engineering Portfolio is unpinned.
+    of = ROOT / "state" / "owner_facts.md"
+    if of.exists():
+        out.insert(0, {"kind": "owner_facts", "repo": "DeveloperAlly/owner", "path": "state/owner_facts.md", "url": "",
+                       "text": of.read_text(encoding="utf-8")})
     have = {e["path"] for e in out}
     for stem, path in PINNED:
         p = _IDX.get(stem)

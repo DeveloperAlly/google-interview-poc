@@ -4,7 +4,7 @@ Agent Search retrieves (free allowance); Gemini composes (free tier). One Gemini
 """
 from __future__ import annotations
 
-import json, time
+import json, re, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -116,11 +116,86 @@ def verify(client, types, model: str, out: dict, cards: dict, ev: str) -> dict:
     return out
 
 
+STOP = set("""a an the and or of to in on for with by at from as is are was were be been my our we i it this that their
+what how why when where who which do does did you your tell me about time describe example give have has can would""".split())
+OUTCOME_VERBS = ("delivered", "signed", "ensured", "deployed", "architected")
+COMMON_CAPS = {"I", "I'm", "I've", "I'd", "My", "The", "This", "That", "We", "In", "At", "As", "When", "My", "Our",
+               "Situation", "Task", "Action", "Result", "Context", "STAR", "CAR", "GAP", "By", "No", "It", "So"}
+
+
+def route(question: str, profile: dict, cards: dict) -> tuple[dict | None, list[dict]]:
+    """Item 11: deterministic requirement routing by word overlap, then the cards whose requirement_ids hold it."""
+    q = {w for w in re.findall(r"[a-z0-9]+", question.lower()) if w not in STOP and len(w) > 2}
+    best, score = None, 0
+    for r in profile.get("requirements", []):
+        m = re.search(r"\bR\d+\b", question)
+        if m and r.get("id") == m.group(0):
+            best, score = r, 99; break
+        t = {w for w in re.findall(r"[a-z0-9]+", str(r.get("text", "")).lower()) if w not in STOP and len(w) > 2}
+        sc = len(q & t) / (len(t) ** 0.5 or 1)
+        if sc > score:
+            best, score = r, sc
+    if not best or score < 0.5:
+        return None, cards.get("cards", [])
+    rid = best["id"]
+    hit = [c for c in cards.get("cards", []) if rid in (c.get("requirement_ids") or []) or rid in (c.get("related_topics") or [])]
+    hit.sort(key=lambda c: 0 if (c.get("requirement_ids") or [None])[0] == rid else 1)  # R7 -> S7 (primary) first
+    return best, hit
+
+
+def _slots(c: dict) -> str:
+    return " ".join(str(c.get(k, "")) for k in ("project", "her_role", "situation", "task", "action", "result", "metric", "topic"))
+
+
+def post_check(answer: str, cited_text: str) -> tuple[str, list[str]]:
+    """Item 10: deterministic, no second Gemini call. Cut any sentence with a number, named organisation or outcome
+    verb that is not in a cited card slot, owner_facts.md or a cited evidence chunk."""
+    hay = cited_text.lower()
+    keep, cut = [], []
+    for sent in re.split(r"(?<=[.!?])\s+", answer.strip()):
+        if not sent:
+            continue
+        bad = []
+        for n in re.findall(r"\d[\d,.]*\+?", sent):
+            if n.rstrip(".,+") not in hay:
+                bad.append(n)
+        words = re.findall(r"[A-Za-z][A-Za-z0-9&'-]*", sent)
+        for i, w in enumerate(words):
+            if i > 0 and (w[0].isupper() or w.isupper()) and w not in COMMON_CAPS and w.lower() not in hay:
+                bad.append(w)
+        for v in OUTCOME_VERBS:
+            if re.search(rf"\b{v}\b", sent.lower()) and v not in hay:
+                bad.append(v)
+        (cut if bad else keep).append(sent if not bad else f"{sent}  [unsupported: {', '.join(dict.fromkeys(bad))}]")
+    return " ".join(keep), cut
+
+
 def compose(question: str, evidence: list[dict]) -> dict:
+    out = _compose(question, evidence)
+    cards = {c["id"]: c for c in usable_cards(story_cards()).get("cards", [])}
+    cited = [_slots(cards[i]) for i in out.get("card_ids", []) if i in cards]
+    cited += [evidence[n - 1].get("text", "") for n in out.get("source_numbers", []) if isinstance(n, int) and 0 < n <= len(evidence)]
+    out["draft_answer"] = out.get("answer", "")
+    out["answer"], out["cut"] = post_check(out["draft_answer"], owner_facts() + "\n" + "\n".join(cited))
+    if not out["answer"].strip():
+        out["answer"], out["structure"] = "The sources on record do not support an answer to this question.", "GAP"
+    return out
+
+
+def _compose(question: str, evidence: list[dict]) -> dict:
     from google import genai
     from google.genai import types
     client = genai.Client(api_key=gemini_key())
     profile, cards = role_profile(), usable_cards(story_cards())
+    req, hit = route(question, profile, cards)
+    if req:
+        cards = {**cards, "cards": hit}
+        routing = (f"ROUTED REQUIREMENT (deterministic, binding): {req['id']}: {req.get('text')}. Set requirement_id to "
+                   f"{req['id']}. " + (f"Use card {hit[0]['id']} as the main story." if hit else
+                   "No story card covers this requirement: answer it from the evidence only if a source directly "
+                   "states her experience of it; otherwise structure is GAP. Never substitute an R1 to R7 story."))
+    else:
+        routing = "No requirement matched deterministically; pick the best-fitting one."
     ev = "\n\n".join(f'<source n="{i+1}" kind="{e.get("kind")}" repo="{e.get("repo")}" path="{e.get("path")}" url="{e.get("url")}">\n{e.get("text", "")[:(15000 if "CV" in str(e.get("path")) else 5000 if e.get("kind") == "narrative" else 2000)]}\n</source>'
                      for i, e in enumerate(evidence))
     prompt = f"""You are Ally Haire's interview coach. Write the answer she gives to this interviewer question.
@@ -134,6 +209,9 @@ fact that contradicts them):
 ROLE PROFILE (what Google is hiring for):
 {json.dumps(profile, ensure_ascii=False)[:12000]}
 
+{routing}
+ROLE AND ORGANISATION: take her role and every organisation name only from story card slots and OWNER FACTS, never
+from other evidence.
 ROUTING: map the question to the best-fitting requirement among ALL requirements in the role profile (R1 to R7
 are recruiter topics, R8 onwards are posting requirements such as years customer-facing, enterprise integrations,
 executive communication, field feedback). Do not force a posting-requirement question onto R1 to R7.
