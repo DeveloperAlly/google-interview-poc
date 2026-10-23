@@ -121,7 +121,7 @@ def apply():
                 v, src, q = edits["_role"]
                 assert sc.norm(q) in sc.norm(texts[src]), (cid, "role", q)
                 c["her_role"] = v
-                c["sources"].append({"path_or_url": src, "supports": "role", "quote": q, "self_reported": sc.self_reported(src)})
+                c["sources"].append({"path_or_url": src, "url": sc.url_for(src), "supports": "role", "quote": q, "self_reported": sc.self_reported(src)})
                 c["self_reported_slots"].append("role")
         for slot, e in edits.items():
             if slot.startswith("_"):
@@ -135,7 +135,7 @@ def apply():
             assert not why, (cid, slot, why)
             c[slot] = text
             for g in good:
-                c["sources"].append({"path_or_url": g["path_or_url"], "supports": slot, "quote": g["quote"], "self_reported": g["self_reported"]})
+                c["sources"].append({"path_or_url": g["path_or_url"], "url": g["url"], "supports": slot, "quote": g["quote"], "self_reported": g["self_reported"]})
             if all(g["self_reported"] for g in good):
                 c["self_reported_slots"].append(slot)
         c["sources_read"] = sorted(set(c["sources_read"]) | set(texts))

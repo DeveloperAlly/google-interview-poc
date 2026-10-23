@@ -18,11 +18,14 @@ import time
 import zipfile
 from pathlib import Path
 
-ROOT = Path(os.environ.get("NEXUS_ROOT", Path(__file__).resolve().parents[3]))
+ROOT = Path(os.environ.get("NEXUS_ROOT", Path(__file__).resolve().parents[1]))  # nexus/ -> repo root
 STATE = ROOT / "state"
 OUT = STATE / "story_cards.json"
 MC = "state/clones/DeveloperAlly/my-content"
 DRIVE = "state/drive"
+# Owner decisions on #5 (6 to 11). Overrides any other source; cited as self-reported.
+OWNER_FACTS = "state/owner_facts.md"
+REPO_URL = "https://github.com/DeveloperAlly/google-interview-poc/blob/main/"
 
 # Figures disproved or unverified by the build (issue #8 addendum). Never on a card.
 BANNED = [r"240\+", r"\b57\b", r"\b113\b", r"37 model", r"zero hallucination", r"100% recall",
@@ -88,6 +91,24 @@ def norm(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip().lower()
 
 
+NUM = re.compile(r"\d[\d,]*(?:\.\d+)?")
+
+
+def numbers(s: str) -> set:
+    """Whole numbers in s, commas removed, so '1,534' matches '1534' but '15' does not match '1534'."""
+    return {n.replace(",", "") for n in NUM.findall(s)}
+
+
+def url_for(path: str) -> str:
+    """A link that opens: repo docs on GitHub, cloned repos on their own GitHub. Drive and state files stay local."""
+    if path.startswith("docs/"):
+        return REPO_URL + path
+    m = re.match(r"state/clones/([^/]+)/([^/]+)/(.+)", path)
+    if m:
+        return f"https://github.com/{m[1]}/{m[2]}/blob/HEAD/{m[3]}"
+    return ""
+
+
 def self_reported(path: str) -> bool:
     # Only this repo's engagement record counts as a record; decks, portfolio and CV-derived files are self-reported.
     return not path.startswith("docs/")
@@ -116,7 +137,8 @@ def gemini(prompt: str) -> dict:
 PROMPT = """You are drafting ONE interview story for Ally Haire (she/her) for a Google AI Outcome Customer
 Engineer interview. Recruiter topic: {topic}. Project: {project}.
 
-Use ONLY the sources below. Each source starts with SOURCE: <path>.
+Use ONLY the sources below. Each source starts with SOURCE: <path>. Where {owner_facts} conflicts with any other
+source, {owner_facts} wins (titles, dates, scale, role); quote it for those slots.
 Return JSON:
 {{"project": "<short project name>",
   "her_role": {{"value": "built|led|directed|missing", "source": "<path>", "quote": "<verbatim>"}},
@@ -151,13 +173,13 @@ def verify(slot: dict, texts: dict) -> tuple:
     good = []
     for e in ev:
         src, q = e.get("source", ""), e.get("quote", "")
-        if src in texts and len(norm(q)) > 15 and norm(q) in norm(texts[src]):
-            good.append({"path_or_url": src, "quote": q, "self_reported": self_reported(src)})
-    if not good:
-        return "missing", [], "quote not found in source"
-    quotes = " ".join(norm(g["quote"]) for g in good)
-    for n in re.findall(r"\d[\d,.]*", text):
-        if n.rstrip(".,") not in quotes:
+        # Every quote must verify. One invented quote voids the slot, even if another quote is real.
+        if not (src in texts and len(norm(q)) > 15 and norm(q) in norm(texts[src])):
+            return "missing", [], f"quote not found in {src or 'unnamed source'}"
+        good.append({"path_or_url": src, "url": url_for(src), "quote": q, "self_reported": self_reported(src)})
+    quoted = set().union(*(numbers(g["quote"]) for g in good))
+    for n in numbers(text):
+        if n not in quoted:
             return "missing", [], f"number {n} not in quotes"
     for b in BANNED:
         if re.search(b, text, re.I):
@@ -184,13 +206,14 @@ def write_out(doc: dict) -> None:
 
 def build(rid: str) -> dict:
     topic, project, paths = TOPICS[rid]
+    paths = [OWNER_FACTS] + [p for p in paths if p != OWNER_FACTS]
     texts = {}
     for p in paths:
         f = ROOT / p
         if f.exists():
             texts[p] = extract(f)
     sources = "\n\n".join(f"SOURCE: {p}\n{t}" for p, t in texts.items())
-    d = gemini(PROMPT.format(topic=topic, project=project, sources=sources))
+    d = gemini(PROMPT.format(topic=topic, project=project, sources=sources, owner_facts=OWNER_FACTS))
     if isinstance(d, list):
         d = d[0] if d and isinstance(d[0], dict) else {}
     card = {"id": "S" + rid[1:], "requirement_ids": [rid], "topic": topic,
@@ -201,7 +224,8 @@ def build(rid: str) -> dict:
     rq, rs = role.get("quote", ""), role.get("source", "")
     if rv in ("built", "led", "directed") and rs in texts and norm(rq) and norm(rq) in norm(texts[rs]):
         card["her_role"] = rv
-        srcs.append({"path_or_url": rs, "supports": "role", "quote": rq, "self_reported": self_reported(rs)})
+        srcs.append({"path_or_url": rs, "url": url_for(rs), "supports": "role", "quote": rq,
+                     "self_reported": self_reported(rs)})
         if self_reported(rs):
             sr_slots.append("role")
     else:
@@ -213,7 +237,7 @@ def build(rid: str) -> dict:
         if why:
             rejects[s] = why
         for g in good:
-            srcs.append({"path_or_url": g["path_or_url"], "supports": s, "quote": g["quote"],
+            srcs.append({"path_or_url": g["path_or_url"], "url": g["url"], "supports": s, "quote": g["quote"],
                          "self_reported": g["self_reported"]})
         if good and all(g["self_reported"] for g in good):
             sr_slots.append(s)
