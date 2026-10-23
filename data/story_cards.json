@@ -1,0 +1,1782 @@
+{
+  "cards": [
+    {
+      "id": "S1",
+      "requirement_ids": [
+        "R1"
+      ],
+      "topic": "AI platform integration",
+      "project": "Lilypad Module Framework and anura Gateway",
+      "her_role": "directed",
+      "situation": "I faced a rapidly moving AI landscape where hardcoding neural networks into the protocol would cause breaking updates. Enterprise builders also required reliable endpoints that would not crash if a community node drops off mid-stream.",
+      "task": "I needed to future-proof the protocol against model churn and make the network usable for standard enterprise developers with zero friction.",
+      "action": "I architected a framework where AI models are pluggable modules, allowing us to deploy new models like DeepSeek R1 within 24 hours. I also directed the creation of anura, an OpenAI-compatible gateway with automated LiteLLM failover to ensure service stability.",
+      "result": "This provided drop-in compatibility with LangChain and Autonolas agents. If a decentralized GPU node fails, the failover layer transparently reroutes requests to redundant endpoints without disconnecting the client.",
+      "metric": "Because models were pluggable Git-versioned modules, our ecosystem could deploy DeepSeek R1 or Wan2.1 Video within 24 hours of release without touching the core Go solver daemon.",
+      "sources": [
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "role",
+          "quote": "Directed the creation of anura and the LiteLLM failover strategy.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "situation",
+          "quote": "In a rapidly moving AI landscape, hardcoding specific neural networks into the core Go protocol meant every new model release (Mistral, Flux, DeepSeek, Wan2.1) would require a breaking protocol update.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "situation",
+          "quote": "If a community node drops off mid-stream, the enterprise app cannot crash.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "task",
+          "quote": "I wanted Lilypad to be usable by any standard LangChain or enterprise developer with zero Web3 friction.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "task",
+          "quote": "We had to future-proof the protocol against AI model churn.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "action",
+          "quote": "By treating AI models as pluggable Git-versioned modules rather than core protocol primitives, our ecosystem could deploy DeepSeek R1 or Wan2.1 Video within 24 hours of release without touching a single line of the core Go solver daemon.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "action",
+          "quote": "We wrapped our decentralized Go daemon behind an OpenAI-compatible API gateway (anura) with automated LiteLLM failover, turning an inherently volatile community node network into a rock-solid, production-grade cloud service.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "result",
+          "quote": "Provided drop-in compatibility with LangChain, LlamaIndex, and Autonolas agents.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "result",
+          "quote": "If a decentralized GPU node fails to return an inference or hangs, the failover layer transparently catches the failure and reroutes to standby nodes or redundant model endpoints without disconnecting the client.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "metric",
+          "quote": "By treating AI models as pluggable Git-versioned modules rather than core protocol primitives, our ecosystem could deploy DeepSeek R1 or Wan2.1 Video within 24 hours of release without touching a single line of the core Go solver daemon.",
+          "self_reported": true
+        }
+      ],
+      "self_reported_slots": [
+        "role",
+        "situation",
+        "task",
+        "action",
+        "result",
+        "metric"
+      ],
+      "gaps": {
+        "metric": "The '24 hours to deploy a new model' figure comes only from the engineering-direction guide's interview script. Is it true, and is it recorded anywhere (a release note, PR or tweet)?"
+      },
+      "sources_read": [
+        "career evidence (self-reported)",
+        "CV (self-reported)",
+        "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+        "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx"
+      ],
+      "sources_absent": [],
+      "reviewed": "hand-reviewed against sources by A2, 2026-10-23"
+    },
+    {
+      "id": "S2",
+      "requirement_ids": [
+        "R2"
+      ],
+      "topic": "program management",
+      "project": "FVM Developer Experience and Space Warp Hackathon",
+      "her_role": "led",
+      "situation": "At Protocol Labs and the Filecoin Foundation (Jan 2022 to Nov 2023), I led the developer experience and go-to-market for the Filecoin Virtual Machine, one of the largest smart contract platform launches in Web3. I owned the FVM developer experience roadmap for six months before launch.",
+      "task": "Hire and assemble the FVM developer experience team, and set its direction in close collaboration with technical and product leadership across Protocol Labs and Filecoin Foundation.",
+      "action": "I designed and ran the developer activation strategy for FVM: the hackathon, tutorials, documentation, grants, workshops and the partner ecosystem. I led developer education, the grants programme and ecosystem partnerships across the Protocol Labs network, and represented Filecoin Foundation at ETHGlobal, IPFS Camp, ETH_AI Day and Consensus, including a keynote on verifiable compute on FVM at Filecoin Unleashed, Paris. After launch I moved to the Bacalhau team to integrate FVM with decentralised compute.",
+      "result": "Space Warp, the flagship FVM developer activation event that I designed and ran, drew 1,000+ hackers and 276 submissions. The FVM and Bacalhau integration work that followed became the direct technical origin of Lilypad.",
+      "metric": "1,000+ hackers and 276 submissions at Space Warp, the flagship FVM developer activation event.",
+      "sources": [
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "role",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "metric",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "situation",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "situation",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "situation",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "supports": "task",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "task",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "supports": "action",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "action",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "action",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "action",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "action",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "result",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "result",
+          "self_reported": true,
+          "url": ""
+        }
+      ],
+      "self_reported_slots": [
+        "role",
+        "situation",
+        "task",
+        "action",
+        "result",
+        "metric"
+      ],
+      "gaps": {},
+      "sources_read": [
+        "career evidence (self-reported)",
+        "career archive (self-reported)",
+        "CV (self-reported)"
+      ],
+      "sources_absent": [],
+      "reviewed": "hand-reviewed against sources by A2, 2026-10-23"
+    },
+    {
+      "id": "S3",
+      "requirement_ids": [
+        "R3"
+      ],
+      "topic": "technical execution",
+      "project": "Lilypad v0 bridge relayer (at Protocol Labs, Jan 2022 to Nov 2023, before Lilypad was founded)",
+      "her_role": "built",
+      "situation": "At Protocol Labs and the Filecoin Foundation (Jan 2022 to Nov 2023), Lilypad v0 was a single Filecoin smart contract proof-of-concept, built on the Bacalhau team, as part of the FVM-Bacalhau integration. After the FVM launch I had moved to the Bacalhau team to integrate FVM with decentralised compute.",
+      "task": "Validate the core thesis that trustless, off-chain GPU compute could be triggered from on-chain primitives.",
+      "action": "Hands-on, I built the original proof-of-concept bridges between FVM smart contracts and decentralised compute clusters (lilypad-v0, Bacalhau-based oracles). I wrote the initial contracts and wired up the first Dockerized model execution triggers, and presented the work as Project Lilypad: bringing off-chain compute to the FVM.",
+      "result": "A bridge relayer that enabled compute jobs from an FVM smart contract on Bacalhau, the direct technical origin of the company I later founded. On the same stack I built and launched Waterlily.ai (early 2023), the first AI-generated art platform paying on-chain royalties to artists using FVM smart contracts and Bacalhau distributed compute; it was covered by SiliconANGLE on launch, and its technical tutorial was a HackerNoon Top Story.",
+      "metric": "missing",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "situation",
+          "quote": "Lilypad v0 was built at Protocol Labs (2022 to 2023), not at Lilypad.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx",
+          "supports": "situation",
+          "quote": "Developer Relations Engineer to Technical Product DX Lead, Protocol Labs / Filecoin Foundation, Jan 2022 - Nov 2023. FVM GTM and DevEx roadmap; hired and led DX team; FVM-Bacalhau integration and Lilypad v0 bridge relayer",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "supports": "situation",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "role",
+          "quote": "lilypad-v0: Built the original Bacalhau-to-FVM compute oracle bridge.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "task",
+          "quote": "validated the core thesis: that trustless, off-chain GPU compute could be triggered from on-chain primitives.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "action",
+          "quote": "I wrote the initial contracts, wired up the first Dockerized model execution triggers",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "supports": "result",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "situation",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "action",
+          "quote": "building the original proof-of-concept bridges between Filecoin Virtual Machine (FVM) smart contracts and decentralized compute clusters (lilypad-v0, Bacalhau-based oracles)",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "supports": "action",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "result",
+          "self_reported": true,
+          "url": ""
+        }
+      ],
+      "self_reported_slots": [
+        "role",
+        "task",
+        "action",
+        "result",
+        "situation"
+      ],
+      "gaps": {
+        "metric": "Is there any number for Lilypad v0 (jobs run, demo users, hackathon teams using it)? If none, say none."
+      },
+      "sources_read": [
+        "career evidence (self-reported)",
+        "CV (self-reported)",
+        "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx",
+        "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2b round 2, 2026-10-23: review defects fixed, every quote re-checked"
+    },
+    {
+      "id": "S4",
+      "requirement_ids": [
+        "R4",
+        "R18"
+      ],
+      "topic": "feasibility assessments",
+      "project": "Nexus: indexing her GitHub estate into Google Agent Search",
+      "her_role": "built, led and directed; AI agents wrote the code under my direction",
+      "situation": "The brief cited 240+, 57 and 113 repos from earlier materials, and assumed the build agent could not reach googleapis.com.",
+      "task": "Establish whether the solution could be delivered as asked, inside the real constraints, before anything billable or permanent was created.",
+      "action": "Every feasibility check was a real call: network path, read access to both owners, document formats, chunking, import limits, a credential scan and cost. The paginated count was 293 repos. At the scope gate, 49 forks and 23 empty repos were excluded by rule and 17 by category, leaving 204 in scope. I built and led it, directing AI agents that wrote the code; I set the outcome, the gates and the decisions.",
+      "result": "All 16,555 documents from the 204 repos were imported and reconciled, with 0 missing and 0 extra.",
+      "metric": "204 repos in scope of 293 counted; 16,555 of 16,555 documents reconciled, 0 missing; about USD 37 incurred on the pilot, about USD 504 full import avoided.",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "role",
+          "quote": "Say \"I built and led it, directing AI agents that wrote the code\".",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "action",
+          "quote": "AI agents wrote the code under her direction; she set the outcome, the gates and the decisions.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "situation",
+          "quote": "The brief cited counts of 240+, 57 and 113 repos from earlier materials",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "situation",
+          "quote": "The brief assumed the build agent cannot reach `googleapis.com`",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "task",
+          "quote": "before anything billable or",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "action",
+          "quote": "Feasibility checks (each one a real call)",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "action",
+          "quote": "**293** repos from the API, counted by paginating both owners.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "action",
+          "quote": "Forks (49) and empty repos (23) excluded by rule.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "action",
+          "quote": "17 repos excluded by category (client IP, personal, not-owner code, non-code archive); forks and empty repos by rule; 204 in",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "metric",
+          "quote": "Result at the time: **204 repos in scope**",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "result",
+          "quote": "expected 16,555, present 16,555, missing 0, extra 0, 204 repos, 0 with gaps",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "her_role",
+          "quote": "she built, led and directed it. AI agents wrote the code under her direction",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "metric",
+          "quote": "Full import on layout parser about USD 504; pilot about USD 37 already incurred.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "metric",
+          "quote": "**293** repos from the API, counted by paginating both owners.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "metric",
+          "quote": "expected 16,555, present 16,555, missing 0, extra 0, 204 repos, 0 with gaps",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        }
+      ],
+      "self_reported_slots": [],
+      "gaps": {
+        "scope_note": "docs/01 says scope later rose to 216 after you re-included excluded repos; the card states the G1 figure, 204."
+      },
+      "sources_read": [
+        "docs/01-discovery-and-feasibility.md",
+        "docs/03-delivery-log.md",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2c 2026-10-23: role set per owner_facts"
+    },
+    {
+      "id": "S5",
+      "requirement_ids": [
+        "R5",
+        "R11",
+        "R24",
+        "R20"
+      ],
+      "topic": "code-level context",
+      "project": "Nexus: secret scan before upload",
+      "her_role": "built, led and directed; AI agents wrote the code under my direction",
+      "situation": "Credentials were present in real repos, so a secret scan before upload was mandatory. On the pilot, the scan of the HTML that would be uploaded found 15 findings, but the same content as raw text found 47.",
+      "task": "Find why the scanner under-reported, and make sure no secret reached the index.",
+      "action": "Traced it to HTML entity escaping, which hid the credentials from gitleaks. The scanner was changed to scan the unescaped raw text, and the rule became: scan both copies and require both clean. Every flagged document was dropped and recorded, then re-scanned to zero. An automated PR review then found five fail-open paths, where a failure still reported success: a failed import batch recorded as finished, a pagination error read as end of list, a crashed verification scan read as zero findings, failed clones not failing the harvest, and an existing search app not checked for its stores. All were fixed, and reconcile now checks the manifest. A 403 on the new project looked like a missing role but was IAM propagation; a retry returned 200 and it was recorded as a field finding. I built and led it, directing AI agents that wrote the code; I set the outcome, the gates and the decisions.",
+      "result": "On the full harvest the scan found 483 findings; 217 documents were dropped, the re-scan came back at 0, and 16,555 clean documents were uploaded.",
+      "metric": "Pilot scan: 15 findings on the HTML copy vs 47 on raw text; full run 483 findings, 217 documents dropped, re-scan 0.",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "role",
+          "quote": "Say \"I built and led it, directing AI agents that wrote the code\".",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "action",
+          "quote": "AI agents wrote the code under her direction; she set the outcome, the gates and the decisions.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "situation",
+          "quote": "Credentials present in real repos. A scan step before upload is mandatory, not optional",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "situation",
+          "quote": "First run on HTML found 15; on raw text 47. Scanner changed to raw text (D8). 18 docs dropped, re-scan 0",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "action",
+          "quote": "gitleaks found 47 findings in the raw pilot text and 15 in the same content as HTML | Scan the unescaped text. Scan both copies and require both clean",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "action",
+          "quote": "Drop every flagged document, record it, re-scan to zero",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "result",
+          "quote": "483 findings, 217 docs dropped, re-scan 0; 16,555 to upload",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "her_role",
+          "quote": "she built, led and directed it. AI agents wrote the code under her direction",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "action",
+          "quote": "An automated reviewer on the PR found five places where a failure would still report success.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "action",
+          "quote": "a crashed verification scan read as zero findings",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "action",
+          "quote": "first Discovery Engine call 403, retry 200 (IAM propagation)",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "action",
+          "quote": "Misleading 403 on a brand-new project",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "metric",
+          "quote": "First run on HTML found 15; on raw text 47.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "metric",
+          "quote": "483 findings, 217 docs dropped, re-scan 0",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "task",
+          "quote": "First run on HTML found 15; on raw text 47. Scanner changed to raw text",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        }
+      ],
+      "self_reported_slots": [],
+      "gaps": {
+        "metric_note": "32 is 47 minus 15, arithmetic on the docs/03 and docs/04 figures."
+      },
+      "sources_read": [
+        "docs/01-discovery-and-feasibility.md",
+        "docs/03-delivery-log.md",
+        "docs/04-field-feedback.md",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2c 2026-10-23: role set per owner_facts"
+    },
+    {
+      "id": "S6",
+      "requirement_ids": [
+        "R6"
+      ],
+      "topic": "multi-stakeholder engagement",
+      "project": "Livepeer DocsOS",
+      "her_role": "built",
+      "situation": "I stepped into a fragmented ecosystem where decentralized contributors and core teams had competing priorities with no unified technical governance. Legacy documentation suffered from monolithic compile times and broken link rot, creating a painful onboarding barrier for external builders.",
+      "task": "I needed to reconcile these stakeholder conflicts and architect a future-proof, maintainable developer platform from scratch by translating extreme organizational ambiguity into a product-forward developer operating system.",
+      "action": "I re-engineered documentation as an actively governed software system by creating a custom contributor CLI, implementing deterministic CI quality gates, and pioneering AI maintainer agents to enforce architectural structure.",
+      "result": "Contributor onboarding went from hours of troubleshooting to a single automated command, and hot-reload times dropped from 30+ second rebuild freezes to under 500 ms. Every PR is gated by an automated WCAG 2.2 AA accessibility audit. On the upstream record I authored 86 PRs to livepeer/docs, 52 of them merged.",
+      "metric": "86 PRs authored, 52 merged (record); hot reload from 30+ s to under 500 ms (self-reported).",
+      "sources": [
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "role",
+          "quote": "Engineering Solution: Built lpd move-page, an automated CLI migration engine that writes bi-directional redirect maps automatically.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "situation",
+          "quote": "Decentralized contributors, community members, and core teams had competing priorities with no unified technical governance.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "situation",
+          "quote": "Legacy docs suffered from monolithic compile times, broken link rot, accessibility failures, and a painful onboarding barrier for external builders.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "task",
+          "quote": "Step directly into chaos, reconcile stakeholder conflicts, and architect a future-proof, maintainable developer platform from scratch.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "task",
+          "quote": "Pioneering an AI-Native Docs-as-Infrastructure platform: translating extreme organizational ambiguity into product-forward developer operating systems.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "action",
+          "quote": "Documentation re-engineered as an actively governed software system with a dedicated CLI, deterministic CI quality gates, and AI maintainers.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "action",
+          "quote": "Implemented agentic maintainer workflows to enforce brand voice, technical veracity, and architectural structure automatically.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "result",
+          "quote": "Reduced contributor onboarding time from hours of troubleshooting to a single automated command.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "result",
+          "quote": "causing 30+ second rebuild freezes during drafting. Engineering Solution: Architected dynamic sub-tree compilation via lpd dev --scope-tab, dropping hot-reload times to under 500ms.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "result",
+          "quote": "Automated WCAG 2.2 AA accessibility audit",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "metric",
+          "quote": "dropping hot-reload times to under 500ms",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/evidence/livepeer-prs.md",
+          "supports": "result",
+          "quote": "`repo:livepeer/docs is:pr author:DeveloperAlly`: 86 PRs authored.",
+          "self_reported": false,
+          "url": "https://github.com/livepeer/docs/pulls?q=is%3Apr+author%3ADeveloperAlly"
+        },
+        {
+          "path_or_url": "state/evidence/livepeer-prs.md",
+          "supports": "result",
+          "quote": "`repo:livepeer/docs is:pr author:DeveloperAlly is:merged`: 52 PRs merged.",
+          "self_reported": false,
+          "url": "https://github.com/livepeer/docs/pulls?q=is%3Apr+author%3ADeveloperAlly"
+        },
+        {
+          "path_or_url": "state/evidence/livepeer-prs.md",
+          "supports": "metric",
+          "quote": "`repo:livepeer/docs is:pr author:DeveloperAlly`: 86 PRs authored.",
+          "self_reported": false,
+          "url": "https://github.com/livepeer/docs/pulls?q=is%3Apr+author%3ADeveloperAlly"
+        },
+        {
+          "path_or_url": "state/evidence/livepeer-prs.md",
+          "supports": "metric",
+          "quote": "`repo:livepeer/docs is:pr author:DeveloperAlly is:merged`: 52 PRs merged.",
+          "self_reported": false,
+          "url": "https://github.com/livepeer/docs/pulls?q=is%3Apr+author%3ADeveloperAlly"
+        },
+        {
+          "path_or_url": "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx",
+          "supports": "metric",
+          "quote": "causing 30+ second rebuild freezes during drafting. Engineering Solution: Architected dynamic sub-tree compilation via lpd dev --scope-tab, dropping hot-reload times to under 500ms.",
+          "self_reported": true
+        }
+      ],
+      "self_reported_slots": [
+        "action",
+        "metric",
+        "result",
+        "role",
+        "situation",
+        "task"
+      ],
+      "gaps": {
+        "role": "Livepeer: built or led? The guide says 'Hands-On Lead Architect & Product Strategist'; the CV says consultant from Nov 2025.",
+        "excluded_deck_claims": "Not used: '830+ files' and 'Completed in landmark PR #730' (#730 was a draft closed unmerged, 1,534 files, per Session B on #8), '100% WCAG ... at zero engineering cost', 'Staff+', '8+ months before MCP mainstream'."
+      },
+      "sources_read": [
+        "career evidence (self-reported)",
+        "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+        "state/drive/Livepeer DocsOS: Product & Engineering Architecture.pptx"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2b round 2, 2026-10-23: review defects fixed, every quote re-checked"
+    },
+    {
+      "id": "S7",
+      "requirement_ids": [
+        "R7"
+      ],
+      "topic": "pre-sales to post-sales",
+      "project": "Dell enterprise partnership for Lilypad",
+      "her_role": "structured (not signed)",
+      "situation": "Dell partners buying Dell infrastructure could mitigate costs with Lilypad's DeAI factory by monetizing idle compute, and Dell could gain new users in open source communities, web3 and AI.",
+      "task": "I structured an enterprise licensing partnership with Dell for permissioned networks, to develop a permissioned, licensable version of Lilypad for enterprise AI adoption.",
+      "action": "I presented the About Lilypad and protocol section of our Dell proposal, which also covered a NativeEdge integration, and I managed the Dell relationship through product development and commercial conversations.",
+      "result": "I structured an enterprise licensing partnership with Dell for permissioned networks. It was not signed.",
+      "metric": "missing",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "task",
+          "quote": "Dell: \"structured an enterprise licensing partnership with Dell for permissioned networks\". Not signed: never say \"signed\" or claim a contract.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "supports": "role",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "state/drive/dell/Lilypad Product Deck & Dell Proposal.pptx",
+          "supports": "situation",
+          "quote": "Dell partners buying Dell infrastructure can mitigate costs with the DeAI factory to monetize idle compute.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/dell/Lilypad Product Deck & Dell Proposal.pptx",
+          "supports": "situation",
+          "quote": "Unlock new markets with our module marketplace. Gain new users in open source  communities, web3, and  AI.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "supports": "task",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "state/drive/dell/Lilypad Product Deck & Dell Proposal.pptx",
+          "supports": "action",
+          "quote": "About Lilypad & the Protocol (AH)",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "supports": "action",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "state/drive/dell/Dell <> Lilypad Deck.docx",
+          "supports": "result",
+          "quote": "Strategic Partnerships with Dell, Morpheus, Cedars-Sinai & deAI projects",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "result",
+          "quote": "structured an enterprise licensing partnership with Dell for permissioned networks\". Not signed",
+          "self_reported": true
+        }
+      ],
+      "self_reported_slots": [
+        "role",
+        "situation",
+        "task",
+        "action",
+        "result"
+      ],
+      "gaps": {
+        "metric": "What did the Dell partnership produce commercially: a signed agreement, pilot or licence? Date and value if any.",
+        "action": "Who at Dell did you work with (team or title, not a name), and what did you personally run after the proposal?",
+        "desci_moved": "The Tufts and Hugging Face protein-folding work is now its own card (S10). Resumes name Dell in it; the CV does not. Was Dell part of it?"
+      },
+      "sources_read": [
+        "career evidence (self-reported)",
+        "CV (self-reported)",
+        "CV (self-reported) - Resume.md",
+        "state/drive/dell/Dell <> Lilypad Deck.docx",
+        "state/drive/dell/Lilypad Product Deck & Dell Proposal.pptx",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2b round 2, 2026-10-23: review defects fixed, every quote re-checked"
+    },
+    {
+      "id": "S8",
+      "requirement_ids": [
+        "R9",
+        "R27",
+        "R13",
+        "R21",
+        "R16"
+      ],
+      "topic": "enterprise accounts: pre-sales discovery, PoCs and product feedback",
+      "project": "IBM ANZ enterprise accounts (Apr 2020 to Jan 2022)",
+      "her_role": "missing",
+      "situation": "At IBM ANZ, as Developer Relations Manager and Enterprise Account Technical Partner (Apr 2020 to Jan 2022), I worked with enterprise and corporate clients in customer outcomes across IBM Cloud, DevOps, AI, IoT and Quantum.",
+      "task": "missing",
+      "action": "I worked on hybrid cloud and Watson AI solutions for BHP and Telstra, turned APAC friction points into product requirements, and ran technical discovery and PoCs for NSW Police and the Defence Force.",
+      "result": "missing",
+      "metric": "missing",
+      "sources": [
+        {
+          "path_or_url": "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx",
+          "supports": "situation",
+          "quote": "Developer Relations Manager & Enterprise Account Technical Partner, IBM, Apr 2020 - Jan 2022.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx",
+          "supports": "situation",
+          "quote": "I started my career working with enterprise and corporate clients in customer outcomes at IBM ANZ for two years, covering the full technical suite from IBM Cloud, DevOps, AI, IoT and Quantum",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx",
+          "supports": "action",
+          "quote": "Hybrid cloud and Watson AI solutions for BHP and Telstra; APAC friction points into product requirements; discovery and PoCs for NSW Police and Defence Force",
+          "self_reported": true
+        }
+      ],
+      "self_reported_slots": [
+        "situation",
+        "action"
+      ],
+      "gaps": {
+        "role": "The CV gives the title but not whether you architected, built or led the BHP and Telstra solutions or the NSW Police and Defence PoCs. Which?",
+        "task": "What did each account need from you?",
+        "result": "Did any PoC convert to a deal or a deployment? No source says.",
+        "metric": "No figure is sourced for the enterprise work (Call for Code numbers are a separate program)."
+      },
+      "sources_read": [
+        "career archive (self-reported)",
+        "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx"
+      ],
+      "sources_absent": [
+        "No resume or brand file names BHP, NSW Police or IBM PoCs"
+      ],
+      "reviewed": "A2b round 2, 2026-10-23: review defects fixed, every quote re-checked"
+    },
+    {
+      "id": "S9",
+      "requirement_ids": [
+        "R22",
+        "R4",
+        "R17"
+      ],
+      "topic": "steer implementation strategy and own the reality (cost)",
+      "project": "Nexus: stopping a USD 504 import and redesigning to zero cost",
+      "her_role": "built, led and directed; AI agents wrote the code under my direction",
+      "situation": "Layout-based chunking needs the paid layout parser. The cost was checked after the pilot import, not before, so about USD 37 had already been billed.",
+      "task": "Decide whether to run the full chunked import, priced at about USD 504, once the real cost was known.",
+      "action": "The full import was stopped before submission and the budget set to zero. The data stores were rebuilt on the free digital parser and the LLM add-on was removed from both apps. I own the miss: the pilot ran before the cost check, and the method fix is recorded. I built and led it, directing AI agents that wrote the code; I set the outcome, the gates and the decisions.",
+      "result": "The full code import ran on the zero-cost configuration: 166 inline batches, 16,555 succeeded, 0 failed.",
+      "metric": "About USD 504 full import avoided; about USD 37 pilot cost owned as a defect.",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "role",
+          "quote": "Say \"I built and led it, directing AI agents that wrote the code\".",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "action",
+          "quote": "AI agents wrote the code under her direction; she set the outcome, the gates and the decisions.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "situation",
+          "quote": "Layout-based chunking requires the layout parser.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "situation",
+          "quote": "Checked **after** the pilot import, not before. That ordering was the defect.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "task",
+          "quote": "Full import on layout parser about USD 504; pilot about USD 37 already incurred. **Full import stopped before submission.** Owner set budget to zero",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "action",
+          "quote": "`ds-code-lite`, `ds-prs-lite` (digital parser), app `nexus-lite`; LLM add-on removed from both apps",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "action",
+          "quote": "Billable pilot ran before the cost check | Cost check before the full run | Full run stopped; zero-cost redesign; method fix recorded",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "result",
+          "quote": "166 inline batches; 16,555 succeeded, 0 failed",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "her_role",
+          "quote": "she built, led and directed it. AI agents wrote the code under her direction",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "situation",
+          "quote": "Full import on layout parser about USD 504; pilot about USD 37 already incurred.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "supports": "metric",
+          "quote": "Full import on layout parser about USD 504; pilot about USD 37 already incurred.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md"
+        }
+      ],
+      "self_reported_slots": [],
+      "gaps": {},
+      "sources_read": [
+        "docs/01-discovery-and-feasibility.md",
+        "docs/03-delivery-log.md",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2c 2026-10-23: role set per owner_facts"
+    },
+    {
+      "id": "S10",
+      "requirement_ids": [
+        "R13",
+        "R6",
+        "R28",
+        "R15"
+      ],
+      "topic": "forward-deployed AI/ML deployment with researchers",
+      "project": "Lilypad x Tufts and Hugging Face BioML: protein folding model",
+      "her_role": "directed",
+      "situation": "As Founder & CEO of Lilypad (Sep 2023 to Oct 2025), a distributed AI compute network across thousands of GPU nodes, I ran a marketplace where users could run models such as protein folding models created by scientists.",
+      "task": "Deploy a protein folding model on Lilypad with BioML researchers from Dr Michael Levin's lab at Tufts and Hugging Face.",
+      "action": "I hired and paid the researchers through Lilypad, directed the work, and embedded with them to deploy the protein folding model on the network.",
+      "result": "The protein folding model running on Lilypad turned up a drug candidate that is now in wet-lab validation.",
+      "metric": "missing",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "situation",
+          "quote": "Lilypad title and dates: \"Founder & CEO, Sep 2023 to Oct 2025\"",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "situation",
+          "quote": "Lilypad scale: \"thousands of GPU nodes\"",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "talk transcript (self-reported)",
+          "supports": "situation",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "career archive (self-reported)",
+          "supports": "task",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "task",
+          "quote": "was embedded with them to deploy the protein folding model",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "talk transcript (self-reported)",
+          "supports": "task",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "action",
+          "quote": "the researchers were hired and paid by her at Lilypad. She directed the work and was embedded with them to deploy the protein folding model.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "role",
+          "quote": "Role: directed (and embedded).",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "career archive (self-reported)",
+          "supports": "result",
+          "self_reported": true,
+          "url": ""
+        },
+        {
+          "path_or_url": "career archive (self-reported)",
+          "supports": "context",
+          "self_reported": true,
+          "url": ""
+        }
+      ],
+      "self_reported_slots": [
+        "situation",
+        "task",
+        "result"
+      ],
+      "gaps": {
+        "metric": "No source states a figure (runs, jobs, model size, time to deploy, candidates screened). Missing.",
+        "model": "Your talk notes name the module 'Alpha Fold 2'; the ColabFold on Lilypad blog is by another author (not you, per blog-voice-corpus MANIFEST). Which model was deployed for Tufts: AlphaFold 2 or ColabFold? The card does not name it.",
+        "dell": "Your LinkedIn draft says the model was run 'with Dell and Tufts' and 'by Dell and Dr Michael Levin's lab'. Dell is excluded here. Was Dell part of this work?",
+        "conflict": "The same draft says 'Nobody on my team wrote it' and 'someone else ran on it'. owner_facts (you hired, paid and directed the researchers) is used; confirm the draft wording is superseded."
+      },
+      "sources_read": [
+        "career archive (self-reported)",
+        "career archive (self-reported) Launch Blog Post.md",
+        "talk transcript (self-reported)",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [
+        "No Ally-authored blog post about Tufts, Levin or ColabFold exists in career archive/writing (ColabFold on Lilypad is another author's)"
+      ],
+      "reviewed": "A2c 2026-10-23: rewritten from owner_facts, transcript 0MrhhUtFOvY, talk notes, LinkedIn draft"
+    },
+    {
+      "id": "S11",
+      "requirement_ids": [
+        "R21",
+        "R25",
+        "R10"
+      ],
+      "topic": "liaison to Product and Engineering: field feedback",
+      "project": "Nexus: 11 field findings on Agent Search (F1 to F11)",
+      "her_role": "built, led and directed; AI agents wrote the code under my direction",
+      "situation": "While delivering on Google Agent Search, the pricing page said Enterprise 'includes core Generative Answers' at no additional cost, but the answer method returned FAILED_PRECONDITION on an Enterprise app without the LLM add-on.",
+      "task": "Act as liaison to core Product and Engineering: turn each thing hit in delivery into evidence, customer impact and a feature request.",
+      "action": "I recorded 11 findings, F1 to F11, each with evidence, customer impact and a feature request. F9 asks the pricing page to state which methods core answers cover (search summary) and which need the add-on (answer method). Others cover Markdown docs that disagree (F1), no pre-import cost estimate (F4) and intermittent citations (F11). I built and led it, directing AI agents that wrote the code; I set the outcome, the gates and the decisions.",
+      "result": "A customer who budgets for free answers is warned before finding the answer method needs the billed add-on; each finding is ready to hand to the product team.",
+      "metric": "11 findings filed with evidence; citation metadata returned on 3 of 5 identical calls (F11).",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "role",
+          "quote": "Say \"I built and led it, directing AI agents that wrote the code\".",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "action",
+          "quote": "AI agents wrote the code under her direction; she set the outcome, the gates and the decisions.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "situation",
+          "quote": "Pricing: Enterprise \"includes core Generative Answers (AI Mode). Provide answers, summaries and follow ups at no additional cost\". API: the answer method returns `FAILED_PRECONDITION: This feature is only available when Large Language Model add-on is enabled` on an Enterprise app without the add-on",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "task",
+          "quote": "Engagement phase: liaison to core Product and Engineering. Each item is something hit in delivery, with the",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "action",
+          "quote": "State on the pricing page which methods core answers cover (search summary) and which need the add-on (answer method)",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "action",
+          "quote": "| F4 | No pre-import cost estimate |",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "result",
+          "quote": "A customer budgets for free answers, then finds the answer method needs the billed add-on",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "metric",
+          "quote": "The same query returned `citationMetadata.citations` on 3 of 5 calls",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "her_role",
+          "quote": "she built, led and directed it. AI agents wrote the code under her direction",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "action",
+          "quote": "| F1 | Docs disagree on Markdown |",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "action",
+          "quote": "| F9 | Pricing page and API disagree on core generative answers |",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "action",
+          "quote": "| F11 | Citation metadata is intermittent |",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        },
+        {
+          "path_or_url": "docs/04-field-feedback.md",
+          "supports": "metric",
+          "quote": "| F11 | Citation metadata is intermittent |",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/04-field-feedback.md"
+        }
+      ],
+      "self_reported_slots": [],
+      "gaps": {
+        "result": "No source says any finding was filed with Google or acted on. The result states readiness only.",
+        "metric_note": "11 is the count of rows F1 to F11 in docs/04."
+      },
+      "sources_read": [
+        "docs/04-field-feedback.md",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2c 2026-10-23: role set per owner_facts"
+    },
+    {
+      "id": "S12",
+      "requirement_ids": [
+        "R7",
+        "R27",
+        "R14"
+      ],
+      "topic": "pre-sales to post-sales: brief vs reality",
+      "project": "Nexus: re-deriving the brief before delivery",
+      "her_role": "built, led and directed; AI agents wrote the code under my direction",
+      "situation": "The brief came from earlier materials: 240+, 57 and 113 repos; no network path from the build agent to googleapis.com, so all cloud work would run in GitHub Actions with Workload Identity Federation; and two fine-grained tokens, one per owner.",
+      "task": "Re-derive every figure and assumption from the system of record before committing to delivery.",
+      "action": "Counted repos by paginating both owners, tested the network path with a real call, and checked access with the existing CLI token. I built and led it, directing AI agents that wrote the code; I set the outcome, the gates and the decisions.",
+      "result": "293 repos, none of the brief's figures matched; the API was reachable, so the GitHub Actions design was not needed for the POC; the existing token listed private repos in both owners. 204 repos went into scope at the scope gate.",
+      "metric": "240+ claimed vs 293 counted vs 204 scoped.",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "role",
+          "quote": "Say \"I built and led it, directing AI agents that wrote the code\".",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "action",
+          "quote": "AI agents wrote the code under her direction; she set the outcome, the gates and the decisions.",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "situation",
+          "quote": "The brief cited counts of 240+, 57 and 113 repos from earlier materials",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "situation",
+          "quote": "The brief assumed the build agent cannot reach `googleapis.com`, so all cloud work would run in GitHub Actions with Workload Identity Federation",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "situation",
+          "quote": "Two fine-grained tokens, one per owner",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "task",
+          "quote": "Lesson carried forward: every figure in a brief is a claim until it is re-derived from the system of record.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "result",
+          "quote": "**293** repos from the API, counted by paginating both owners. None of the earlier figures matched",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "result",
+          "quote": "False for this engagement. `curl https://discoveryengine.googleapis.com/` answered",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "result",
+          "quote": "The operator's existing CLI token has `repo` and `read:org` and could list private repos in both owners",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "metric",
+          "quote": "Result at the time: **204 repos in scope**",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "supports": "her_role",
+          "quote": "she built, led and directed it. AI agents wrote the code under her direction",
+          "self_reported": true
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "result",
+          "quote": "Result at the time: **204 repos in scope**",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "metric",
+          "quote": "The brief cited counts of 240+, 57 and 113 repos from earlier materials",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        },
+        {
+          "path_or_url": "docs/01-discovery-and-feasibility.md",
+          "supports": "metric",
+          "quote": "**293** repos from the API, counted by paginating both owners.",
+          "self_reported": false,
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/01-discovery-and-feasibility.md"
+        }
+      ],
+      "self_reported_slots": [],
+      "gaps": {
+        "metric_note": "'3 assumptions false' counts the corpus size, network path and token rows in docs/01's constraints table."
+      },
+      "sources_read": [
+        "docs/01-discovery-and-feasibility.md",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2c 2026-10-23: role set per owner_facts"
+    },
+    {
+      "id": "S13",
+      "requirement_ids": [
+        "R19",
+        "R29",
+        "R23"
+      ],
+      "topic": "upfront technical design: identity, data boundary, residency and legal",
+      "project": "Nexus: upfront design for indexing her GitHub estate into Google Agent Search",
+      "her_role": "built, led and directed; AI agents wrote the code under my direction",
+      "situation": "Before building Nexus, I had to decide how the solution would integrate with the customer's sources, identity, data boundary and budget, and record each decision so it could be challenged.",
+      "task": "Design the integration upfront: which connector, which identity, where the data lives, and what content had the right to be indexed at all.",
+      "action": "I chose a custom harvester over the native GitHub connector, because the connector needs a Gemini Enterprise setup and licence, and a harvester gives control over eligibility, secret scanning and document shape. For identity, production authenticates through Workload Identity Federation to a dedicated service account holding only roles/discoveryengine.editor, with no keys. I limited the index to customer-owned code: client-owned repositories were excluded even though I had access, because access is not the same as the right to index into a new system. I flagged the data store location, global, as the first thing to change for a customer with an in-region residency requirement, since a data store's location is fixed.",
+      "result": "The secret scan found 483 findings across the full corpus; all 217 affected documents were quarantined locally and never uploaded. Because the search app mixes public, private and internal content, every document carries visibility in its metadata, and the design requires queries filtered to public before any live demo.",
+      "metric": "483 secret findings; 217 documents quarantined and never uploaded.",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "url": "",
+          "quote": "Say \"I built and led it, directing AI agents that wrote the code\".",
+          "self_reported": true,
+          "supports": "role"
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "url": "",
+          "quote": "AI agents wrote the code under her direction; she set the outcome, the gates and the decisions.",
+          "self_reported": true,
+          "supports": "role"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "How the solution integrates with the customer's sources, identity, data boundary and budget, decided before build and recorded so each choice can be challenged.",
+          "self_reported": false,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "Engagement phase: upfront technical design.",
+          "self_reported": false,
+          "supports": "task"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "access is not the same as the right to index into a new system.",
+          "self_reported": false,
+          "supports": "task"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "The connector needs a Gemini Enterprise setup and licence. A harvester gives control over eligibility, secret scanning and document shape, all of which mattered",
+          "self_reported": false,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "service account holding `roles/discoveryengine.editor` on the project and nothing broader. No keys.",
+          "self_reported": false,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "Customer-owned code only. Client-owned repositories were excluded at G1 even though the operator had access:",
+          "self_reported": false,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "access is not the same as the right to index into a new system.",
+          "self_reported": false,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "Data stores are in location `global`. For a customer with an in-region residency requirement this is the",
+          "self_reported": false,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "first thing to change, before creation, since a data store's location is fixed.",
+          "self_reported": false,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "Secrets: 483 findings across the full corpus (generic API keys, curl auth headers, JWTs, Slack webhooks,",
+          "self_reported": false,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "GCP and AWS keys). All 217 affected documents were quarantined locally and never uploaded.",
+          "self_reported": false,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "The search app mixes public, private and internal content.",
+          "self_reported": false,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "Every document carries `visibility` in its",
+          "self_reported": false,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "metadata. Before any live demo, `visibility` must be made filterable and queries filtered to `public`, or private",
+          "self_reported": false,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "Secrets: 483 findings across the full corpus (generic API keys, curl auth headers, JWTs, Slack webhooks,",
+          "self_reported": false,
+          "supports": "metric"
+        },
+        {
+          "path_or_url": "docs/02-solution-design.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/02-solution-design.md",
+          "quote": "GCP and AWS keys). All 217 affected documents were quarantined locally and never uploaded.",
+          "self_reported": false,
+          "supports": "metric"
+        }
+      ],
+      "self_reported_slots": [],
+      "gaps": {
+        "customer": "The customer here is your own GitHub estate in a POC, not an external enterprise. For an external enterprise-architecture example the closest cards are S7 (Dell) and S8 (IBM ANZ), both self-reported.",
+        "client_repos": "docs/03 records that 9 client repos were later re-included on your review, kept in your private project and never named in the public repo. Say so if asked about the exclusion."
+      },
+      "sources_read": [
+        "docs/02-solution-design.md",
+        "docs/03-delivery-log.md",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2e 2026-10-23: new card, every quote verified verbatim by story_cards.verify"
+    },
+    {
+      "id": "S14",
+      "requirement_ids": [
+        "R12"
+      ],
+      "topic": "system design with an orchestration framework",
+      "project": "Geo-Monitor: zero-cost multi-region synthetic monitoring orchestrated by n8n (DeveloperAlly/gamerslab)",
+      "her_role": "built",
+      "situation": "Enterprise geo-distributed monitoring tools such as Datadog and Catchpoint carry heavy monthly infrastructure and egress costs.",
+      "task": "Achieve multi-region synthetic performance testing, localized header audits and surge load simulation for $0.",
+      "action": "I designed an event-driven system with self-hosted n8n as the orchestration hub. n8n workflows trigger runs, process telemetry into Supabase, and interface with a mission-control React UI to reconfigure intervals and target hosts. The probes are 6 parallel GitHub Actions runners across regions, and failures on non-2xx codes or latency thresholds push incident diagnostics to Discord webhooks.",
+      "result": "The system is operational, with its control hub at gamerslab.space, and can emulate traffic bursts by firing 120 concurrent distributed requests, 20 per probe.",
+      "metric": "6 regions probed in parallel; 120 concurrent requests per surge test; $0 infrastructure.",
+      "sources": [
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "This portfolio documents hands-on production engineering across Decentralized GPU Compute (DePIN), Edge & Cloud Automation, and Agent Tooling & Governance between 2024 and 2026.",
+          "self_reported": true,
+          "supports": "role"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Enterprise geo-distributed monitoring tools (Datadog, Catchpoint) carry heavy monthly infrastructure and egress costs.",
+          "self_reported": true,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Geo-Monitor achieves multi-region synthetic performance testing, localized header audits, and surge load simulation for $0.",
+          "self_reported": true,
+          "supports": "task"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Bi-Directional Orchestration Hub: Self-hosted n8n workflows trigger runs, process telemetry into Supabase, and interface with a mission-control React UI to dynamically reconfigure intervals and target hosts.",
+          "self_reported": true,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Coordinates 6 parallel Ubuntu runners (us-east, eu-west, ap-southeast, sa-east, me-south, af-south) via GitHub Actions.",
+          "self_reported": true,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Evaluates non-2xx codes and latency thresholds, pushing instant incident diagnostics to Discord webhooks.",
+          "self_reported": true,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Status: Operational | Control Hub at gamerslab.space",
+          "self_reported": true,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Emulates traffic bursts by firing 120 concurrent distributed requests (20 per probe) prior to marketing campaigns.",
+          "self_reported": true,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Coordinates 6 parallel Ubuntu runners (us-east, eu-west, ap-southeast, sa-east, me-south, af-south) via GitHub Actions.",
+          "self_reported": true,
+          "supports": "metric"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Emulates traffic bursts by firing 120 concurrent distributed requests (20 per probe) prior to marketing campaigns.",
+          "self_reported": true,
+          "supports": "metric"
+        },
+        {
+          "path_or_url": "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx",
+          "url": "",
+          "quote": "Geo-Monitor achieves multi-region synthetic performance testing, localized header audits, and surge load simulation for $0.",
+          "self_reported": true,
+          "supports": "metric"
+        }
+      ],
+      "self_reported_slots": [
+        "situation",
+        "task",
+        "action",
+        "result",
+        "metric"
+      ],
+      "gaps": {
+        "frameworks": "No source names LangGraph, AutoGen or CrewAI, the posting's examples. Your sourced orchestration is n8n (this card, and n8n agent orchestration on your resumes) and the LangChain-compatible anura gateway (S1). If you have used one of the three, where?",
+        "role": "The portfolio does not state your role on Geo-Monitor in words; 'built' rests on it being your repo in your own engineering portfolio.",
+        "self_reported": "Every slot comes from your portfolio document."
+      },
+      "sources_read": [
+        "CV (self-reported)",
+        "state/drive/AI & Cloud Engineering Portfolio (2024–2026).docx"
+      ],
+      "sources_absent": [
+        "No resume or brand file names LangGraph, AutoGen or CrewAI"
+      ],
+      "reviewed": "A2e 2026-10-23: new card, every quote verified verbatim by story_cards.verify"
+    },
+    {
+      "id": "S15",
+      "requirement_ids": [
+        "R26"
+      ],
+      "topic": "technical delivery management against gates",
+      "project": "Nexus: gated delivery from preflight to evaluation",
+      "her_role": "built, led and directed; AI agents wrote the code under my direction",
+      "situation": "Nexus was delivered as technical delivery against gates: environment and access, the include list, data store config, secret-scan exclusions, golden queries and destructive actions, G0 to G5.",
+      "task": "Deliver every phase with a result that is the output of a command, not a summary of intent.",
+      "action": "I set the outcome, the gates and the decisions; AI agents ran the phases: preflight, manifest, harvest, scan, data stores, import, reconcile and eval. When the cost check priced the full import at about USD 504, it was stopped before submission and the budget set to zero. After my review found the most interview-relevant material left out, scope was rebuilt around the purpose.",
+      "result": "Reconcile showed 16,555 of 16,555 code documents present, missing 0, extra 0, and 1,424 of 1,424 merged PRs. Recall@5 on repo routing was 1.00. An automated reviewer found five fail-open paths, where a failure would still report success; all were fixed.",
+      "metric": "16,555 of 16,555 documents reconciled, missing 0; recall@5 1.00 on repo routing; about USD 504 of spend stopped before submission.",
+      "sources": [
+        {
+          "path_or_url": "state/owner_facts.md",
+          "url": "",
+          "quote": "Say \"I built and led it, directing AI agents that wrote the code\".",
+          "self_reported": true,
+          "supports": "role"
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "url": "",
+          "quote": "AI agents wrote the code under her direction; she set the outcome, the gates and the decisions.",
+          "self_reported": true,
+          "supports": "role"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "Engagement phase: technical delivery against gates.",
+          "self_reported": false,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "| G0 | Environment and access | Owner |",
+          "self_reported": false,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "| G5 | Destructive actions | Owner, explicit approval |",
+          "self_reported": false,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "column is the output of a command, not a summary of intent.",
+          "self_reported": false,
+          "supports": "task"
+        },
+        {
+          "path_or_url": "state/owner_facts.md",
+          "url": "",
+          "quote": "AI agents wrote the code under her direction; she set the outcome, the gates and the decisions.",
+          "self_reported": true,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "Full import on layout parser about USD 504; pilot about USD 37 already incurred. Full import stopped before submission. Owner set budget to zero",
+          "self_reported": false,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "Most interview-relevant sources excluded or never collected | Owner review | Scope rebuilt around the purpose; see above",
+          "self_reported": false,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "`ds-code-lite`: expected 16,555, present 16,555, missing 0, extra 0, 204 repos, 0 with gaps. `ds-prs-lite`: 1,424 / 1,424, missing 0, 70 repos",
+          "self_reported": false,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "recall@5 1.00 (repo routing, 20); code-level 0.60 strict, 0.80 approved (10); merged PRs 0.88 (8)",
+          "self_reported": false,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "An automated reviewer on the PR found five places where a failure would still report success. All fixed:",
+          "self_reported": false,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "`ds-code-lite`: expected 16,555, present 16,555, missing 0, extra 0, 204 repos, 0 with gaps. `ds-prs-lite`: 1,424 / 1,424, missing 0, 70 repos",
+          "self_reported": false,
+          "supports": "metric"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "recall@5 1.00 (repo routing, 20); code-level 0.60 strict, 0.80 approved (10); merged PRs 0.88 (8)",
+          "self_reported": false,
+          "supports": "metric"
+        },
+        {
+          "path_or_url": "docs/03-delivery-log.md",
+          "url": "https://github.com/DeveloperAlly/google-interview-poc/blob/main/docs/03-delivery-log.md",
+          "quote": "Full import on layout parser about USD 504; pilot about USD 37 already incurred. Full import stopped before submission. Owner set budget to zero",
+          "self_reported": false,
+          "supports": "metric"
+        }
+      ],
+      "self_reported_slots": [
+        "action"
+      ],
+      "gaps": {
+        "overlap": "The USD 504 stop is told in full in S9; here it is one beat of the delivery.",
+        "external": "Delivery for your own estate, not for an external customer. For third-party delivery, the closest cards are S2 (Space Warp) and S10 (Tufts and Hugging Face)."
+      },
+      "sources_read": [
+        "docs/03-delivery-log.md",
+        "state/owner_facts.md"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2e 2026-10-23: new card, every quote verified verbatim by story_cards.verify"
+    },
+    {
+      "id": "S16",
+      "requirement_ids": [
+        "R8"
+      ],
+      "topic": "degree or equivalent practical experience",
+      "project": "Engineering and computer science degrees, University of Wollongong",
+      "her_role": "studied",
+      "situation": "I hold a Bachelor of Engineering in Mechatronics and a Bachelor of Computer Science with Honours from the University of Wollongong, 2012 to 2017, and before that a BA in Politics, Philosophy and Anthropology from ANU, 1999 to 2001.",
+      "task": "missing",
+      "action": "During the degrees I held a New Colombo Plan Scholarship in robotics in China, a competitive Australian Government scholarship, and in 2017 became a startup founder through a hackathon win, in the iAccelerate incubator programme at the University of Wollongong.",
+      "result": "That grounding led to 10+ years in tech, including 4+ years of hands-on Developer Relations across IBM and Protocol Labs before founding Lilypad.",
+      "metric": "missing",
+      "sources": [
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "url": "",
+          "self_reported": true,
+          "supports": "role"
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "url": "",
+          "self_reported": true,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "url": "",
+          "self_reported": true,
+          "supports": "action"
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "url": "",
+          "self_reported": true,
+          "supports": "result"
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "url": "",
+          "self_reported": true,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "url": "",
+          "self_reported": true,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx",
+          "url": "",
+          "quote": "BA Politics, Philosophy, Anthropology, ANU (1999-2001).",
+          "self_reported": true,
+          "supports": "situation"
+        }
+      ],
+      "self_reported_slots": [
+        "situation",
+        "action",
+        "result"
+      ],
+      "gaps": {
+        "story": "A degree is a credential, not a story. For 'applied CS fundamentals to a customer problem', point to S9 (zero-cost redesign) or S13 (upfront design).",
+        "task_metric": "No task or metric applies to a degree; both stay missing.",
+        "ba_note": "Older resumes and the achievement inventory list the ANU BA majors as Philosophy, Politics, French; the card follows the CV for this role (Politics, Philosophy, Anthropology), confirmed by the coordinator."
+      },
+      "sources_read": [
+        "career evidence (self-reported)",
+        "CV (self-reported)",
+        "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx"
+      ],
+      "sources_absent": [],
+      "reviewed": "A2e 2026-10-23: new card, every quote verified verbatim by story_cards.verify; ANU BA added from the CV"
+    }
+  ]
+}

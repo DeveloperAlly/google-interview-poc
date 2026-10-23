@@ -1,0 +1,507 @@
+{
+  "role": "AI Outcome Customer Engineer, Google Cloud",
+  "summary": "Google is hiring for a hybrid technical-strategic role that bridges the gap between initial AI sales agreements and successful technical implementation. The core of the job involves architecting enterprise-grade AI solutions while actively debugging code and managing the delivery lifecycle within complex customer IT ecosystems. A strong candidate separates themselves by demonstrating the ability to translate deep technical integration hurdles into clear business impact while influencing both executive stakeholders and core engineering teams. Sample questions are generated practice prompts, not taken from a Google source.",
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "AI platform integration",
+      "source": "recruiter topic",
+      "meaning": "This role requires connecting frontier models and orchestration frameworks like LangGraph into existing enterprise data and identity systems using the Vertex AI platform.",
+      "source_line": "AI platform integration",
+      "source_line_verified": false,
+      "related_posting_requirements": [
+        "R13",
+        "R19",
+        "R29"
+      ],
+      "sample_questions": [
+        "How would you integrate a Gemini-based agent using LangGraph into a customer's legacy enterprise content management system?",
+        "Describe your process for deploying an AI/ML model into a production environment with strict data residency requirements.",
+        "A customer wants to use Vertex AI but has a complex on-premise identity provider; how do you architect the secure connection?",
+        "What are the most common failure points you've seen when integrating LLMs into existing enterprise data pipelines?"
+      ],
+      "listen_for": "The interviewer is looking for specific experience with orchestration frameworks and a deep understanding of how AI assets interact with enterprise security and data boundaries.",
+      "source_line_note": "Recruiter email redacted for the public repo; topic name only."
+    },
+    {
+      "id": "R2",
+      "text": "program management",
+      "source": "recruiter topic",
+      "meaning": "The role involves acting as a technical delivery manager who orchestrates specialized resources and steers the implementation strategy to ensure project success.",
+      "source_line": "program management",
+      "source_line_verified": false,
+      "related_posting_requirements": [
+        "R15",
+        "R22",
+        "R26"
+      ],
+      "sample_questions": [
+        "Tell me about a time you had to orchestrate multiple specialized technical resources to deliver a complex build on a tight deadline.",
+        "How do you maintain the implementation strategy when a project encounters significant technical roadblocks?",
+        "Describe your approach to managing the technical reality of delivery while keeping customer-facing teams aligned.",
+        "A project is falling behind because of a resource gap in the customer's engineering team; how do you manage this to ensure the AI outcome?"
+      ],
+      "listen_for": "The interviewer is listening for the ability to lead complex projects, manage resources effectively, and maintain a strategic view of the delivery timeline.",
+      "source_line_note": "Recruiter email redacted for the public repo; topic name only."
+    },
+    {
+      "id": "R3",
+      "text": "technical execution",
+      "source": "recruiter topic",
+      "meaning": "This refers to the hands-on ability to take a high-level architectural design and turn it into a functioning, enterprise-grade technical reality.",
+      "source_line": "technical execution",
+      "source_line_verified": false,
+      "related_posting_requirements": [
+        "R10",
+        "R15",
+        "R22"
+      ],
+      "sample_questions": [
+        "Walk me through a complex cloud-native build you led from design to final execution.",
+        "How do you validate that a technical delivery strategy is actually viable before the engineering team starts building?",
+        "Describe a situation where you had to own the 'technical reality' of a project when the initial proposal was overly optimistic.",
+        "What technical delivery strategies do you use to ensure rapid activation of AI solutions in a customer environment?"
+      ],
+      "listen_for": "The interviewer wants to hear about a proven track record of successful technical deliveries and the ability to bridge the gap between design and code.",
+      "source_line_note": "Recruiter email redacted for the public repo; topic name only."
+    },
+    {
+      "id": "R4",
+      "text": "feasibility assessments",
+      "source": "recruiter topic",
+      "meaning": "The role requires evaluating project proposals during the pre-sales phase to ensure they are technically viable and will lead to long-term adoption.",
+      "source_line": "feasibility assessments",
+      "source_line_verified": false,
+      "related_posting_requirements": [
+        "R18",
+        "R28"
+      ],
+      "sample_questions": [
+        "A customer wants to build a generative AI solution that requires sub-second latency across global regions; how do you assess the feasibility of this?",
+        "How do you determine if a customer's existing data infrastructure is ready for an FDE engagement?",
+        "Describe a time you had to push back on a proposal because it wasn't viable for long-term adoption.",
+        "What criteria do you use to validate a Forward Deployed Engineering engagement request?"
+      ],
+      "listen_for": "The interviewer is looking for a critical eye that can spot technical risks early and the courage to shape proposals based on realistic delivery capabilities.",
+      "source_line_note": "Recruiter email redacted for the public repo; topic name only."
+    },
+    {
+      "id": "R5",
+      "text": "code-level context",
+      "source": "recruiter topic",
+      "meaning": "The candidate must be able to dive into the customer's codebase to diagnose bugs, identify product issues, and create workarounds.",
+      "source_line": "code-level context",
+      "source_line_verified": false,
+      "related_posting_requirements": [
+        "R11",
+        "R20",
+        "R24"
+      ],
+      "sample_questions": [
+        "A customer's Python-based orchestration layer is failing intermittently with Vertex AI; walk me through your debugging process.",
+        "Tell me about a time you had to dive into a codebase you didn't write to find a core product bug.",
+        "How do you balance fixing a customer's immediate code issue with providing feedback for a long-term product feature request?",
+        "Describe a complex workaround you developed to clear a technical execution roadblock."
+      ],
+      "listen_for": "The interviewer is listening for strong debugging skills in general-purpose languages and the ability to operate at the code level to solve high-stakes problems.",
+      "source_line_note": "Recruiter email redacted for the public repo; topic name only."
+    },
+    {
+      "id": "R6",
+      "text": "multi-stakeholder engagement",
+      "source": "recruiter topic",
+      "meaning": "This involves influencing and communicating with a wide range of people, from core Google engineering to customer executive leadership.",
+      "source_line": "multi-stakeholder engagement",
+      "source_line_verified": false,
+      "related_posting_requirements": [
+        "R16",
+        "R17",
+        "R21",
+        "R25"
+      ],
+      "sample_questions": [
+        "How do you translate a deep technical integration blocker into a business impact statement for a C-level executive?",
+        "Describe a time you had to influence a core Product team to prioritize a feature based on field feedback.",
+        "How do you manage conflicting priorities between the Account team's sales goals and the Engineering team's delivery capacity?",
+        "Tell me about a time you had to present a complex architectural solution to a skeptical technical stakeholder."
+      ],
+      "listen_for": "The interviewer is looking for high-level communication skills and the ability to navigate complex organizational dynamics to achieve a technical goal.",
+      "source_line_note": "Recruiter email redacted for the public repo; topic name only."
+    },
+    {
+      "id": "R7",
+      "text": "pre-sales to post-sales",
+      "source": "recruiter topic",
+      "meaning": "The role serves as the critical link ensuring that what is promised during the sales cycle is technically sound and successfully implemented.",
+      "source_line": "pre-sales to post-sales",
+      "source_line_verified": false,
+      "related_posting_requirements": [
+        "R20",
+        "R27"
+      ],
+      "sample_questions": [
+        "How do you ensure that the technical evaluation phase accurately reflects the challenges of post-sales execution?",
+        "Describe a situation where you had to 'bridge the gap' when a post-sales team struggled to implement a pre-sales agreement.",
+        "What steps do you take during agreement shaping to ensure rapid activation once the contract is signed?",
+        "How do you maintain continuity for the customer as they move from the sales cycle into the delivery phase?"
+      ],
+      "listen_for": "The interviewer wants to see a holistic understanding of the customer journey and a commitment to ensuring that sales promises are grounded in technical reality.",
+      "source_line_note": "Recruiter email redacted for the public repo; topic name only."
+    },
+    {
+      "id": "R8",
+      "text": "Bachelor's degree or equivalent practical experience",
+      "source": "job posting: minimum qualification",
+      "posting_line": "Bachelor's degree or equivalent practical experience.",
+      "posting_line_verified": true,
+      "related_topics": [],
+      "sample_questions": [
+        "How has your educational background or equivalent experience prepared you for a hybrid engineering and architecture role?",
+        "Can you describe a project where you applied fundamental computer science principles to solve a customer problem?",
+        "How did your engineering degrees in Mechatronics and Computer Science shape the way you design and debug integrated systems for customers?"
+      ],
+      "listen_for": "A clear articulation of how their background provides the foundational knowledge required for complex system design."
+    },
+    {
+      "id": "R9",
+      "text": "5 years of experience with cloud native architecture in a customer-facing or support role",
+      "source": "job posting: minimum qualification",
+      "posting_line": "5 years of experience with cloud native architecture in a customer-facing or support role.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R3"
+      ],
+      "sample_questions": [
+        "Walk me through the most complex cloud-native architecture you have designed for a customer in the last five years.",
+        "What are the biggest shifts you've seen in cloud-native design patterns during your career?",
+        "Describe a time you had to support a customer through a major architectural failure in their cloud environment."
+      ],
+      "listen_for": "Depth of experience with cloud-native principles and a history of successfully managing customer-facing technical challenges."
+    },
+    {
+      "id": "R10",
+      "text": "Technical delivery strategies and product interfacing",
+      "source": "job posting: minimum qualification",
+      "posting_line": "Experience with technical delivery strategies and interfacing with product or engineering organizations.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R3",
+        "R6"
+      ],
+      "sample_questions": [
+        "How do you typically interface with product teams to ensure customer requirements are reflected in the roadmap?",
+        "What technical delivery strategies do you use to manage risk in high-stakes enterprise projects?",
+        "Tell me about a time you had to advocate for a customer's technical needs to an internal engineering organization."
+      ],
+      "listen_for": "The ability to act as a bridge between the field and the product team, using structured delivery methods."
+    },
+    {
+      "id": "R11",
+      "text": "Reading or debugging general purpose code",
+      "source": "job posting: minimum qualification",
+      "posting_line": "Experience reading or debugging code in a general purpose coding language (e.g., Java, Python, JavaScript).",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R5"
+      ],
+      "sample_questions": [
+        "Which general-purpose coding language are you most comfortable debugging in, and why?",
+        "Describe a time you found a critical logic error in a customer's Python or Java code that was blocking a deployment.",
+        "How do you approach debugging a distributed system where the error could be in the code, the network, or the AI model?"
+      ],
+      "listen_for": "Practical, hands-on coding proficiency and a systematic approach to troubleshooting software."
+    },
+    {
+      "id": "R12",
+      "text": "System design or orchestration frameworks experience",
+      "source": "job posting: minimum qualification",
+      "posting_line": "Experience in system design or orchestration frameworks (e.g., LangGraph, AutoGen, CrewAI).",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R1"
+      ],
+      "sample_questions": [
+        "What are the pros and cons of using LangGraph versus a more traditional orchestration framework for agentic workflows?",
+        "Describe a system design you created that utilized an orchestration framework to manage multiple AI agents.",
+        "How do you handle state management in a complex multi-agent system?"
+      ],
+      "listen_for": "Familiarity with modern AI orchestration tools and the ability to justify architectural choices within those frameworks.",
+      "evidence_note": "No evidence of LangGraph, AutoGen or CrewAI in her sources; closest: anura's LangChain/LlamaIndex/Autonolas compatibility and the olas-research-agent repo. Answer honestly as a gap."
+    },
+    {
+      "id": "R13",
+      "text": "Experience with enterprise integrations (APIs, ECMs, identity), cloud infrastructure, or AI/ML model deployments",
+      "source": "job posting: minimum qualification",
+      "posting_line": "Experience with enterprise integrations (APIs, enterprise content management (ECMs), identity), cloud infrastructure, or AI/ML model deployments.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R1"
+      ],
+      "sample_questions": [
+        "How do you approach integrating AI models with legacy Enterprise Content Management systems?",
+        "What are the security implications of connecting a public cloud AI service to a private enterprise identity provider?",
+        "Describe your experience with large-scale AI/ML model deployments in a regulated industry."
+      ],
+      "listen_for": "A comprehensive understanding of how AI fits into the broader, often messy, enterprise IT landscape."
+    },
+    {
+      "id": "R14",
+      "text": "Deciphering ambiguity and novel technical problems",
+      "source": "job posting: preferred qualification",
+      "posting_line": "Experience diving deep into novel technical problems, deciphering ambiguity, diagnosing bugs, and emerging with credible architectural solutions.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R5"
+      ],
+      "sample_questions": [
+        "Tell me about a time you were faced with a technical problem that had no existing documentation or precedent. How did you solve it?",
+        "How do you move from a highly ambiguous customer request to a concrete architectural plan?",
+        "Describe a situation where your initial diagnosis of a bug was wrong. How did you pivot to find the real solution?"
+      ],
+      "listen_for": "Problem-solving resilience, analytical thinking, and the ability to provide structure to chaotic technical situations."
+    },
+    {
+      "id": "R15",
+      "text": "Orchestrating specialized resources for complex builds",
+      "source": "job posting: preferred qualification",
+      "posting_line": "Experience orchestrating specialized technical resources to execute complex builds.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R2"
+      ],
+      "sample_questions": [
+        "How do you manage a team of specialists (e.g., data scientists, security engineers) when you are the lead architect on a build?",
+        "Describe a complex build where you had to coordinate between internal Google teams and external customer partners.",
+        "What is your strategy for ensuring that specialized resources are utilized efficiently without creating bottlenecks?"
+      ],
+      "listen_for": "Leadership skills and the ability to manage diverse technical talents toward a single delivery goal."
+    },
+    {
+      "id": "R16",
+      "text": "Influencing technical stakeholders and executive leaders",
+      "source": "job posting: preferred qualification",
+      "posting_line": "Experience engaging with, presenting to, and influencing technical stakeholders or executive leaders.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R6"
+      ],
+      "sample_questions": [
+        "How do you tailor your presentation style when moving from a meeting with developers to a meeting with the CTO?",
+        "Tell me about a time you successfully influenced an executive leader to change their technical strategy.",
+        "What is your approach to building consensus among a group of technical stakeholders with competing interests?"
+      ],
+      "listen_for": "Executive presence, persuasive communication, and the ability to build trust at all levels of an organization."
+    },
+    {
+      "id": "R17",
+      "text": "Translating technical issues into business impact",
+      "source": "job posting: preferred qualification",
+      "posting_line": "Excellent executive communication skills, capable of translating deep technical integration issues into business impact.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R6"
+      ],
+      "sample_questions": [
+        "A customer's AI deployment is delayed by a month due to an API integration issue; how do you explain the business impact to their CEO?",
+        "Give me an example of how you've used a technical constraint to drive a business value conversation.",
+        "How do you quantify the ROI of a complex AI architectural improvement for a non-technical stakeholder?"
+      ],
+      "listen_for": "The ability to speak the language of business and connect technical details to the customer's bottom line."
+    },
+    {
+      "id": "R18",
+      "text": "Partner with Account teams for feasibility",
+      "source": "job posting: responsibility",
+      "posting_line": "Partner with Account teams and Practice Customer Engineer (CEs) during technical evaluation phases to assess project feasibility, shape proposals for long-term adoption, and validate FDE engagement requests.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R4",
+        "R6"
+      ],
+      "sample_questions": [
+        "How do you handle a situation where an Account team is pushing a proposal that you believe is technically unfeasible?",
+        "What specific factors do you look for when validating a request for Forward Deployed Engineering (FDE) resources?",
+        "How do you ensure that a proposal is shaped for 'long-term adoption' rather than just a quick initial sale?"
+      ],
+      "listen_for": "Collaboration skills and a focus on long-term customer success over short-term sales wins."
+    },
+    {
+      "id": "R19",
+      "text": "Lead upfront technical design for AI",
+      "source": "job posting: responsibility",
+      "posting_line": "Lead upfront technical design for enterprise-grade AI solutions, ensuring seamless and secure integration of models, agents, and connectors into existing customer data pipelines, identity providers, and compliance boundaries.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R1",
+        "R3"
+      ],
+      "sample_questions": [
+        "Walk me through your process for designing the 'upfront' architecture for an enterprise AI solution.",
+        "How do you ensure that AI agents and connectors comply with a customer's existing security and compliance boundaries?",
+        "What are the key considerations when integrating AI models into high-volume, real-time data pipelines?"
+      ],
+      "listen_for": "A rigorous approach to design that prioritizes security, scalability, and seamless integration."
+    },
+    {
+      "id": "R20",
+      "text": "Diagnose and resolve complex implementation issues",
+      "source": "job posting: responsibility",
+      "posting_line": "Dive into code-level context to diagnose and resolve complex customer implementation issues, identify core product bugs, and test workarounds to clear execution roadblocks.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R5"
+      ],
+      "sample_questions": [
+        "Tell me about the most difficult implementation issue you've ever had to debug at the code level.",
+        "How do you document and communicate a core product bug you've discovered to the engineering team?",
+        "Describe a time you had to create a temporary workaround to keep a project moving while waiting for a permanent product fix."
+      ],
+      "listen_for": "Technical persistence and the ability to find creative solutions to blocking issues."
+    },
+    {
+      "id": "R21",
+      "text": "Liaison to Product and Engineering teams",
+      "source": "job posting: responsibility",
+      "posting_line": "Serve as the definitive liaison to core Product and Engineering teams, troubleshooting systemic deployment blockers and translating real-world field feedback into actionable feature requests.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R6"
+      ],
+      "sample_questions": [
+        "How do you distinguish between a one-off customer issue and a 'systemic deployment blocker' that needs product attention?",
+        "What is your process for translating messy field feedback into a clear, actionable feature request for a product manager?",
+        "Describe a time you successfully negotiated a product change based on feedback from a strategic account."
+      ],
+      "listen_for": "The ability to synthesize information and act as a credible voice for the customer within the internal organization."
+    },
+    {
+      "id": "R22",
+      "text": "Steer implementation strategy and own reality",
+      "source": "job posting: responsibility",
+      "posting_line": "Steer implementation strategy through technical authority and architectural foresight while owning the technical reality of delivery alongside customer-facing teams.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R2",
+        "R3"
+      ],
+      "sample_questions": [
+        "How do you establish 'technical authority' with a customer's engineering team?",
+        "What does 'owning the technical reality of delivery' mean to you in the context of a high-pressure AI project?",
+        "How do you use architectural foresight to prevent problems that might not appear until months after deployment?"
+      ],
+      "listen_for": "Leadership through expertise and a deep sense of accountability for the final technical outcome."
+    },
+    {
+      "id": "R23",
+      "text": "Work as an enterprise architect",
+      "source": "job posting: role summary",
+      "posting_line": "As an AI Outcome Customer Engineer, you work as an enterprise architect, technical debugger, engineering liaison and technical delivery manager.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R1"
+      ],
+      "sample_questions": [
+        "How do you ensure an AI solution fits into a customer's broader multi-year enterprise architecture roadmap?",
+        "What enterprise architecture frameworks do you find most useful when designing AI systems?",
+        "Describe a time you had to align an AI project with a customer's existing legacy infrastructure."
+      ],
+      "listen_for": "The ability to see the 'big picture' and design systems that are sustainable within a large organization."
+    },
+    {
+      "id": "R24",
+      "text": "Work as a technical debugger",
+      "source": "job posting: role summary",
+      "posting_line": "As an AI Outcome Customer Engineer, you work as an enterprise architect, technical debugger, engineering liaison and technical delivery manager.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R5"
+      ],
+      "sample_questions": [
+        "What tools and methodologies do you use when you are acting as the 'technical debugger' for a failing AI implementation?",
+        "Tell me about a time you had to debug a performance bottleneck in an AI inference pipeline.",
+        "How do you approach debugging non-deterministic outputs in a production AI system?"
+      ],
+      "listen_for": "A methodical and data-driven approach to identifying and fixing technical errors."
+    },
+    {
+      "id": "R25",
+      "text": "Work as an engineering liaison",
+      "source": "job posting: role summary",
+      "posting_line": "As an AI Outcome Customer Engineer, you work as an enterprise architect, technical debugger, engineering liaison and technical delivery manager.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R6"
+      ],
+      "sample_questions": [
+        "How do you maintain a strong relationship with core engineering teams while constantly bringing them problems from the field?",
+        "Describe a time you had to explain a complex customer environment to an engineer who had never left the office.",
+        "What is the key to being an effective liaison between a customer's needs and a product's capabilities?"
+      ],
+      "listen_for": "Empathy for both the customer and the internal engineer, and the ability to facilitate clear communication between them."
+    },
+    {
+      "id": "R26",
+      "text": "Work as a technical delivery manager",
+      "source": "job posting: role summary",
+      "posting_line": "As an AI Outcome Customer Engineer, you work as an enterprise architect, technical debugger, engineering liaison and technical delivery manager.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R2"
+      ],
+      "sample_questions": [
+        "How do you define 'success' for a technical delivery in the AI space?",
+        "What project management methodologies do you apply to technical AI builds?",
+        "Describe a time you had to manage a delivery that involved significant third-party integrations."
+      ],
+      "listen_for": "A focus on outcomes, timelines, and the practicalities of getting a system into production."
+    },
+    {
+      "id": "R27",
+      "text": "Bridge pre-sales and post-sales execution",
+      "source": "job posting: role summary",
+      "posting_line": "You will bridge the gap between pre-sales agreement shaping and post-sales execution.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R7"
+      ],
+      "sample_questions": [
+        "What are the most common 'gaps' you see between what is sold and what can be executed, and how do you close them?",
+        "How do you ensure that the technical commitments made during the sales process are documented for the execution team?",
+        "Tell me about a time you had to step in during post-sales because the pre-sales scoping was inadequate."
+      ],
+      "listen_for": "A proactive approach to ensuring technical continuity and feasibility throughout the sales lifecycle."
+    },
+    {
+      "id": "R28",
+      "text": "Ensure solutions shaped for adoption and activation",
+      "source": "job posting: role summary",
+      "posting_line": "Entering the agreement cycle during the technical evaluation phase for strategic AI accounts, you will ensure that solutions are shaped strictly through the lens of adoption, rapid activation, and viable delivery.",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R4"
+      ],
+      "sample_questions": [
+        "What does 'rapid activation' look like for a complex Vertex AI deployment?",
+        "How do you measure 'adoption' for an AI solution once it has been delivered?",
+        "Describe a time you simplified a complex design to ensure it could be delivered and adopted more quickly."
+      ],
+      "listen_for": "A focus on the end-user and the practical utility of the AI solution, rather than just technical elegance."
+    },
+    {
+      "id": "R29",
+      "text": "Architect integration into customer IT ecosystem",
+      "source": "job posting: role summary",
+      "posting_line": "Aligned with our Forward Deployed Engineering (FDE) organization, you will architect how these technical assets actually integrate into the customer's IT ecosystem (connectors, identity, data residency, legal constraints).",
+      "posting_line_verified": true,
+      "related_topics": [
+        "R1"
+      ],
+      "sample_questions": [
+        "How do you handle 'legal constraints' when architecting an AI solution that processes sensitive customer data?",
+        "What is your approach to designing connectors for proprietary data sources that don't have standard APIs?",
+        "How do you architect for data residency in a multi-region cloud deployment of Gemini?"
+      ],
+      "listen_for": "A deep understanding of the non-functional requirements (security, legal, compliance) that are critical for enterprise AI."
+    }
+  ]
+}
