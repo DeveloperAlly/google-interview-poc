@@ -167,16 +167,18 @@ def post_check(answer: str, chunks: list[str]) -> tuple[str, list[str]]:
         for i, w in enumerate(words):
             if i > 0 and (w[0].isupper() or w.isupper()) and w not in COMMON_CAPS and w.lower() not in hay:
                 bad.append(w)
-        for v in OUTCOME_VERBS:
-            if re.search(rf"\b{v}\b", sent.lower()) and v not in hay:
-                bad.append(v)
+        for v in OUTCOME_VERBS:  # stem match: "architecting", "deploys", "delivering" count too
+            m = re.search(rf"\b{v[:-2] if v.endswith('ed') else v}\w*", sent.lower())
+            if m and m.group(0) not in hay:
+                bad.append(m.group(0))
         for qn in QUANTIFIERS:
             if re.search(rf"\b{qn}\b", sent.lower()) and qn not in hay:
                 bad.append(qn)
         if not bad:
             terms = [t.lower().rstrip(".,+") for t in re.findall(r"\d[\d,.]*", sent)]
             terms += [w.lower() for i, w in enumerate(words) if i > 0 and w[0].isupper() and w not in COMMON_CAPS]
-            terms += [v for v in OUTCOME_VERBS + QUANTIFIERS if re.search(rf"\b{v}\b", sent.lower())]
+            terms += [v for v in QUANTIFIERS if re.search(rf"\b{v}\b", sent.lower())]
+            terms += [m.group(0) for v in OUTCOME_VERBS for m in [re.search(rf"\b{v[:-2] if v.endswith('ed') else v}\w*", sent.lower())] if m]
             if terms and not any(all(t in c for t in terms) for c in low):
                 bad.append("terms not together in one cited source: " + ", ".join(dict.fromkeys(terms)))
         (cut if bad else keep).append(sent if not bad else f"{sent}  [unsupported: {', '.join(dict.fromkeys(bad))}]")
