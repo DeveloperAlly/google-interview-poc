@@ -584,3 +584,139 @@ Return JSON only."""
                 last = e
                 time.sleep(4 if "429" in str(e) else 2)
     raise RuntimeError(f"Gemini unavailable: {str(last)[:200]}")
+
+
+# ---- Fast path (exit criterion E7: within a few seconds): no Gemini call, nothing added to the card ----
+_TFIDF = None
+
+
+def _tok(t: str) -> list[str]:
+    return [w.rstrip("s") for w in re.findall(r"[a-z0-9]+", str(t).lower()) if w not in STOP and len(w) > 2]
+
+
+def local_match(question: str, k: int = 3) -> list[tuple[float, dict]]:
+    """TF-IDF cosine between the question and each practice bank question's text plus variants."""
+    import math
+    global _TFIDF
+    qs = [q for q in bank_questions() if q.get("kind") in ("interview", "probe")]
+    if _TFIDF is None or _TFIDF[0] != len(qs):
+        docs = [_tok(q["text"] + " " + " ".join(v if isinstance(v, str) else str(v.get("text", "")) for v in q.get("variants") or []))
+                for q in qs]
+        df = {}
+        for d in docs:
+            for w in set(d):
+                df[w] = df.get(w, 0) + 1
+        idf = {w: math.log((1 + len(docs)) / (1 + n)) + 1 for w, n in df.items()}
+        vecs = []
+        for d in docs:
+            v = {}
+            for w in d:
+                v[w] = v.get(w, 0) + idf[w]
+            norm = math.sqrt(sum(x * x for x in v.values())) or 1
+            vecs.append({w: x / norm for w, x in v.items()})
+        _TFIDF = (len(qs), qs, idf, vecs)
+    _, qs, idf, vecs = _TFIDF
+    qv = {}
+    for w in _tok(question):
+        if w in idf:
+            qv[w] = qv.get(w, 0) + idf[w]
+    norm = math.sqrt(sum(x * x for x in qv.values())) or 1
+    scored = sorted(((sum(x / norm * v.get(w, 0) for w, x in qv.items()), q) for q, v in zip(qs, vecs)), key=lambda x: -x[0])
+    return [(round(sc, 3), q) for sc, q in scored[:k] if sc > 0]
+
+
+def render_card(card: dict, st: dict | None = None) -> dict:
+    """A story card rendered as STAR (plus Decision and Learning when the card has them), verbatim from its slots."""
+    st = st or {}
+    def ok(v):
+        return v and str(v).strip().lower() not in ("missing", "none", "")
+    parts = [(lbl, card.get(k)) for lbl, k in (("Situation", "situation"), ("Task", "task"), ("Action", "action"),
+                                                 ("Result", "result"), ("Metric", "metric"), ("Decision", "decision"),
+                                                 ("Learning", "learning"))]
+    text = "\n".join(f"{lbl}: {re.sub(r',? within 24 hours( of (its )?release)?', '', str(v))}" for lbl, v in parts if ok(v))
+    srcs = []
+    for x in card.get("sources", []) or []:
+        u = str(x.get("path_or_url", ""))
+        gh = re.match(r"https://github\.com/([^/]+/[^/#?]+)", u)
+        if gh:
+            import facts_layer
+            if facts_layer.is_private(gh.group(1)):
+                continue
+        if (u.startswith("https://") or u.startswith("state/drive/")) and not any(b in u.lower() for b in NOT_EVIDENCE + ("recruiter email",)):
+            if u not in [c["path"] for c in srcs]:
+                srcs.append({"n": "card", "kind": "card source", "repo": "", "path": u, "url": u if u.startswith("https://") else ""})
+    return {"story_ref": st.get("story_ref") or card.get("id"), "card_ids": [card.get("id")],
+            "project": st.get("canonical_project") or card.get("canonical_project") or card.get("project"),
+            "her_role": card.get("her_role"), "role_label": st.get("role_label"), "fit": st.get("fit"), "why": st.get("why"),
+            "structure": "STAR", "answer": text, "words": len(text.split()), "sources": srcs, "tailored": False,
+            "decision": card.get("decision") if ok(card.get("decision")) else None,
+            "learning": card.get("learning") if ok(card.get("learning")) else None}
+
+
+def fast(question: str, qid: str | None = None) -> dict:
+    """Instant answers: bank question (by id, exact text, else nearest by local TF-IDF) -> its mapped stories in order,
+    rendered from the cards. No Gemini call. Free-typed questions also get the top 3 local matches as 'Did you mean'."""
+    t0 = time.time()
+    allc = usable_cards(story_cards())
+    cards = {c["id"]: c for c in allc.get("cards", [])}
+    qs = {q["id"]: q for q in bank_questions()}
+    cands, how = [], ""
+    bq = qs.get(qid) if qid else None
+    if bq:
+        how = "bank question"
+    else:
+        n = _norm(question)
+        bq = next((q for q in qs.values() if _norm(q["text"]) == n), None)
+        how = "bank question" if bq else ""
+    if not bq:
+        cands = local_match(question)
+        if cands:
+            bq, how = cands[0][1], f"nearest bank question, local match (score {cands[0][0]})"
+    out = {"question": question, "count": 0, "answers": [],
+           "did_you_mean": [{"id": q["id"], "text": q["text"], "score": sc} for sc, q in cands]}
+    m = qmap().get(bq["id"]) if bq else None
+    if bq:
+        out["matched"] = {"id": bq["id"], "text": bq["text"], "how": how, "category": bq.get("category")}
+    if m:
+        out["testing"], out["gap"] = m.get("testing"), m.get("gap")
+        for st in m.get("stories") or []:
+            c = resolve_ref(st.get("story_ref", ""), cards)
+            if c:
+                out["answers"].append(render_card(c, st))
+            if len(out["answers"]) == 4:
+                break
+    if not out["answers"]:  # no map entry: route to cards deterministically, still no Gemini
+        req, hit, why = route(question, role_profile(), allc)
+        out["answers"] = [render_card(c) for _, c in rank_cards(req, hit, question)]
+        out["routing"] = {"requirement_id": req["id"] if req else None, "why": why}
+    a = out["answers"]
+    if len(a) > 1 and a[0].get("fit") == "needs owner":  # never show a needs-owner story first
+        j = next((i for i, x in enumerate(a) if x.get("fit") != "needs owner"), 0)
+        a.insert(0, a.pop(j))
+    out["count"] = len(a)
+    if len(a) < 2:
+        out["note"] = f"Only {len(a)} story fits this question."
+    out["seconds"] = round(time.time() - t0, 3)
+    return out
+
+
+def tailor(question: str, evidence: list[dict], story_ref: str, qid: str | None = None, st: dict | None = None) -> dict:
+    """One Gemini call for one card: retell that story for this exact question."""
+    allc = usable_cards(story_cards())
+    cards = {c["id"]: c for c in allc.get("cards", [])}
+    c = resolve_ref(story_ref, cards)
+    if not c:
+        raise RuntimeError(f"unknown story {story_ref}")
+    st = st or {}
+    m = qmap().get(qid or "") or {}
+    st = next((x for x in m.get("stories", []) if x.get("story_ref") == story_ref), st)
+    c.update({"fit": st.get("fit"), "why": st.get("why"), "role_label": st.get("role_label")})
+    reqs = {r["id"]: r for r in role_profile().get("requirements", [])}
+    req = next((reqs[r] for r in (m.get("requirement_ids") or []) if r in reqs), None)
+    if not req:
+        req, _, _ = route(question, role_profile(), allc)
+    a = _one(question, evidence, req, c, f"tailor {story_ref}", cards)
+    a["project"] = st.get("canonical_project") or c.get("project")
+    a["story_ref"], a["tailored"] = story_ref, True
+    return a
+

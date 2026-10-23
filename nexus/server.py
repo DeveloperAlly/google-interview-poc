@@ -297,8 +297,25 @@ def make_handler(nexus: Nexus):
                     if not q:
                         return self._send(400, b'{"error":"empty question"}')
                     import compose
-                    ev = evidence_for(nexus, q)
-                    out = compose.compose(q, ev, str(body.get("qid") or "") or None)
+                    qid = str(body.get("qid") or "") or None
+                    if body.get("match") == "gemini":  # only when the user asks: Gemini picks the bank question
+                        bq, _how = compose.match_bank(q)
+                        qid = bq["id"] if bq else qid
+                    out = compose.fast(q, qid)  # instant: cards rendered as STAR, no Gemini call
+                    if body.get("match") == "gemini" and out.get("matched"):
+                        out["matched"]["how"] = "nearest bank question by meaning (Gemini)"
+                    return self._send(200, json.dumps(out).encode())
+                except Exception as e:
+                    return self._send(502, json.dumps({"error": str(e)[:400]}).encode())
+            if self.path == "/api/tailor":  # one Gemini call for one card
+                try:
+                    n = max(0, int(self.headers.get("Content-Length", "0") or 0))
+                    body = json.loads(self.rfile.read(min(n, 20000)) or b"{}")
+                    q = str(body.get("question", "")).strip()[:1000]
+                    if not q or not body.get("story_ref"):
+                        return self._send(400, b'{"error":"question and story_ref required"}')
+                    import compose
+                    out = compose.tailor(q, evidence_for(nexus, q), str(body["story_ref"]), str(body.get("qid") or "") or None)
                     return self._send(200, json.dumps(out).encode())
                 except Exception as e:
                     return self._send(502, json.dumps({"error": str(e)[:400]}).encode())

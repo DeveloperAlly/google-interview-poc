@@ -59,7 +59,7 @@ for (const t of TOPICS) { const b = document.createElement("button"); b.type = "
 function tag(t) { const s = document.createElement("span"); s.className = "tag"; s.textContent = t; return s; }
 function el(t, c, txt) { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
 // The owner's question bank: practice questions by category (click to answer), ask-them and logistics lists.
-let QID = null;
+let QID = null, MATCH = null;
 function ask(q) { $("q").value = q.text; QID = q.id; $("f").requestSubmit(); }
 function plain(list, box) { for (const q of list) box.appendChild(el("div", "m", q.id + "  " + q.text)); }
 let PRACTICE = [];
@@ -100,23 +100,46 @@ function card(a, i) {
   if (!(a.sources || []).length) pr.appendChild(el("div", "m", "No sources cited."));
   s.appendChild(pr);
   if (a.gaps && a.gaps.length) s.appendChild(el("div", "gap", "Gaps an interviewer may probe: " + a.gaps.join("; ")));
+  if (!a.tailored && a.story_ref) {
+    const b = el("button", "chip", "Tailor to this question"); b.type = "button"; b.style.marginTop = "8px";
+    b.onclick = async () => {
+      b.disabled = true; b.textContent = "Tailoring (one Gemini call)...";
+      try {
+        const r = await fetch("/api/tailor", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: LASTQ, story_ref: a.story_ref, qid: LASTMATCH }) });
+        const t = await r.json(); if (!r.ok) throw new Error(t.error || ("HTTP " + r.status));
+        t.fit = t.fit || a.fit; t.why = t.why || a.why; t.role_label = t.role_label || a.role_label;
+        s.replaceWith(card(t, i));
+      } catch (err) { b.disabled = false; b.textContent = "Tailor failed: " + err.message; }
+    };
+    s.appendChild(b);
+  }
   return s;
 }
+let LASTQ = "", LASTMATCH = null;
 $("f").addEventListener("submit", async (e) => {
   e.preventDefault(); const question = $("q").value.trim(); if (!question) return;
   $("go").disabled = true; $("matched").textContent = ""; $("meta").textContent = "Writing your answers..."; $("answers").textContent = "";
   try {
-    const r = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, qid: QID }) });
+    const r = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, qid: QID, match: MATCH }) });
     const d = await r.json(); if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
     const list = d.answers || [d];
     $("matched").textContent = "";
+    LASTQ = question; LASTMATCH = d.matched ? d.matched.id : null;
     if (d.matched) $("matched").appendChild(el("div", "", "Matched bank question " + d.matched.id + " (" + d.matched.how + "): " + d.matched.text));
+    if (d.did_you_mean && d.did_you_mean.length) {
+      const box = el("div", "", "Did you mean: ");
+      for (const c of d.did_you_mean) { const b = el("button", "chip", c.id + "  " + c.text); b.type = "button"; b.style.margin = "3px"; b.onclick = () => ask(c); box.appendChild(b); }
+      const g = el("button", "chip", "Match with Gemini instead"); g.type = "button"; g.style.margin = "3px";
+      g.onclick = () => { $("q").value = question; MATCH = "gemini"; $("f").requestSubmit(); }; box.appendChild(g);
+      $("matched").appendChild(box);
+    }
     if (d.testing) $("matched").appendChild(el("div", "", "What they are testing: " + d.testing));
     if (d.gap) $("matched").appendChild(el("div", "gap", "Gap: " + d.gap));
-    $("meta").textContent = list.length + (list.length === 1 ? " answer" : " answers") + ", best fit first." + (d.note ? " " + d.note : "");
+    $("meta").textContent = list.length + (list.length === 1 ? " story" : " stories") + ", best fit first, straight from the story cards" + (d.seconds != null ? " (" + d.seconds + " s)" : "") + "." + (d.note ? " " + d.note : "");
     list.forEach((a, i) => $("answers").appendChild(card(a, i)));
   } catch (err) { $("meta").textContent = "Error: " + err.message; }
-  finally { $("go").disabled = false; QID = null; }
+  finally { $("go").disabled = false; QID = null; MATCH = null; }
 });
 </script>
 </body>
