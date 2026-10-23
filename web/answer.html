@@ -37,6 +37,12 @@
     <button id="go" type="submit">Get my answer</button>
   </form>
   <div class="chips" id="chips"></div>
+  <details id="bankbox"><summary>Question bank (practice questions by category)</summary>
+    <input id="bsearch" placeholder="Search the bank" style="width:100%;margin:8px 0;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font:inherit">
+    <div id="bank"></div></details>
+  <details><summary>Ask them (questions for the interviewer)</summary><div id="askthem"></div></details>
+  <details><summary>Logistics</summary><div id="logistics"></div></details>
+  <div id="matched" class="m"></div>
   <div id="meta" class="m">Your answers appear here, best fit first.</div>
   <div id="answers" style="display:grid;gap:16px"></div>
 </main>
@@ -52,19 +58,34 @@ const $ = (id) => document.getElementById(id);
 for (const t of TOPICS) { const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t; b.onclick = () => { $("q").value = t; $("f").requestSubmit(); }; $("chips").appendChild(b); }
 function tag(t) { const s = document.createElement("span"); s.className = "tag"; s.textContent = t; return s; }
 function el(t, c, txt) { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
-// Example questions: the question bank from /api/questions when present, else the seven recruiter topics.
-fetch("/api/questions").then(r => r.json()).then(list => {
-  const qs = (Array.isArray(list) ? list : []).map(x => typeof x === "string" ? x : (x && (x.question || x.text))).filter(Boolean);
-  if (!qs.length) return; const dl = el("datalist"); dl.id = "bank";
-  for (const t of qs) { const o = el("option"); o.value = t; dl.appendChild(o); }
-  document.body.appendChild(dl); $("q").setAttribute("list", "bank");
+// The owner's question bank: practice questions by category (click to answer), ask-them and logistics lists.
+let QID = null;
+function ask(q) { $("q").value = q.text; QID = q.id; $("f").requestSubmit(); }
+function plain(list, box) { for (const q of list) box.appendChild(el("div", "m", q.id + "  " + q.text)); }
+let PRACTICE = [];
+function renderBank(filter) {
+  const box = $("bank"); box.textContent = ""; const f = (filter || "").toLowerCase(); let cat = null;
+  for (const q of PRACTICE) {
+    if (f && !(q.text + " " + q.category + " " + q.id).toLowerCase().includes(f)) continue;
+    if (q.category !== cat) { cat = q.category; box.appendChild(el("div", "", cat)).style.fontWeight = "600"; }
+    const b = el("button", "chip", q.id + "  " + q.text); b.type = "button"; b.style.textAlign = "left"; b.style.margin = "3px 0"; b.onclick = () => ask(q);
+    box.appendChild(b);
+  }
+}
+fetch("/api/questions").then(r => r.json()).then(d => {
+  PRACTICE = d.practice || []; renderBank("");
+  $("bsearch").oninput = (e) => renderBank(e.target.value);
+  plain(d.ask_them || [], $("askthem")); plain(d.logistics || [], $("logistics"));
+  $("bankbox").querySelector("summary").textContent = "Question bank (" + PRACTICE.length + " practice questions by category)";
 }).catch(() => {});
+$("q").addEventListener("input", () => { QID = null; });
 function card(a, i) {
   const s = el("section");
   s.appendChild(el("h2", "", (i + 1) + ". " + (a.project || "Answer from evidence")));
   const m = el("div", "m"); m.append(tag(a.structure || ""), tag("Role: " + (a.her_role || "none")), tag((a.requirement_id || "") + " " + (a.requirement || "")));
   if (a.card_ids && a.card_ids.length) m.append(tag("Card: " + a.card_ids.join(", ")));
-  if (a.fit === "partial") m.append(tag("partial fit")); else if (a.fit === "needs owner") m.append(tag("needs your input"));
+  if (a.fit === "full") m.append(tag("full fit")); else if (a.fit === "partial") m.append(tag("partial fit")); else if (a.fit === "needs owner") m.append(tag("needs your input"));
+  if (a.role_label) m.append(tag(a.role_label));
   if (a.why) s.appendChild(el("div", "m", "Why it fits: " + a.why));
   s.appendChild(m);
   s.appendChild(el("div", "ans", a.answer));
@@ -83,15 +104,19 @@ function card(a, i) {
 }
 $("f").addEventListener("submit", async (e) => {
   e.preventDefault(); const question = $("q").value.trim(); if (!question) return;
-  $("go").disabled = true; $("meta").textContent = "Writing your answers..."; $("answers").textContent = "";
+  $("go").disabled = true; $("matched").textContent = ""; $("meta").textContent = "Writing your answers..."; $("answers").textContent = "";
   try {
-    const r = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question }) });
+    const r = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, qid: QID }) });
     const d = await r.json(); if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
     const list = d.answers || [d];
+    $("matched").textContent = "";
+    if (d.matched) $("matched").appendChild(el("div", "", "Matched bank question " + d.matched.id + " (" + d.matched.how + "): " + d.matched.text));
+    if (d.testing) $("matched").appendChild(el("div", "", "What they are testing: " + d.testing));
+    if (d.gap) $("matched").appendChild(el("div", "gap", "Gap: " + d.gap));
     $("meta").textContent = list.length + (list.length === 1 ? " answer" : " answers") + ", best fit first." + (d.note ? " " + d.note : "");
     list.forEach((a, i) => $("answers").appendChild(card(a, i)));
   } catch (err) { $("meta").textContent = "Error: " + err.message; }
-  finally { $("go").disabled = false; }
+  finally { $("go").disabled = false; QID = null; }
 });
 </script>
 </body>

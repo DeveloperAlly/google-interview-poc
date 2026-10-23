@@ -10,9 +10,9 @@
       "her_role": "directed",
       "situation": "I faced a rapidly moving AI landscape where hardcoding neural networks into the protocol would cause breaking updates. Enterprise builders also required reliable endpoints that would not crash if a community node drops off mid-stream.",
       "task": "I needed to future-proof the protocol against model churn and make the network usable for standard enterprise developers with zero friction.",
-      "action": "I architected a framework where AI models are pluggable modules, allowing us to deploy new models like DeepSeek R1 within 24 hours. I also directed the creation of anura, an OpenAI-compatible gateway with automated LiteLLM failover to ensure service stability.",
+      "action": "I directed a framework where AI models are pluggable modules, allowing us to deploy new models like DeepSeek R1. I also directed the creation of anura, an OpenAI-compatible gateway with automated LiteLLM failover to ensure service stability.",
       "result": "This provided drop-in compatibility with LangChain and Autonolas agents. If a decentralized GPU node fails, the failover layer transparently reroutes requests to redundant endpoints without disconnecting the client.",
-      "metric": "Because models were pluggable Git-versioned modules, our ecosystem could deploy DeepSeek R1 or Wan2.1 Video within 24 hours of release without touching the core Go solver daemon.",
+      "metric": "Because models were pluggable Git-versioned modules, our ecosystem could deploy DeepSeek R1 or Wan2.1 Video without touching the core Go solver daemon.",
       "sources": [
         {
           "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
@@ -813,7 +813,7 @@
       ],
       "topic": "enterprise accounts: pre-sales discovery, PoCs and product feedback",
       "project": "IBM ANZ enterprise accounts (Apr 2020 to Jan 2022)",
-      "her_role": "missing",
+      "her_role": "led (CV title only; detail not on record)",
       "situation": "At IBM ANZ, as Developer Relations Manager and Enterprise Account Technical Partner (Apr 2020 to Jan 2022), I worked with enterprise and corporate clients in customer outcomes across IBM Cloud, DevOps, AI, IoT and Quantum.",
       "task": "missing",
       "action": "I worked on hybrid cloud and Watson AI solutions for BHP and Telstra, turned APAC friction points into product requirements, and ran technical discovery and PoCs for NSW Police and the Defence Force.",
@@ -1854,7 +1854,7 @@
       "situation": "In the Livepeer docs repo, local dev startup was often 5+ minutes, and route changes were slow or crashed, on a large multilingual docs config.",
       "task": "Restore iteration speed for maintainers without changing the production docs config.",
       "action": "I directed the agent that diagnosed and fixed it. The diagnosis pinned it to the size of the full multilingual docs config, with stale concurrent Mint processes raising local failure rates. The fix was scoped dev profiles so a maintainer loads only one version, language and tab, plus a unit test, then a performance baseline script.",
-      "result": "Both PRs merged (livepeer/docs #789, 4 Mar 2026, and #791, 8 Mar 2026); issue #788 closed.",
+      "result": "Both PRs merged (livepeer/docs #789 and #791); issue #788 closed.",
       "metric": "5+ minutes startup before the fix. After-fix time: missing.",
       "sources": [
         {

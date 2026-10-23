@@ -275,9 +275,14 @@ def make_handler(nexus: Nexus):
                 self._send(200, (ROOT / "web" / "answer.html").read_bytes(), "text/html; charset=utf-8")
             elif self.path in ("/search", "/index.html"):
                 self._send(200, page, "text/html; charset=utf-8")
-            elif self.path == "/api/questions":  # example questions; a question bank in state/prep/questions.json wins
-                qp = ROOT / "state" / "prep" / "questions.json"
-                self._send(200, qp.read_bytes() if qp.exists() else b"[]")
+            elif self.path == "/api/questions":  # the owner's question bank: practice, ask-them and logistics lists
+                import compose
+                lists = {"practice": [], "ask_them": [], "logistics": []}
+                for q in compose.bank_questions():
+                    k = "practice" if q.get("kind") in ("interview", "probe") else q.get("kind")
+                    if k in lists:
+                        lists[k].append({x: q.get(x) for x in ("id", "text", "category", "kind")})
+                self._send(200, json.dumps(lists).encode())
             elif self.path == "/stages":
                 self._send(200, stages_html(), "text/html; charset=utf-8")
             else:
@@ -287,12 +292,13 @@ def make_handler(nexus: Nexus):
             if self.path == "/api/answer":
                 try:
                     n = max(0, int(self.headers.get("Content-Length", "0") or 0))
-                    q = str(json.loads(self.rfile.read(min(n, 20000)) or b"{}").get("question", "")).strip()[:1000]
+                    body = json.loads(self.rfile.read(min(n, 20000)) or b"{}")
+                    q = str(body.get("question", "")).strip()[:1000]
                     if not q:
                         return self._send(400, b'{"error":"empty question"}')
                     import compose
                     ev = evidence_for(nexus, q)
-                    out = compose.compose(q, ev)
+                    out = compose.compose(q, ev, str(body.get("qid") or "") or None)
                     return self._send(200, json.dumps(out).encode())
                 except Exception as e:
                     return self._send(502, json.dumps({"error": str(e)[:400]}).encode())

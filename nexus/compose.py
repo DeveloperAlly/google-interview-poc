@@ -15,7 +15,7 @@ TOPICS = ["AI platform integration", "program management", "technical execution"
 
 RUBRIC = """A good answer for a Google AI Outcome Customer Engineer interview:
 - STAR (Situation, Task, Action, Result) or CAR (Context, Action, Result), in the first person, as Ally would say it aloud;
-- 60 to 120 seconds spoken (about 150 to 300 words);
+- under 2 minutes spoken (about 120 to 280 words);
 - names her own decision or action, and her role precisely: "built" if she wrote it, "led" or "directed" if she set
   direction or managed the people who built it (her resumes and Drive documents say which);
 - at least one concrete metric or outcome, only if a source states it;
@@ -215,6 +215,136 @@ def post_check(answer: str, chunks: list[str]) -> tuple[str, list[str]]:
     return " ".join(keep), cut
 
 
+# ---- Question bank and question-to-story map (state/prep), owner prep doc ----
+PREP = STATE / "prep"
+MD_REFS = [(re.compile(r"^L\d+$"), "CORPUS-STORIES-2.md", lambda r: r + "."),
+           (re.compile(r"^G\d+$"), "CORPUS-STORIES-3.md", lambda r: r + "."),
+           (re.compile(r"^TEN-\d+[A-Z]$"), "TEN-STORIES.md", lambda r: r[4:] + "."),
+           (re.compile(r"^CORPUS-\d+[A-Z]$"), "CORPUS-STORIES.md", lambda r: "Story " + r[7:])]
+SLOT_KEYS = {"s": "situation", "situation": "situation", "t": "task", "task": "task", "a": "action", "action": "action",
+             "r": "result", "result": "result", "number": "metric", "metric": "metric", "role": "her_role",
+             "decision": "decision", "learning": "learning", "headline": "headline"}
+
+
+def bank() -> dict:
+    return load_json("prep/question_bank.json", {"questions": []})
+
+
+def bank_questions() -> list[dict]:
+    """Bank questions with v3 kind_fix applied (moves a question into logistics or ask_them)."""
+    fixes = {k: v.get("kind_fix") for k, v in qmap().items() if v.get("kind_fix")}
+    out = []
+    for q in bank().get("questions", []):
+        fx = str(fixes.get(q["id"]) or "").lower().replace("-", "_").replace(" ", "_")
+        kind = next((k for k in ("logistics", "ask_them", "interview", "probe") if k in fx), q.get("kind"))
+        out.append({**q, "kind": kind})
+    return out
+
+
+def qmap() -> dict:
+    """Question id -> {requirement_ids, stories, gap}. v2 parts, then patch_g inserts at insert_at_rank."""
+    out = {}
+    for part in ("part_a", "part_b", "part_c"):
+        for q in load_json(f"prep/qmap/v2/{part}.json", []) or []:
+            out[q["id"]] = q
+    patch = load_json("prep/qmap/v2/patch_g.json", None)  # {"note","source","patches":[{"id","add":[...]}]}
+    for row in (patch or {}).get("patches", []) if isinstance(patch, dict) else []:
+        q = out.get(row.get("id"))
+        if not q:
+            continue
+        for st in row.get("add") or []:
+            at = int(st.get("insert_at_rank") or len(q["stories"]) + 1)
+            q["stories"].insert(max(0, at - 1), st)
+    # v3 re-rank wins per question when present (it already carries the G stories); v2 plus patch_g is the fallback.
+    for f in sorted((PREP / "qmap" / "v3").glob("Q*.json")):
+        try:
+            for q in json.loads(f.read_text(encoding="utf-8")) or []:
+                out[q["id"]] = q
+        except Exception:
+            continue
+    return out
+
+
+def _strip_src(t: str) -> str:
+    return re.sub(r"\s*Sources?:.*$", "", t).strip()
+
+
+def resolve_ref(ref: str, cards: dict) -> dict | None:
+    """Story ref -> card dict. S* from story_cards.json (S12 is treated as S4), else a section of a prep markdown file."""
+    ref = "S4" if ref == "S12" else ref
+    if ref in cards:
+        return dict(cards[ref])
+    for pat, fname, head in MD_REFS:
+        if not pat.match(ref):
+            continue
+        p = PREP / fname
+        if not p.exists():
+            return None
+        lines, card, on = p.read_text(encoding="utf-8").splitlines(), None, False
+        for ln in lines:
+            if ln.startswith("### "):
+                if on:
+                    break
+                if ln[4:].startswith(head(ref)):
+                    on, card = True, {"id": ref, "project": ln[4:].split(". ", 1)[-1].strip(), "sources": []}
+                continue
+            if on and ln.startswith("## "):
+                break
+            m = re.match(r"-\s*([A-Za-z ]+?):\s*(.*)", ln) if on else None
+            if m and m.group(1).strip().lower() in SLOT_KEYS:
+                k, v = SLOT_KEYS[m.group(1).strip().lower()], _strip_src(m.group(2))
+                if "OWNER TO FILL" in v or "not in corpus" in v.lower() and len(v) < 40:
+                    v = "missing"
+                card[k] = v
+        if card:
+            card["her_role"] = re.split(r"[.(;]", card.get("her_role", "missing"))[0].strip() or "missing"
+            return card
+    return None
+
+
+def _norm(t: str) -> str:
+    return re.sub(r"[^a-z0-9 ]+", "", t.lower()).strip()
+
+
+def match_bank(question: str, qid: str | None = None) -> tuple[dict | None, str]:
+    """Bank question for this question: by id, exact text, else nearest by meaning (Gemini free tier)."""
+    qs = [q for q in bank_questions() if q.get("kind") in ("interview", "probe")]
+    by_id = {q["id"]: q for q in qs}
+    if qid and qid in by_id:
+        return by_id[qid], "bank question"
+    n = _norm(question)
+    for q in qs:
+        if _norm(q["text"]) == n:
+            return q, "bank question"
+    if not qs:
+        return None, "no bank"
+    from google import genai
+    from google.genai import types
+    client = genai.Client(api_key=gemini_key())
+    listing = "\n".join(f"{q['id']}: {q['text'][:220]}" for q in qs)
+    prompt = (f"Pick the ONE interview question below closest in MEANING to the asked question (what it tests, not "
+              f"shared words). Return JSON {{\"id\": \"Q...\"}}.\n\nASKED: {question}\n\nQUESTIONS:\n{listing}")
+    for model in MODELS:
+        try:
+            r = client.models.generate_content(model=model, contents=prompt, config=types.GenerateContentConfig(
+                response_mime_type="application/json", temperature=0))
+            got = json.loads(r.text).get("id")
+            if got in by_id:
+                return by_id[got], f"nearest bank question by meaning ({model})"
+        except Exception:
+            time.sleep(2)
+    return None, "no bank match"
+
+
+def trim_spoken(t: str, limit: int = 280) -> str:
+    """Keep the telling under about 2 minutes spoken: drop whole sentences from the end, never add."""
+    t = re.sub(r",? within 24 hours( of (its )?release)?", "", t)  # truth check: no record of the 24-hour figure
+    sents = re.split(r"(?<=[.!?])\s+", t.strip())
+    while len(" ".join(sents).split()) > limit and len(sents) > 1:
+        sents.pop()
+    return " ".join(sents)
+
+
 def rank_cards(req: dict | None, hit: list[dict], question: str) -> list[tuple[float, dict]]:
     """Rank routed cards by fit to the requirement's listen_for (plus its text and the question), one card per
     project, best first, at most 3."""
@@ -256,10 +386,15 @@ def _one(question: str, evidence: list[dict], req, card: dict | None, why: str, 
     out["draft_answer"] = out.get("answer", "")
     out["answer"], out["cut"] = post_check(out["draft_answer"], [owner_facts()] + [_slots(c) for c in cards.values()]
                                            + [json.dumps(c, ensure_ascii=False) for c in cards.values()]
+                                           + ([_slots(card), json.dumps(card, ensure_ascii=False)] if card else [])
                                            + [e.get("text", "") for e in evidence] + [question])
+    out["answer"] = trim_spoken(out["answer"])
     out["words"] = len(out["answer"].split())
     if not out["answer"].strip():
         out["answer"], out["structure"] = "The sources on record do not support an answer to this question.", "GAP"
+    for k in ("why", "role_label"):
+        if card and card.get(k):
+            out[k] = card[k]
     card_src = []
     for x in (card or {}).get("sources", []) or []:  # the card's own proof: public links and Drive docs only
         u = str(x.get("path_or_url", ""))
@@ -276,12 +411,42 @@ def _one(question: str, evidence: list[dict], req, card: dict | None, why: str, 
     return out
 
 
-def compose(question: str, evidence: list[dict]) -> dict:
-    """2 to 3 distinct answers, each from a different story card (different project), ranked by fit."""
+def compose(question: str, evidence: list[dict], qid: str | None = None) -> dict:
+    """A bank question (or the nearest one) uses its qmap stories in order, up to 4. Otherwise 2 to 3 distinct
+    answers, each from a different story card (different project), ranked by fit."""
     from concurrent.futures import ThreadPoolExecutor
     allc = usable_cards(story_cards())
-    req, hit, why = route(question, role_profile(), allc)
     cards = {c["id"]: c for c in allc.get("cards", [])}
+    bq, how = match_bank(question, qid)
+    m = qmap().get(bq["id"]) if bq else None
+    if m and m.get("stories"):
+        reqs = {r["id"]: r for r in role_profile().get("requirements", [])}
+        req = next((reqs[r] for r in (m.get("requirement_ids") or bq.get("requirement_ids") or []) if r in reqs), None)
+        picked = []
+        for st in m["stories"]:
+            c = resolve_ref(st.get("story_ref", ""), cards)
+            if not c:
+                continue
+            c.update({"project": st.get("canonical_project") or c.get("project"), "fit": st.get("fit"), "why": st.get("why"),
+                      "role_label": st.get("role_label")})
+            picked.append(c)
+            if len(picked) == 4:
+                break
+        why = f"{how}: {bq['id']}; stories from the question map"
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            answers = list(ex.map(lambda c: _one(question, evidence, req, c, why, cards), picked))
+        if len(answers) > 1 and answers[0].get("fit") == "needs owner":  # never show a needs-owner story first
+            j = next((i for i, a in enumerate(answers) if a.get("fit") != "needs owner"), 0)
+            answers.insert(0, answers.pop(j))
+        if answers:
+            out = {**answers[0], "answers": answers, "count": len(answers),
+                   "matched": {"id": bq["id"], "text": bq["text"], "how": how, "category": bq.get("category")},
+                   "gap": m.get("gap"), "testing": m.get("testing"), "routing": {"requirement_id": req["id"] if req else None,
+                                                     "card_ids": [c["id"] for c in picked], "why": why}}
+            if len(answers) < 2:
+                out["note"] = f"Only {len(answers)} story fits this question."
+            return out
+    req, hit, why = route(question, role_profile(), allc)
     ranked = rank_cards(req, hit, question)
     if ranked:
         with ThreadPoolExecutor(max_workers=3) as ex:
@@ -293,6 +458,7 @@ def compose(question: str, evidence: list[dict]) -> dict:
         answers.append(answers.pop(0))
     best = answers[0]
     out = {**best, "answers": answers, "count": len(answers),
+           "matched": {"id": bq["id"], "text": bq["text"], "how": how + " (no story map entry)"} if bq else None,
            "routing": {"requirement_id": req["id"] if req else None, "card_ids": [c["id"] for _, c in ranked], "why": why}}
     if len(answers) < 2:
         out["note"] = f"Only {len(answers)} story card fits this question."
@@ -316,7 +482,7 @@ def _compose(question: str, evidence: list[dict], req=None, hit=None, why="") ->
                         f"filled slot in her spoken first person: Situation = {main.get('situation')!r}; Task = "
                         f"{main.get('task')!r}; Action = {main.get('action')!r}; Result = {main.get('result')!r}; Metric = "
                         f"{main.get('metric')!r}; her_role = {main.get('her_role')!r}. Use every filled slot; the answer must "
-                        "be 150 to 300 words of content stated in these slots, the other routed cards and the sources. "
+                        "be 120 to 280 words of content stated in these slots, the other routed cards and the sources. "
                         "Add supporting detail from the other routed cards or cited sources before ever padding.")
         elif design:
             cards = usable_cards(story_cards())
@@ -395,7 +561,7 @@ it; weaken overreach to exactly what the source says ("planned" not "delivered";
 Return JSON only."""
     schema = {"type": "object", "properties": {
         "requirement_id": {"type": "string"}, "requirement": {"type": "string"},
-        "answer": {"type": "string", "description": "the spoken STAR/CAR answer, first person, 150 to 300 words built from the main card slots; a GAP answer names the missing tool or employer in its first sentence, then the closest real story"},
+        "answer": {"type": "string", "description": "the spoken STAR/CAR answer, first person, 120 to 280 words (under 2 minutes spoken) built from the main card slots; a GAP answer names the missing tool or employer in its first sentence, then the closest real story"},
         "structure": {"type": "string", "enum": ["STAR", "CAR", "GAP"]},
         "her_role": {"type": "string", "description": "built, led, directed, or none"},
         "card_ids": {"type": "array", "items": {"type": "string"}},
