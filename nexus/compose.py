@@ -124,24 +124,53 @@ COMMON_CAPS = {"I", "I'm", "I've", "I'd", "My", "The", "This", "That", "We", "In
                "Situation", "Task", "Action", "Result", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Context", "STAR", "CAR", "GAP", "By", "No", "It", "So"}
 
 
-def route(question: str, profile: dict, cards: dict) -> tuple[dict | None, list[dict]]:
-    """Item 11: deterministic requirement routing by word overlap, then the cards whose requirement_ids hold it."""
-    q = {w for w in re.findall(r"[a-z0-9]+", question.lower()) if w not in STOP and len(w) > 2}
-    best, score = None, 0
-    for r in profile.get("requirements", []):
-        m = re.search(r"\bR\d+\b", question)
-        if m and r.get("id") == m.group(0):
-            best, score = r, 99; break
-        t = {w for w in re.findall(r"[a-z0-9]+", str(r.get("text", "")).lower()) if w not in STOP and len(w) > 2}
-        sc = len(q & t) / (len(t) ** 0.5 or 1)
-        if sc > score:
-            best, score = r, sc
-    if not best or score < 0.5:
-        return None, cards.get("cards", [])
+# Deterministic keyword routes, checked before word overlap (V round 1: feasibility went to S3, pre-sales never to S7).
+KEYWORD_ROUTES = [
+    (("feasib", "viab", "push back", "pushed back", "validate", "assess"), "R4", ("S4", "S9", "S12")),
+    (("pre-sales", "presales", "post-sales", "postsales", "partnership", "agreement", "contract", "sales cycle",
+      "deal", "licens", "handover", "hand-off", "activation"), "R7", ("S7", "S8", "S12")),
+    (("stakeholder",), "R6", ("S6", "S10")),
+]
+DESIGN = re.compile(r"\b(how would you|how do you|how should|what criteria|what steps|what are the|describe your (approach|process)|walk me through your (debugging|process)|design)\b", re.I)
+
+
+def _words(t: str) -> set:
+    return {w.rstrip("s") for w in re.findall(r"[a-z0-9]+", str(t).lower()) if w not in STOP and len(w) > 2}
+
+
+def route(question: str, profile: dict, cards: dict) -> tuple[dict | None, list[dict], str]:
+    """Deterministic, explainable routing: question -> requirement (explicit id, keyword route, or overlap with the
+    requirement's text, meaning, sample_questions and listen_for) -> cards whose requirement_ids include it."""
+    ql, reqs = question.lower(), {r["id"]: r for r in profile.get("requirements", [])}
+    all_cards = {c["id"]: c for c in cards.get("cards", [])}
+    m = re.search(r"\bR\d+\b", question)
+    if m and m.group(0) in reqs:
+        best, why = reqs[m.group(0)], f"question names {m.group(0)}"
+    else:
+        best, why = None, ""
+        for keys, rid, prefer in KEYWORD_ROUTES:
+            k = next((k for k in keys if k in ql), None)
+            if k and rid in reqs:
+                best, why = reqs[rid], f"keyword '{k}' routes to {rid}"
+                hit = [all_cards[i] for i in prefer if i in all_cards]
+                if hit:
+                    return best, hit, why + f"; cards {', '.join(c['id'] for c in hit)} by rule"
+                break
+        if not best:
+            q, score = _words(question), 0.0
+            for r in reqs.values():
+                t = _words(" ".join([str(r.get("text", "")), str(r.get("meaning", "")), " ".join(r.get("sample_questions") or []),
+                                     " ".join(r.get("listen_for") or []) if isinstance(r.get("listen_for"), list) else str(r.get("listen_for", ""))]))
+                head = _words(r.get("text", ""))
+                sc = len(q & t) / (len(t) ** 0.5 or 1) + 2 * len(q & head)
+                if sc > score:
+                    best, score, why = r, sc, f"word overlap with {r['id']} ({', '.join(sorted(q & t)[:6])})"
+            if not best or score < 0.3:
+                return None, cards.get("cards", []), "no requirement matched; composer chooses"
     rid = best["id"]
-    hit = [c for c in cards.get("cards", []) if rid in (c.get("requirement_ids") or []) or rid in (c.get("related_topics") or [])]
-    hit.sort(key=lambda c: 0 if (c.get("requirement_ids") or [None])[0] == rid else 1)  # R7 -> S7 (primary) first
-    return best, hit
+    hit = [c for c in all_cards.values() if rid in (c.get("requirement_ids") or [])]
+    hit.sort(key=lambda c: 0 if (c.get("requirement_ids") or [None])[0] == rid else 1)
+    return best, hit, why + (f"; cards {', '.join(c['id'] for c in hit)} list {rid} in requirement_ids" if hit else f"; no card lists {rid}")
 
 
 def _slots(c: dict) -> str:
@@ -186,31 +215,57 @@ def post_check(answer: str, chunks: list[str]) -> tuple[str, list[str]]:
 
 
 def compose(question: str, evidence: list[dict]) -> dict:
-    out = _compose(question, evidence)
-    cards = {c["id"]: c for c in usable_cards(story_cards()).get("cards", [])}
+    allc = usable_cards(story_cards())
+    req, hit, why = route(question, role_profile(), allc)
+    out = _compose(question, evidence, req, hit, why)
+    cards = {c["id"]: c for c in allc.get("cards", [])}
+    if req:  # the routed cards are binding, whatever the model echoed
+        out["requirement_id"], out["card_ids"] = req["id"], [c["id"] for c in hit] or []
+    out["routing"] = {"requirement_id": req["id"] if req else None, "card_ids": [c["id"] for c in hit] if req else [], "why": why}
     cited = [_slots(cards[i]) for i in out.get("card_ids", []) if i in cards]
     cited += [evidence[n - 1].get("text", "") for n in out.get("source_numbers", []) if isinstance(n, int) and 0 < n <= len(evidence)]
     out["draft_answer"] = out.get("answer", "")
     out["answer"], out["cut"] = post_check(out["draft_answer"], [owner_facts()] + cited)
+    out["words"] = len(out["answer"].split())
     if not out["answer"].strip():
         out["answer"], out["structure"] = "The sources on record do not support an answer to this question.", "GAP"
     return out
 
 
-def _compose(question: str, evidence: list[dict]) -> dict:
+def _compose(question: str, evidence: list[dict], req=None, hit=None, why="") -> dict:
     from google import genai
     from google.genai import types
     client = genai.Client(api_key=gemini_key())
     profile, cards = role_profile(), usable_cards(story_cards())
-    req, hit = route(question, profile, cards)
+    hit = hit or []
+    design = bool(DESIGN.search(question))
     if req:
         cards = {**cards, "cards": hit}
-        routing = (f"ROUTED REQUIREMENT (deterministic, binding): {req['id']}: {req.get('text')}. Set requirement_id to "
-                   f"{req['id']}. " + (f"Use card {hit[0]['id']} as the main story." if hit else
-                   "No story card covers this requirement: answer it from the evidence only if a source directly "
-                   "states her experience of it; otherwise structure is GAP. Never substitute an R1 to R7 story."))
+        main = hit[0] if hit else None
+        routing = (f"ROUTED REQUIREMENT (deterministic, binding; {why}): {req['id']}: {req.get('text')}. Set requirement_id "
+                   f"to {req['id']}. ")
+        if main:
+            routing += (f"MAIN STORY: card {main['id']}. BUILD THE ANSWER FROM ITS SLOTS, in order, restating each "
+                        f"filled slot in her spoken first person: Situation = {main.get('situation')!r}; Task = "
+                        f"{main.get('task')!r}; Action = {main.get('action')!r}; Result = {main.get('result')!r}; Metric = "
+                        f"{main.get('metric')!r}; her_role = {main.get('her_role')!r}. Use every filled slot; the answer must "
+                        "be 150 to 300 words of content stated in these slots, the other routed cards and the sources. "
+                        "Add supporting detail from the other routed cards or cited sources before ever padding.")
+        else:
+            routing += ("No story card covers this requirement: answer it from the evidence only if a source directly "
+                        "states her experience of it; otherwise structure is GAP. Never substitute an R1 to R7 story.")
+        if design:
+            routing += ("\nDESIGN OR HYPOTHETICAL QUESTION: never refuse and never answer GAP. Answer in first person: "
+                        "first 'My approach would be...' (how she would do it, 2 to 4 sentences, no invented facts), then "
+                        "say 'Where I have done this:' and tell the main story above. Keep approach and past experience "
+                        "plainly separate.")
+        routing += ("\nNAMED TOOL OR EMPLOYER WITH NO SOURCE (for example LangGraph in production): the FIRST sentence "
+                    "says plainly 'I have not used X in production' (or at that employer), naming X; then her closest real "
+                    "experience from the cards; no padding.")
     else:
-        routing = "No requirement matched deterministically; pick the best-fitting one."
+        routing = ("No requirement matched deterministically; pick the best-fitting one.\nNAMED TOOL OR EMPLOYER WITH NO "
+                   "SOURCE (for example LangGraph in production): the FIRST sentence says plainly 'I have not used X in "
+                   "production', naming X; then her closest real experience from the cards; no padding.")
     ev = "\n\n".join(f'<source n="{i+1}" kind="{e.get("kind")}" repo="{e.get("repo")}" path="{e.get("path")}" url="{e.get("url")}">\n{e.get("text", "")[:(15000 if "CV" in str(e.get("path")) else 5000 if e.get("kind") == "narrative" else 2000)]}\n</source>'
                      for i, e in enumerate(evidence))
     prompt = f"""You are Ally Haire's interview coach. Write the answer she gives to this interviewer question.
@@ -257,7 +312,7 @@ it; weaken overreach to exactly what the source says ("planned" not "delivered";
 Return JSON only."""
     schema = {"type": "object", "properties": {
         "requirement_id": {"type": "string"}, "requirement": {"type": "string"},
-        "answer": {"type": "string", "description": "the spoken STAR/CAR answer, first person, 150 to 300 words, or one plain sentence naming the gap"},
+        "answer": {"type": "string", "description": "the spoken STAR/CAR answer, first person, 150 to 300 words built from the main card slots; a GAP answer names the missing tool or employer in its first sentence, then the closest real story"},
         "structure": {"type": "string", "enum": ["STAR", "CAR", "GAP"]},
         "her_role": {"type": "string", "description": "built, led, directed, or none"},
         "card_ids": {"type": "array", "items": {"type": "string"}},
