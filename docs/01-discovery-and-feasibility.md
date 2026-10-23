@@ -5,17 +5,16 @@ delivered as asked, inside the customer's real constraints, before anything bill
 
 ## The customer, the problem and the outcome
 
-**Customer.** A hiring panel assessing a candidate for a specific role. The candidate commissions the system; the
-panel uses it. In this engagement the role is Google Cloud's AI Outcome Customer Engineer, and the candidate is the
-owner of the repositories.
+**Customer.** The candidate, who is preparing for Google's AI Outcome Customer Engineer role. She is the
+decision owner for every deliverable. She is the only user.
 
-**Problem.** The panel cannot verify a candidate's claims against the work itself. The evidence exists, but it is
-spread across hundreds of repositories and documents, in more than one GitHub owner, with public, private and
-internal visibility.
+**Problem.** Her experience is spread across hundreds of repos, talks, writing and documents, and much of it is
+direction she set rather than code she wrote. Neither she nor an interviewer can quickly pull up verifiable
+evidence for any claim she makes.
 
-**Outcome.** An interviewer asks a question and gets a short answer that is grounded (every claim cited), attributed
-(wrote it, directed it, or neither), relevant to the role's requirements, and honest about missing evidence. The role
-description is an input, so the same system serves any role.
+**Outcome.** Interviewer questions answered with STAR/CAR stories from her own work, in the first person, with
+her role named, the role requirement answered, and proof links that open. The build itself follows Google's
+Customer Engineering lifecycle, because how the engagement is run is part of the proof.
 
 ## How discovery actually ran
 
@@ -48,7 +47,7 @@ attribution of hands-on authorship against technical direction, and an endpoint 
 first built only the search component. The outcome above restores the customer's intent and is what the engagement
 is assessed against.
 
-**Exit criteria.** The criteria in that PRD (100% of "240+" repos, "zero hallucinations", P95 under
+**Exit criteria (pre-plan-v2 record, superseded by the D03 pass bar in [#6](https://github.com/DeveloperAlly/google-interview-poc/issues/6#issuecomment-6355594393), approved by owner decision 2).** E6, E10 and E13 assume interviewer users and a hosted page, which [READ THIS FIRST](https://github.com/DeveloperAlly/google-interview-poc/issues/5#issuecomment-6355551102) dropped. The criteria in that PRD (100% of "240+" repos, "zero hallucinations", P95 under
 450 ms) could not be measured as written: the repo count was wrong, "zero hallucinations" has no test, and latency
 was never measured. They are replaced by these:
 
