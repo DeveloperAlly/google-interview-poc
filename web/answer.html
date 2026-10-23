@@ -81,7 +81,7 @@ fetch("/api/questions").then(r => r.json()).then(d => {
 $("q").addEventListener("input", () => { QID = null; });
 function card(a, i) {
   const s = el("section");
-  s.appendChild(el("h2", "", (i + 1) + ". " + (a.project || "Answer from evidence")));
+  s.appendChild(el("h2", "", (i + 1) + ". " + (a.label ? a.label + ": " : "") + (a.project || "Answer from evidence")));
   const m = el("div", "m"); m.append(tag(a.structure || ""), tag("Role: " + (a.her_role || "none")), tag((a.requirement_id || "") + " " + (a.requirement || "")));
   if (a.card_ids && a.card_ids.length) m.append(tag("Card: " + a.card_ids.join(", ")));
   if (a.fit === "full") m.append(tag("full fit")); else if (a.fit === "partial") m.append(tag("partial fit")); else if (a.fit === "needs owner") m.append(tag("needs your input"));
@@ -89,8 +89,9 @@ function card(a, i) {
   if (a.why) s.appendChild(el("div", "m", "Why it fits: " + a.why));
   s.appendChild(m);
   s.appendChild(el("div", "ans", a.answer));
-  if (a.decision) s.appendChild(el("div", "", "Decision: " + a.decision));
-  if (a.learning) s.appendChild(el("div", "", "Learning: " + a.learning));
+  if (a.not_on_record && a.not_on_record.length) s.appendChild(el("div", "m", "Not on record: " + a.not_on_record.join(", ")));
+  if (a.decision && !/Decision:/.test(a.answer || "")) s.appendChild(el("div", "", "Decision: " + a.decision));
+  if (a.learning && !/Learning:/.test(a.answer || "")) s.appendChild(el("div", "", "Learning: " + a.learning));
   const pr = el("div"); pr.appendChild(el("div", "m", "Proof"));
   for (const x of a.sources || []) {
     const row = el("div", "m", "[" + x.n + "] " + x.kind + " / " + x.repo + (x.path ? " / " + x.path : "") + " ");
@@ -127,15 +128,16 @@ $("f").addEventListener("submit", async (e) => {
     $("matched").textContent = "";
     LASTQ = question; LASTMATCH = d.matched ? d.matched.id : null;
     if (d.matched) $("matched").appendChild(el("div", "", "Matched bank question " + d.matched.id + " (" + d.matched.how + "): " + d.matched.text));
-    if (d.did_you_mean && d.did_you_mean.length) {
-      const box = el("div", "", "Did you mean: ");
+    if (d.did_you_mean && d.did_you_mean.length && (d.needs_pick || !(d.matched && d.matched.how === "bank question"))) {
+      const box = el("div", "", d.needs_pick ? "Pick the closest question (no answers until you pick): " : "Did you mean: ");
       for (const c of d.did_you_mean) { const b = el("button", "chip", c.id + "  " + c.text); b.type = "button"; b.style.margin = "3px"; b.onclick = () => ask(c); box.appendChild(b); }
       const g = el("button", "chip", "Match with Gemini instead"); g.type = "button"; g.style.margin = "3px";
       g.onclick = () => { $("q").value = question; MATCH = "gemini"; $("f").requestSubmit(); }; box.appendChild(g);
       $("matched").appendChild(box);
     }
     if (d.testing) $("matched").appendChild(el("div", "", "What they are testing: " + d.testing));
-    if (d.gap) $("matched").appendChild(el("div", "gap", "Gap: " + d.gap));
+    if (d.gap && d.gap_mode) { const g = el("div", "gap", "No strong story on record for this: " + d.gap); g.style.fontWeight = "600"; $("matched").appendChild(g); }
+    else if (d.gap) $("matched").appendChild(el("div", "gap", "Gap: " + d.gap));
     $("meta").textContent = list.length + (list.length === 1 ? " story" : " stories") + ", best fit first, straight from the story cards" + (d.seconds != null ? " (" + d.seconds + " s)" : "") + "." + (d.note ? " " + d.note : "");
     list.forEach((a, i) => $("answers").appendChild(card(a, i)));
   } catch (err) { $("meta").textContent = "Error: " + err.message; }

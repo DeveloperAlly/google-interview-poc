@@ -358,8 +358,9 @@ def _norm(t: str) -> str:
     return re.sub(r"[^a-z0-9 ]+", "", t.lower()).strip()
 
 
-def match_bank(question: str, qid: str | None = None) -> tuple[dict | None, str]:
-    """Bank question for this question: by id, exact text, else nearest by meaning (Gemini free tier)."""
+def match_bank(question: str, qid: str | None = None, budget: float = 8.0) -> tuple[dict | None, str]:
+    """Bank question for this question: by id, exact text, else nearest by meaning (Gemini free tier, model rotation,
+    about 8 s in total). Returns (None, reason) when Gemini is unavailable or not confident."""
     qs = [q for q in bank_questions() if q.get("kind") in ("interview", "probe")]
     by_id = {q["id"]: q for q in qs}
     if qid and qid in by_id:
@@ -372,20 +373,32 @@ def match_bank(question: str, qid: str | None = None) -> tuple[dict | None, str]
         return None, "no bank"
     from google import genai
     from google.genai import types
-    client = genai.Client(api_key=gemini_key())
+    t0 = time.time()
+    # The API refuses deadlines under 10 s, so the 8 s budget is enforced here, around the call.
+    client = genai.Client(api_key=gemini_key(), http_options=types.HttpOptions(timeout=10000))
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError as _Timeout
+    pool = ThreadPoolExecutor(max_workers=1)
     listing = "\n".join(f"{q['id']}: {q['text'][:220]}" for q in qs)
-    prompt = (f"Pick the ONE interview question below closest in MEANING to the asked question (what it tests, not "
-              f"shared words). Return JSON {{\"id\": \"Q...\"}}.\n\nASKED: {question}\n\nQUESTIONS:\n{listing}")
+    prompt = (f"Pick the ONE interview question below that tests the SAME thing as the asked question (the competency "
+              f"and situation, not shared words). If none tests the same thing, set confident to false. Return JSON "
+              f"{{\"id\": \"Q...\", \"confident\": true or false}}.\n\nASKED: {question}\n\nQUESTIONS:\n{listing}")
     for model in MODELS:
+        if time.time() - t0 > budget:
+            break
         try:
-            r = client.models.generate_content(model=model, contents=prompt, config=types.GenerateContentConfig(
-                response_mime_type="application/json", temperature=0))
-            got = json.loads(r.text).get("id")
-            if got in by_id:
-                return by_id[got], f"nearest bank question by meaning ({model})"
+            fut = pool.submit(client.models.generate_content, model=model, contents=prompt,
+                              config=types.GenerateContentConfig(response_mime_type="application/json", temperature=0))
+            r = fut.result(timeout=max(0.5, budget - (time.time() - t0)))
+            got = json.loads(r.text)
+            if got.get("id") in by_id and got.get("confident") is not False:
+                return by_id[got["id"]], f"Gemini matcher ({model})"
+            return None, "Gemini matcher not confident"
+        except _Timeout:
+            pool.shutdown(wait=False)
+            return None, "Gemini matcher timed out (8 s)"
         except Exception:
-            time.sleep(2)
-    return None, "no bank match"
+            continue
+    return None, "Gemini matcher unavailable"
 
 
 def trim_spoken(t: str, limit: int = 280) -> str:
@@ -677,15 +690,34 @@ def local_match(question: str, k: int = 3) -> list[tuple[float, dict]]:
     return [(round(sc, 3), q) for sc, q in scored[:k] if sc > 0]
 
 
+PLACEHOLDER = re.compile(r"not in corpus|owner to fill|\bplaceholder\b|:\s*missing\b|^\s*missing\.?\s*$|not recorded\.?$|\bTBD\b|"
+                         r"doc only, confirm|candidate to confirm", re.I)
+ROLE_OK = re.compile(r"\s*(built|led|directed)\b", re.I)
+
+
 def render_card(card: dict, st: dict | None = None) -> dict:
     """A story card rendered as STAR (plus Decision and Learning when the card has them), verbatim from its slots."""
     st = st or {}
+    gone = []
+
+    def clean(lbl, v):
+        """Drop placeholder sentences; a slot left empty is reported as not on record, never spoken."""
+        keep = [x for x in re.split(r"(?<=[.!?])\s+", str(v or "").strip()) if x and not PLACEHOLDER.search(x)]
+        t = re.sub(r",? within 24 hours( of (its )?release)?", "", " ".join(keep)).strip()
+        if not t or t.lower().rstrip(".") in ("missing", "none", "n/a", "na"):
+            gone.append(lbl)
+            return ""
+        return t
+
     def ok(v):
-        return v and str(v).strip().lower() not in ("missing", "none", "")
-    parts = [(lbl, card.get(k)) for lbl, k in (("Situation", "situation"), ("Task", "task"), ("Action", "action"),
-                                                 ("Result", "result"), ("Metric", "metric"), ("Decision", "decision"),
-                                                 ("Learning", "learning"))]
-    text = "\n".join(f"{lbl}: {re.sub(r',? within 24 hours( of (its )?release)?', '', str(v))}" for lbl, v in parts if ok(v))
+        return bool(v) and not PLACEHOLDER.search(str(v)) and str(v).strip().lower() not in ("missing", "none", "")
+    parts = [(lbl, clean(lbl, card.get(k))) for lbl, k in (("Situation", "situation"), ("Task", "task"), ("Action", "action"),
+                                                             ("Result", "result"), ("Metric", "metric"), ("Decision", "decision"),
+                                                             ("Learning", "learning"))]
+    text = "\n".join(f"{lbl}: {v}" for lbl, v in parts if v)
+    gone = [g for g in gone if g not in ("Decision", "Learning") or card.get(g.lower())]
+    role = card.get("role_raw") or card.get("her_role") or ""
+    role_label = role if ROLE_OK.match(str(role)) or "CV" in str(role) else None
     srcs = []
     for x in card.get("sources", []) or []:
         u = str(x.get("path_or_url", ""))
@@ -701,14 +733,18 @@ def render_card(card: dict, st: dict | None = None) -> dict:
     return {"story_ref": st.get("story_ref") or card.get("id"), "card_ids": [card.get("id")],
             "project": scrub_private(st.get("canonical_project") or card.get("canonical_project") or card.get("project")).replace(
                 "DualA4000 private model gateway", "Private model gateway"),
-            "her_role": card.get("her_role"), "role_label": card.get("role_raw") or card.get("her_role"),  # card's own role, same everywhere
+            "her_role": card.get("her_role") if role_label else None, "role_label": role_label,  # card's own role, same everywhere
+            "not_on_record": gone,
             "fit": st.get("fit"), "why": st.get("why"),
             "structure": "STAR", "answer": text, "words": len(text.split()), "sources": srcs, "tailored": False,
             "decision": card.get("decision") if ok(card.get("decision")) else None,
             "learning": card.get("learning") if ok(card.get("learning")) else None}
 
 
-def fast(question: str, qid: str | None = None) -> dict:
+MATCH_FLOOR = 0.4
+
+
+def fast(question: str, qid: str | None = None, use_gemini: bool = True) -> dict:
     """Instant answers: bank question (by id, exact text, else nearest by local TF-IDF) -> its mapped stories in order,
     rendered from the cards. No Gemini call. Free-typed questions also get the top 3 local matches as 'Did you mean'."""
     t0 = time.time()
@@ -725,10 +761,19 @@ def fast(question: str, qid: str | None = None) -> dict:
         how = "bank question" if bq else ""
     if not bq:
         cands = local_match(question)
-        if cands:
+        if cands and cands[0][0] >= MATCH_FLOOR:
             bq, how = cands[0][1], f"nearest bank question, local match (score {cands[0][0]})"
+        elif use_gemini:  # below the floor: ask the Gemini matcher (free tier, about 8 s), never guess
+            bq, how = match_bank(question)
+            if bq:
+                how = f"{how}; local best was {cands[0][0] if cands else 0}"
     out = {"question": question, "count": 0, "answers": [],
            "did_you_mean": [{"id": q["id"], "text": q["text"], "score": sc} for sc, q in cands]}
+    if not bq:  # not sure what was asked: no answers until she picks
+        out.update({"needs_pick": True, "note": "Not sure which question this is (" + (how or "low match score") +
+                    "). Pick the closest one below.", "seconds": round(time.time() - t0, 3), "match_score": cands[0][0] if cands else 0})
+        return out
+    out["match_score"] = cands[0][0] if cands and cands[0][1] is bq else None
     m = qmap().get(bq["id"]) if bq else None
     if bq:
         out["matched"] = {"id": bq["id"], "text": bq["text"], "how": how, "category": bq.get("category")}
@@ -744,7 +789,12 @@ def fast(question: str, qid: str | None = None) -> dict:
         req, hit, why = route(question, role_profile(), allc)
         out["answers"] = [render_card(c) for _, c in rank_cards(req, hit, question)]
         out["routing"] = {"requirement_id": req["id"] if req else None, "why": why}
+    out["answers"] = [x for x in out["answers"] if x.get("words", 0) >= 30]  # hide cards too thin to say out loud
     a = out["answers"]
+    if m and m.get("gap") and not any(x.get("fit") == "full" for x in a):
+        out["gap_mode"] = True  # no strong story: the gap first, then the closest real experience
+        for x in a:
+            x["label"] = "closest real experience"
     if len(a) > 1 and a[0].get("fit") == "needs owner":  # never show a needs-owner story first
         j = next((i for i, x in enumerate(a) if x.get("fit") != "needs owner"), 0)
         a.insert(0, a.pop(j))
@@ -752,7 +802,13 @@ def fast(question: str, qid: str | None = None) -> dict:
     if len(a) < 2:
         out["note"] = f"Only {len(a)} story fits this question."
     out["seconds"] = round(time.time() - t0, 3)
-    return out
+    return json.loads(scrub_names(json.dumps(out, ensure_ascii=False)))
+
+
+def scrub_names(t: str) -> str:
+    """Served text never names the private gateway repo."""
+    t = t.replace("the DualA4000 gateway", "a private model gateway").replace("DualA4000 private model gateway", "Private model gateway")
+    return re.sub(r"DualA4000(-[\w-]+)?", "private model gateway", t)
 
 
 def tailor(question: str, evidence: list[dict], story_ref: str, qid: str | None = None, st: dict | None = None) -> dict:
