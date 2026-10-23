@@ -1,0 +1,10 @@
+# Owner-confirmed facts (23 Oct 2026). These override any conflicting source.
+
+- Lilypad scale: "thousands of GPU nodes" (as the CV says). Do not use "hundreds of global nodes".
+- Lilypad title and dates: "Founder & CEO, Sep 2023 to Oct 2025" (as the CV says). Do not use "Co-founder" or "2024 to 2026".
+- Dell: "structured an enterprise licensing partnership with Dell for permissioned networks". Not signed: never say "signed" or claim a contract.
+- Livepeer DocsOS deck: allowed as evidence, self-reported. Never repeat "8+ months before MCP mainstream", "Staff+" or "100% at zero engineering cost".
+- Lilypad v0 was built at Protocol Labs (2022 to 2023), not at Lilypad.
+- Not evidence: the Case Study, Lifecycle, Nexus Autonomous Technical Knowledge Engine and Vertex AI Search architecture decks, and the Drive Export Master Archive.
+- Nexus (this build): she built, led and directed it. AI agents wrote the code under her direction; she set the outcome, the gates and the decisions. Say "I built and led it, directing AI agents that wrote the code".
+- Tufts / Hugging Face BioML: the researchers were hired and paid by her at Lilypad. She directed the work and was embedded with them to deploy the protein folding model. Role: directed (and embedded). Details come from her blog post and the talk transcript.
