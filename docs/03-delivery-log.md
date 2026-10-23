@@ -45,7 +45,7 @@ had been proposed by the builder and judged by file type or repo shape, not agai
 | One fork re-included by owner override | The fork carries the owner's own active work on a partner's documentation | 1,761 of 1,761 indexed |
 | Issues collected for every owned repo, including issue-only planning repos | Issues are where plans of work live. GitHub reports `size 0` for repos that hold only issues, so the "empty repo" rule had hidden 8 planning repos holding 126 issues | 2,068 issues across 62 repos, with comment threads |
 | The owner's issues and PRs in repositories they do not own | Contribution to other organisations' projects was invisible | 84 issues and 121 PRs across 56 repos; visibility looked up per repo (52 public, 4 private) |
-| PR discussion and review threads, and commit history | Direction-setting shows in review and discussion, not only in authored code | Harvested and imported after the review fixes; counts in the PR description |
+| PR discussion and review threads, and commit history | Direction-setting shows in review and discussion, not only in authored code | Re-harvest with the review fixes in progress at the time of writing |
 
 ## Second review: fail-open defects
 

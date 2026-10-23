@@ -37,9 +37,9 @@ Two outcomes, and both are assessed:
 
 | Layer | State | Where |
 |---|---|---|
-| Ingest: code, merged PRs with review threads, issues, commit history, external contributions, career archive | Built and reconciled; fail-open defects reported fixed | [docs/03](docs/03-delivery-log.md) |
+| Ingest: code, merged PRs with review threads, issues, commit history, external contributions, career archive | Code, repo summaries, issues, external work and career archive built and reconciled (216 of 216 repos). PR discussion threads and commit history still being harvested. Fail-open defects fixed | [docs/03](docs/03-delivery-log.md) |
 | Role description as an input (requirements extracted, evidence mapped to each) | Not built: the role is written into `prompts/preamble.md` | [docs/07](docs/07-evaluation.md) |
-| Attribution from authorship records | Partly built: role facts come from the candidate's own role map, not yet checked against commit and PR authors | [docs/08](docs/08-answer-layer.md) |
+| Attribution: "wrote" from authorship records, "directed" from records of direction | Partly built: role facts come from the candidate's own role map, not yet labelled self-reported or checked against records | [docs/08](docs/08-answer-layer.md) |
 | Cited answers | Built, localhost only, from the Agent Search search summary | [docs/08](docs/08-answer-layer.md) |
 | Claim-level grounding check | Not built | [docs/07](docs/07-evaluation.md) |
 | Interviewer acceptance tests | Defined, not yet run | [docs/07](docs/07-evaluation.md) |
