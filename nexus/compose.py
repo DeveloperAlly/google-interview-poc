@@ -119,6 +119,7 @@ def verify(client, types, model: str, out: dict, cards: dict, ev: str) -> dict:
 STOP = set("""a an the and or of to in on for with by at from as is are was were be been my our we i it this that their
 what how why when where who which do does did you your tell me about time describe example give have has can would""".split())
 OUTCOME_VERBS = ("delivered", "signed", "ensured", "deployed", "architected")
+QUANTIFIERS = ("thousands", "hundreds", "dozens", "millions", "extensive", "over", "more than", "numerous")
 COMMON_CAPS = {"I", "I'm", "I've", "I'd", "My", "The", "This", "That", "We", "In", "At", "As", "When", "My", "Our",
                "Situation", "Task", "Action", "Result", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Context", "STAR", "CAR", "GAP", "By", "No", "It", "So"}
 
@@ -147,10 +148,13 @@ def _slots(c: dict) -> str:
     return " ".join(str(c.get(k, "")) for k in ("project", "her_role", "situation", "task", "action", "result", "metric", "topic"))
 
 
-def post_check(answer: str, cited_text: str) -> tuple[str, list[str]]:
-    """Item 10: deterministic, no second Gemini call. Cut any sentence with a number, named organisation or outcome
-    verb that is not in a cited card slot, owner_facts.md or a cited evidence chunk."""
-    hay = cited_text.lower()
+def post_check(answer: str, chunks: list[str]) -> tuple[str, list[str]]:
+    """Item 10: deterministic, no second Gemini call. Cut any sentence with a number, named organisation, outcome
+    verb or quantifier that is not in a cited card slot, owner_facts.md or a cited evidence chunk. All of a
+    sentence's checked terms must appear together in ONE chunk, so a verb from one source cannot bind to an
+    organisation from another."""
+    low = [c.lower() for c in chunks]
+    hay = "\n".join(low)
     keep, cut = [], []
     for sent in re.split(r"(?<=[.!?])\s+", answer.strip()):
         if not sent:
@@ -166,6 +170,15 @@ def post_check(answer: str, cited_text: str) -> tuple[str, list[str]]:
         for v in OUTCOME_VERBS:
             if re.search(rf"\b{v}\b", sent.lower()) and v not in hay:
                 bad.append(v)
+        for qn in QUANTIFIERS:
+            if re.search(rf"\b{qn}\b", sent.lower()) and qn not in hay:
+                bad.append(qn)
+        if not bad:
+            terms = [t.lower().rstrip(".,+") for t in re.findall(r"\d[\d,.]*", sent)]
+            terms += [w.lower() for i, w in enumerate(words) if i > 0 and w[0].isupper() and w not in COMMON_CAPS]
+            terms += [v for v in OUTCOME_VERBS + QUANTIFIERS if re.search(rf"\b{v}\b", sent.lower())]
+            if terms and not any(all(t in c for t in terms) for c in low):
+                bad.append("terms not together in one cited source: " + ", ".join(dict.fromkeys(terms)))
         (cut if bad else keep).append(sent if not bad else f"{sent}  [unsupported: {', '.join(dict.fromkeys(bad))}]")
     return " ".join(keep), cut
 
@@ -176,7 +189,7 @@ def compose(question: str, evidence: list[dict]) -> dict:
     cited = [_slots(cards[i]) for i in out.get("card_ids", []) if i in cards]
     cited += [evidence[n - 1].get("text", "") for n in out.get("source_numbers", []) if isinstance(n, int) and 0 < n <= len(evidence)]
     out["draft_answer"] = out.get("answer", "")
-    out["answer"], out["cut"] = post_check(out["draft_answer"], owner_facts() + "\n" + "\n".join(cited))
+    out["answer"], out["cut"] = post_check(out["draft_answer"], [owner_facts()] + cited)
     if not out["answer"].strip():
         out["answer"], out["structure"] = "The sources on record do not support an answer to this question.", "GAP"
     return out
