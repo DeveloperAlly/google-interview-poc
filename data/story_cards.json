@@ -106,53 +106,109 @@
       "topic": "program management",
       "project": "FVM Developer Experience and Space Warp Hackathon",
       "her_role": "led",
-      "situation": "I led the developer experience and go-to-market for the Filecoin Virtual Machine launch. I owned the roadmap for this platform for six months before it was released.",
-      "task": "I was tasked with assembling a dedicated team and setting the direction for the developer experience. This required close collaboration with technical and product leadership.",
-      "action": "I designed and ran the developer activation strategy, which included the hackathon, documentation, and grants. I also managed ecosystem partnerships across the network.",
-      "result": "Space Warp, the flagship FVM developer activation event that I designed and ran, drew 1,000+ hackers and 276 submissions.",
+      "situation": "At Protocol Labs and the Filecoin Foundation (Jan 2022 to Nov 2023), I led the developer experience and go-to-market for the Filecoin Virtual Machine, one of the largest smart contract platform launches in Web3. I owned the FVM developer experience roadmap for six months before launch.",
+      "task": "Hire and assemble the FVM developer experience team, and set its direction in close collaboration with technical and product leadership across Protocol Labs and Filecoin Foundation.",
+      "action": "I designed and ran the developer activation strategy for FVM: the hackathon, tutorials, documentation, grants, workshops and the partner ecosystem. I led developer education, the grants programme and ecosystem partnerships across the Protocol Labs network, and represented Filecoin Foundation at ETHGlobal, IPFS Camp, ETH_AI Day and Consensus, including a keynote on verifiable compute on FVM at Filecoin Unleashed, Paris. After launch I moved to the Bacalhau team to integrate FVM with decentralised compute.",
+      "result": "Space Warp, the flagship FVM developer activation event that I designed and ran, drew 1,000+ hackers and 276 submissions. The FVM and Bacalhau integration work that followed became the direct technical origin of Lilypad.",
       "metric": "1,000+ hackers and 276 submissions at Space Warp, the flagship FVM developer activation event.",
       "sources": [
         {
           "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
           "supports": "role",
           "quote": "Led developer experience and go-to-market for the Filecoin Virtual Machine, one of the largest smart contract platform launches in Web3.",
-          "self_reported": true
-        },
-        {
-          "path_or_url": "state/clones/DeveloperAlly/my-content/brand/evidence/achievement-inventory.md",
-          "supports": "situation",
-          "quote": "**Owned the roadmap** for FVM developer experience for six months pre-launch",
-          "self_reported": true
-        },
-        {
-          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_n8n_DevAdvocate_v4.md",
-          "supports": "task",
-          "quote": "Assembled the DX team; set direction in close collaboration with technical and product leadership.",
-          "self_reported": true
-        },
-        {
-          "path_or_url": "state/clones/DeveloperAlly/my-content/brand/evidence/role-functions-and-skills.md",
-          "supports": "action",
-          "quote": "Designed and ran developer activation strategy for FVM: hackathon, tutorials, documentation, grants, workshops, partner ecosystem",
-          "self_reported": true
-        },
-        {
-          "path_or_url": "state/clones/DeveloperAlly/my-content/brand/evidence/achievement-inventory.md",
-          "supports": "action",
-          "quote": "Ran developer education, grants programme, and ecosystem partnerships across the Protocol Labs network",
-          "self_reported": true
-        },
-        {
-          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
-          "supports": "result",
-          "quote": "Designed and ran the Space Warp Hackathon: 1,000+ hackers, 276 submissions, the flagship FVM developer activation event.",
-          "self_reported": true
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md"
         },
         {
           "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
           "supports": "metric",
           "quote": "Designed and ran the Space Warp Hackathon: 1,000+ hackers, 276 submissions, the flagship FVM developer activation event.",
-          "self_reported": true
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
+          "supports": "situation",
+          "quote": "Led developer experience and go-to-market for the Filecoin Virtual Machine, one of the largest smart contract platform launches in Web3.",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_Kraken_DevRel.md",
+          "supports": "situation",
+          "quote": "Protocol Labs · Filecoin Foundation*Jan 2022 – Nov 2023*",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_Kraken_DevRel.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_COTI.md",
+          "supports": "situation",
+          "quote": "Owned the FVM developer experience roadmap for six months pre-launch",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_COTI.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/brand/evidence/role-functions-and-skills.md",
+          "supports": "task",
+          "quote": "Hired FVM developer experience team at Filecoin Foundation for the FVM launch",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/brand/evidence/role-functions-and-skills.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
+          "supports": "task",
+          "quote": "set direction in close collaboration with technical and product leadership across Protocol Labs and Filecoin Foundation",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/brand/evidence/role-functions-and-skills.md",
+          "supports": "action",
+          "quote": "Designed and ran developer activation strategy for FVM: hackathon, tutorials, documentation, grants, workshops, partner ecosystem",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/brand/evidence/role-functions-and-skills.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_COTI.md",
+          "supports": "action",
+          "quote": "Led developer education, grants programme, and ecosystem partnerships across the Protocol Labs network.",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_COTI.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
+          "supports": "action",
+          "quote": "ETHGlobal, IPFS Camp, ETH_AI Day, Consensus, representing Filecoin Foundation",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Copy - Resume.md",
+          "supports": "action",
+          "quote": "Keynote: verifiable compute on FVM",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Copy - Resume.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_COTI.md",
+          "supports": "action",
+          "quote": "Transitioned to the Bacalhau team post-FVM to integrate FVM with decentralised compute",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_COTI.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
+          "supports": "result",
+          "quote": "Designed and ran the Space Warp Hackathon: 1,000+ hackers, 276 submissions, the flagship FVM developer activation event.",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_COTI.md",
+          "supports": "result",
+          "quote": "the direct technical origin of Lilypad",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_COTI.md"
         }
       ],
       "self_reported_slots": [
@@ -183,10 +239,10 @@
       "topic": "technical execution",
       "project": "Lilypad v0 bridge relayer (at Protocol Labs, Jan 2022 to Nov 2023, before Lilypad was founded)",
       "her_role": "built",
-      "situation": "At Protocol Labs and the Filecoin Foundation (Jan 2022 to Nov 2023), Lilypad v0 was a single Filecoin smart contract proof-of-concept, built on the Bacalhau team, as part of the FVM-Bacalhau integration.",
+      "situation": "At Protocol Labs and the Filecoin Foundation (Jan 2022 to Nov 2023), Lilypad v0 was a single Filecoin smart contract proof-of-concept, built on the Bacalhau team, as part of the FVM-Bacalhau integration. After the FVM launch I had moved to the Bacalhau team to integrate FVM with decentralised compute.",
       "task": "Validate the core thesis that trustless, off-chain GPU compute could be triggered from on-chain primitives.",
-      "action": "I wrote the initial contracts and wired up the first Dockerized model execution triggers.",
-      "result": "A bridge relayer that enabled compute jobs from an FVM smart contract on Bacalhau, the direct technical origin of the company I later founded.",
+      "action": "Hands-on, I built the original proof-of-concept bridges between FVM smart contracts and decentralised compute clusters (lilypad-v0, Bacalhau-based oracles). I wrote the initial contracts and wired up the first Dockerized model execution triggers, and presented the work as Project Lilypad: bringing off-chain compute to the FVM.",
+      "result": "A bridge relayer that enabled compute jobs from an FVM smart contract on Bacalhau, the direct technical origin of the company I later founded. On the same stack I built and launched Waterlily.ai (early 2023), the first AI-generated art platform paying on-chain royalties to artists using FVM smart contracts and Bacalhau distributed compute; it was covered by SiliconANGLE on launch, and its technical tutorial was a HackerNoon Top Story.",
       "metric": "missing",
       "sources": [
         {
@@ -205,7 +261,8 @@
           "path_or_url": "state/clones/DeveloperAlly/my-content/brand/evidence/achievement-inventory.md",
           "supports": "situation",
           "quote": "took a single Filecoin smart contract proof-of-concept (Lilypad v0, built on the Bacalhau team at Protocol Labs)",
-          "self_reported": true
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/brand/evidence/achievement-inventory.md"
         },
         {
           "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
@@ -229,7 +286,35 @@
           "path_or_url": "state/clones/DeveloperAlly/my-content/brand/evidence/achievement-inventory.md",
           "supports": "result",
           "quote": "**Lilypad v0** — bridge relayer enabling compute jobs from an FVM smart contract on Bacalhau; the direct technical origin of the company",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/brand/evidence/achievement-inventory.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_COTI.md",
+          "supports": "situation",
+          "quote": "Transitioned to the Bacalhau team post-FVM to integrate FVM with decentralised compute",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_COTI.md"
+        },
+        {
+          "path_or_url": "state/drive/Lilypad Architecture & Engineering Direction: Executive Leadership Guide.docx",
+          "supports": "action",
+          "quote": "building the original proof-of-concept bridges between Filecoin Virtual Machine (FVM) smart contracts and decentralized compute clusters (lilypad-v0, Bacalhau-based oracles)",
           "self_reported": true
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/brand/evidence/achievement-inventory.md",
+          "supports": "action",
+          "quote": "bringing off-chain compute to the FVM",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/brand/evidence/achievement-inventory.md"
+        },
+        {
+          "path_or_url": "state/clones/DeveloperAlly/my-content/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md",
+          "supports": "result",
+          "quote": "Built and launched Waterlily.ai (early 2023), the first AI-generated art platform paying on-chain royalties to artists using FVM smart contracts and Bacalhau distributed compute. Covered by SiliconANGLE on launch. HackerNoon Top Story on the technical tutorial.",
+          "self_reported": true,
+          "url": "https://github.com/DeveloperAlly/my-content/blob/HEAD/resumes/Ally_Haire_Resume_NVIDIA_ANZ_DevRel.md"
         }
       ],
       "self_reported_slots": [
