@@ -1710,7 +1710,7 @@
       "topic": "degree or equivalent practical experience",
       "project": "Engineering and computer science degrees, University of Wollongong",
       "her_role": "studied",
-      "situation": "I hold a Bachelor of Engineering in Mechatronics and a Bachelor of Computer Science with Honours from the University of Wollongong, 2012 to 2017.",
+      "situation": "I hold a Bachelor of Engineering in Mechatronics and a Bachelor of Computer Science with Honours from the University of Wollongong, 2012 to 2017, and before that a BA in Politics, Philosophy and Anthropology from ANU, 1999 to 2001.",
       "task": "missing",
       "action": "During the degrees I held a New Colombo Plan Scholarship in robotics in China, a competitive Australian Government scholarship, and in 2017 became a startup founder through a hackathon win, in the iAccelerate incubator programme at the University of Wollongong.",
       "result": "That grounding led to 10+ years in tech, including 4+ years of hands-on Developer Relations across IBM and Protocol Labs before founding Lilypad.",
@@ -1721,18 +1721,6 @@
           "url": "",
           "self_reported": true,
           "supports": "role"
-        },
-        {
-          "path_or_url": "career evidence (self-reported)",
-          "url": "",
-          "self_reported": true,
-          "supports": "situation"
-        },
-        {
-          "path_or_url": "CV (self-reported)",
-          "url": "",
-          "self_reported": true,
-          "supports": "situation"
         },
         {
           "path_or_url": "CV (self-reported)",
@@ -1751,6 +1739,25 @@
           "url": "",
           "self_reported": true,
           "supports": "result"
+        },
+        {
+          "path_or_url": "career evidence (self-reported)",
+          "url": "",
+          "self_reported": true,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "CV (self-reported)",
+          "url": "",
+          "self_reported": true,
+          "supports": "situation"
+        },
+        {
+          "path_or_url": "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx",
+          "url": "",
+          "quote": "BA Politics, Philosophy, Anthropology, ANU (1999-2001).",
+          "self_reported": true,
+          "supports": "situation"
         }
       ],
       "self_reported_slots": [
@@ -1759,16 +1766,17 @@
         "result"
       ],
       "gaps": {
-        "ba": "The corroboration ledger names a BA at ANU in Philosophy/Politics/French, which differs from other records; the card leaves the BA out until you confirm the majors.",
         "story": "A degree is a credential, not a story. For 'applied CS fundamentals to a customer problem', point to S9 (zero-cost redesign) or S13 (upfront design).",
-        "task_metric": "No task or metric applies to a degree; both stay missing."
+        "task_metric": "No task or metric applies to a degree; both stay missing.",
+        "ba_note": "Older resumes and the achievement inventory list the ANU BA majors as Philosophy, Politics, French; the card follows the CV for this role (Politics, Philosophy, Anthropology), confirmed by the coordinator."
       },
       "sources_read": [
         "career evidence (self-reported)",
-        "CV (self-reported)"
+        "CV (self-reported)",
+        "state/drive/Google AI Outcome Customer Engineer: job posting, recruiter email, cover letter and CV (text).docx"
       ],
       "sources_absent": [],
-      "reviewed": "A2e 2026-10-23: new card, every quote verified verbatim by story_cards.verify"
+      "reviewed": "A2e 2026-10-23: new card, every quote verified verbatim by story_cards.verify; ANU BA added from the CV"
     }
   ]
 }

@@ -15,6 +15,7 @@ Settled by the owner in `state/owner_facts.md` (overrides every other source): L
 | Nexus (this repo) | owner_facts: "I built and led it, directing AI agents that wrote the code" | S4, S5, S9, S11, S12, S13, S15: **led** |
 | Geo-Monitor (gamerslab repo) | Portfolio document, role not stated in words | S14: **built** |
 | University of Wollongong | BE (Mechatronics) / BCompSci (Hons), 2012 to 2017 (CV, corroboration ledger) | S16: **studied** |
+| Australian National University | BA Politics, Philosophy, Anthropology, 1999 to 2001 (CV) | S16: **studied** |
 
 ## Gap questions
 
@@ -25,7 +26,7 @@ Settled by the owner in `state/owner_facts.md` (overrides every other source): L
 - **S8 IBM:** did you architect, build or lead the BHP and Telstra solutions and the NSW Police and Defence Force PoCs? What did each account need? Did any PoC convert?
 - **S10 Tufts:** which model was deployed: AlphaFold 2 (your talk notes) or ColabFold (the Lilypad blog, written by another author)? Your LinkedIn draft says "with Dell and Tufts": was Dell part of it? The draft also says "Nobody on my team wrote it": superseded by owner_facts? Any figure (runs, time to deploy)? Metric stays missing until sourced.
 - **R12 (S14), honest partial gap:** the posting names LangGraph, AutoGen and CrewAI. No source shows any of the three. Closest real experience: n8n as the orchestration hub in Geo-Monitor (S14), n8n agent orchestration on your resumes, and the LangChain-compatible anura gateway (S1). Have you used any of the three?
-- **R8 (S16):** the corroboration ledger names a BA at ANU in Philosophy/Politics/French; other records differ on the majors. The card omits the BA until you confirm.
+- **R8 (S16):** settled. The ANU BA (Politics, Philosophy, Anthropology, 1999 to 2001) comes from the CV for this role; older resumes say French in place of Anthropology.
 - **R19, R29, R23 (S13) and R26 (S15):** the customer is your own GitHub estate in a POC. For an external enterprise example the closest are S7 (Dell) and S8 (IBM ANZ), both self-reported.
 - **R15 (S10):** added to the Tufts and Hugging Face card: you hired, paid and directed the researchers (owner_facts).
 - **S11:** was any field finding (F1 to F11) filed with Google or acted on?
