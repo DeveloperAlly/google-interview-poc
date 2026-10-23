@@ -271,11 +271,26 @@ def qmap() -> dict:
         for st in q.get("stories") or []:
             for k in ("canonical_project", "why", "project"):
                 if st.get(k):
-                    st[k] = scrub_private(st[k])
+                    st[k] = scrub_private(st[k]).replace("DualA4000 private model gateway", "Private model gateway")
     rank = {"full": 0, "partial": 1, "needs owner": 2}
-    for q in out.values():  # full before partial before needs owner; stable, so the map's order holds inside a group
+    global QMAP_DEDUPED
+    QMAP_DEDUPED = []
+    for qid, q in out.items():  # full before partial before needs owner; stable, so the map's order holds inside a group
         q["stories"] = sorted(q.get("stories") or [], key=lambda st: rank.get(st.get("fit"), 1))
+        seen, keep = set(), []
+        for st in q["stories"]:  # one card per canonical_project per question; the higher-ranked one stays
+            key = re.sub(r"\W+", " ", str(st.get("canonical_project") or st.get("project") or st.get("story_ref"))).strip().lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            keep.append(st)
+        if len(keep) < len(q["stories"]):
+            QMAP_DEDUPED.append(qid)
+        q["stories"] = keep
     return out
+
+
+QMAP_DEDUPED: list[str] = []
 
 
 _PRIV_RE = None
@@ -684,7 +699,8 @@ def render_card(card: dict, st: dict | None = None) -> dict:
                 srcs.append({"n": "card", "kind": "card source", "repo": "", "path": u, "url": u if u.startswith("https://") else ""})
     text = scrub_private(text)
     return {"story_ref": st.get("story_ref") or card.get("id"), "card_ids": [card.get("id")],
-            "project": scrub_private(st.get("canonical_project") or card.get("canonical_project") or card.get("project")),
+            "project": scrub_private(st.get("canonical_project") or card.get("canonical_project") or card.get("project")).replace(
+                "DualA4000 private model gateway", "Private model gateway"),
             "her_role": card.get("her_role"), "role_label": card.get("role_raw") or card.get("her_role"),  # card's own role, same everywhere
             "fit": st.get("fit"), "why": st.get("why"),
             "structure": "STAR", "answer": text, "words": len(text.split()), "sources": srcs, "tailored": False,
