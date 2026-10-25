@@ -57,7 +57,7 @@ Builders are `google_corpus.py` and `docs_corpus.py`. The query layer is `knowle
 facts_layer.py); folding them into the main answer is for the integrator.
 
 Work-docs include rule: professional project and work material only. Left out:
-- legal and financial documents (SAFEs, warrants, board consents, employment agreements, dissolution);
+- legal, corporate, financial and employment documents;
 - the excluded positioning decks;
 - tailored CVs and cover letters;
 - interview prep;
