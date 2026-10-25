@@ -41,6 +41,50 @@ reconcile.py (documents.list vs manifest)   eval.py (real search calls, recall@5
 | D8 | Scan the unescaped text, not the HTML | Scan what is uploaded | HTML entity escaping hid 32 of 47 findings in the pilot (47 raw vs 15 in HTML). Both copies are now scanned and both must be clean |
 | D9 | Eligibility: tracked files only (so `.gitignore` holds), no binaries, lockfiles, vendored or generated code, nothing over 200 KB | Index everything | Platform limit is 200 MB; 200 KB is a quality line. Files over it were data dumps or generated, not authored code |
 
+## Knowledge stores: evidence, work docs, Google reference
+
+Three Agent Search apps, queried separately so that Google's material can never be mistaken for her experience.
+
+| App | Store | Holds | Cited as |
+|---|---|---|---|
+| nexus-lite | ds-code-lite, ds-prs-lite | Her repos, PRs, issues, my-content | [E#] evidence |
+| nexus-docs | ds-docs-lite | 38 Drive work docs (Lilypad Network, Livepeer) and the Notion speaking log | [E#] evidence |
+| nexus-google | ds-google-lite | 53 Google docs: Next '26 talk transcripts, their summaries, Google Cloud case studies | [G#] reference only |
+
+All three use the D4 to D6 settings: digital parser, no chunking, inline import, Enterprise tier with no LLM add-on.
+Builders are `google_corpus.py` and `docs_corpus.py`. The query layer is `knowledge.py`, with a page at
+`knowledge_server.py` (127.0.0.1:8766). None of these touch the frozen answer path (server.py, compose.py,
+facts_layer.py); folding them into the main answer is for the integrator.
+
+Work-docs include rule: professional project and work material only. Left out:
+- legal and financial documents (SAFEs, warrants, board consents, employment agreements, dissolution);
+- the excluded positioning decks;
+- tailored CVs and cover letters;
+- interview prep;
+- templates and brand assets;
+- third-party papers;
+- contact lists;
+- personal and HR documents.
+
+The extraction manifest lists every doc and why any was skipped. Both the raw text and the HTML went through gitleaks: zero findings.
+
+| # | Decision | Alternatives considered | Why |
+|---|---|---|---|
+| D10 | A separate app for Google reference material | Add it to nexus-lite | A data store attaches to one app, and keeping reference apart makes "never evidence" structural rather than a prompt rule |
+| D11 | A separate app for work docs | Add them to nexus-lite | Leaves the main product's index unchanged until the integrator chooses to merge |
+| D12 | Plan per-store queries before searching | Send the question to every store | One question often asks about her and about Google. The whole sentence retrieved research notes on the evidence side |
+| D13 | Pass the passage of a long doc that best matches the question, not its first 3,000 characters | Truncate | The relevant passage of a long doc was usually past the cut |
+| D14 | Deterministic checks before an answer is returned: it must have inline citations, and a sentence naming an employer must cite [F] or a source that names that employer; otherwise one or two retries with the problem stated | Prompt rules only | Prompt rules alone still let unrelated work be framed as Lilypad |
+
+Acceptance results, 26 Oct:
+- 15/15 Google-platform questions cite a Google doc, with one in the top 5.
+- 19/20 experience questions present no Google material as hers. The failure was a first-person view cited only to
+  Google. That pattern is now a composer check (D14), and the question passed 3 of 3 re-runs.
+- 10/10 sampled Google docs are retrieved in the top 5 by a phrase from their own text.
+- 8/8 natural questions retrieve the expected work doc in the top 5.
+- 3/4 previously weak questions now cite a work doc. The fourth, developer community, is supported by profile evidence instead.
+- Still weak: "measured a business outcome". It retrieves her job-search tooling rather than the investor report.
+
 ## Identity and access
 
 - POC: the operator's Google user via Application Default Credentials, with the quota project set so client

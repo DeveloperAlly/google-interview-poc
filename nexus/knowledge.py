@@ -199,6 +199,9 @@ def check(answer: str, texts: dict, has_sources: bool) -> list[str]:
         if re.search(r"\bF\]|\[F\b|Owner", sent):
             continue
         cited = re.findall(r"E(\d+)", sent)
+        if re.search(r"\b(I|I've|I'm|my|we|our)\b", sent) and re.search(r"G\d", sent) and not cited:
+            out.append(f'This sentence makes a first-person claim supported only by a Google source: "{sent[:160]}". '
+                       f'Attribute the point to Google without "I"/"we", or cite her own source.')
         for org, pat in ORG.items():
             if re.search(rf"\b{org}", sent) and cited and not any(
                     re.search(pat, texts.get(f"E{c}", ""), re.I) for c in cited):

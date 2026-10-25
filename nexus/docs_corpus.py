@@ -18,6 +18,14 @@ ERA = {"lilypad": "Lilypad Network (Founder & CEO, Sep 2023 to Oct 2025)",
        "notion": "Speaking and developer relations log"}
 
 
+def clean(t: str) -> str:
+    """Drive's Markdown rendering: drop backslash escapes, empty bold headings and the "- ," spacer lines it emits."""
+    t = re.sub(r"\\+([\\`*_{}\[\]()#+\-.!<>|])", r"\1", t)
+    t = re.sub(r"(?m)^\s*(?:[-*]|\d+\.|#+)\s*(?:\*\*)?,(?:\*\*)?\s*$", "", t)
+    t = re.sub(r"(?m)^\s*<!-- end list -->\s*$", "", t)
+    return re.sub(r"\n{3,}", "\n\n", t).strip()
+
+
 def doc_id(key: str) -> str:
     return "wd-" + hashlib.sha1(key.encode()).hexdigest()[:32]
 
@@ -36,7 +44,7 @@ def main():
         t = p.read_text(encoding="utf-8", errors="replace")
         first, _, body = t.partition("\n")
         title = first.removeprefix("TITLE:").strip() or p.stem
-        body = re.sub(r"\n{3,}", "\n\n", body).strip()
+        body = clean(body)
         if p.stem.startswith("notion-"):
             group, url, fid = "notion", "", p.stem
         else:
